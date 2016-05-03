@@ -8,7 +8,8 @@
 bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	assert(getScene() != nullptr);
 
-	_rng.seed(1234);
+	_size = size;
+	_numStartBlocks = numStartBlocks;
 
 	// Rendering
 	std::shared_ptr<pge::Asset> asset;
@@ -18,26 +19,12 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 
 	_pBlockModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
-	// Generate a random map
-	_size = size;
+	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/bot.obj", asset))
+		return false;
 
-	_blocks.clear();
-	_blocks.assign(size * size, 0);
+	_pAgentModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
-	std::uniform_int_distribution<int> blockDist(0, _blocks.size() - 1);
-
-	for (int i = 0; i < numStartBlocks; i++) {
-		int randSpot = blockDist(_rng);
-
-		_blocks[randSpot]++;
-	}
-
-	_agentPosition = blockDist(_rng);
-
-	_action = 0;
-	_ticksPerAction = 0;
-	_ticks = 0;
-	_reward = 0.0f;
+	reset();
 
 	_capture = false;
 
@@ -59,15 +46,166 @@ void SceneObjectBlockGame::onAdd() {
 }
 
 void SceneObjectBlockGame::reset() {
+	// Generate a random map
+	_rng.seed(_gameSeed);
 
+	_blocks.clear();
+	_blocks.assign(_size * _size, 0);
+
+	std::uniform_int_distribution<int> blockDist(0, _blocks.size() - 1);
+
+	for (int i = 0; i < _numStartBlocks; i++) {
+		int randSpot = blockDist(_rng);
+
+		_blocks[randSpot]++;
+	}
+
+	_agentPosition = blockDist(_rng);
+
+	_action = 0;
+	_ticksPerAction = 5;
+	_ticks = 0;
+	_reward = 0.0f;
 }
 
 void SceneObjectBlockGame::act() {
-	
+	int agentX = _agentPosition % _size;
+	int agentY = _agentPosition / _size;
+
+	int oldPosX = agentX;
+	int oldPosY = agentY;
+
+	switch (_action) {
+	// Moves
+	case 0:
+		agentY++;
+
+		break;
+	case 1:
+		agentY--;
+
+		break;
+	case 2:
+		agentX++;
+
+		break;
+	case 3:
+		agentX--;
+
+		break;
+	// Pushes
+	case 4:
+		// If is valid push direction
+		if (agentY + 2 < _size) {
+			int &pushHeight = _blocks[(agentX) + (agentY + 1) * _size];
+			int &targetHeight = _blocks[(agentX) + (agentY + 2) * _size];
+
+			// If a block exists
+			if (pushHeight > 0) {
+				// If on same level as agent
+				if (_blocks[_agentPosition] - 1 == pushHeight) {
+					// If not too high
+					if (targetHeight <= pushHeight + 1) {
+						// Push over
+						pushHeight--;
+						targetHeight++;
+					}
+				}
+			}
+		}
+
+		break;
+
+	case 5:
+		// If is valid push direction
+		if (agentY - 2 >= 0) {
+			int &pushHeight = _blocks[(agentX)+(agentY - 1) * _size];
+			int &targetHeight = _blocks[(agentX)+(agentY - 2) * _size];
+
+			// If a block exists
+			if (pushHeight > 0) {
+				// If on same level as agent
+				if (_blocks[_agentPosition] - 1 == pushHeight) {
+					// If not too high
+					if (targetHeight <= pushHeight + 1) {
+						// Push over
+						pushHeight--;
+						targetHeight++;
+					}
+				}
+			}
+		}
+
+		break;
+
+	case 6:
+		// If is valid push direction
+		if (agentX + 2 < _size) {
+			int &pushHeight = _blocks[(agentX + 1)+(agentY) * _size];
+			int &targetHeight = _blocks[(agentX + 2)+(agentY) * _size];
+
+			// If a block exists
+			if (pushHeight > 0) {
+				// If on same level as agent
+				if (_blocks[_agentPosition] - 1 == pushHeight) {
+					// If not too high
+					if (targetHeight <= pushHeight + 1) {
+						// Push over
+						pushHeight--;
+						targetHeight++;
+					}
+				}
+			}
+		}
+
+		break;
+
+	case 7:
+		// If is valid push direction
+		if (agentX - 2 >= 0) {
+			int &pushHeight = _blocks[(agentX - 1) + (agentY)* _size];
+			int &targetHeight = _blocks[(agentX - 2) + (agentY)* _size];
+
+			// If a block exists
+			if (pushHeight > 0) {
+				// If on same level as agent
+				if (_blocks[_agentPosition] - 1 == pushHeight) {
+					// If not too high
+					if (targetHeight <= pushHeight + 1) {
+						// Push over
+						pushHeight--;
+						targetHeight++;
+					}
+				}
+			}
+		}
+
+		break;
+	}
+
+	// See if new position is valid
+	if (agentX < 0 || agentX >= _size || agentY < 0 || agentY >= _size) {
+		agentX = oldPosX;
+		agentY = oldPosY;
+	}
+
+	// If moved, but new position is too high
+	if (agentX != oldPosX || agentY != oldPosY) {
+		if (_blocks[agentX + agentY * _size] > _blocks[oldPosX + oldPosY * _size] + 1) {
+			// Reset position
+			agentX = oldPosX;
+			agentY = oldPosY;
+		}
+	}
+
+	// Write out new position
+	_agentPosition = agentX + agentY * _size;
+
+	_reward = _blocks[_agentPosition];
 }
 
 void SceneObjectBlockGame::synchronousUpdate(float dt) {
-	if (_ticks >= _ticksPerAction) {
+	if (_ticks >= _ticksPerAction || !getRenderScene()->_renderingEnabled) {
 		_ticks = 0;
 
 		std::array<char, _maxBatchSize> buffer;
@@ -202,10 +340,23 @@ void SceneObjectBlockGame::deferredRender() {
 		float yf = y - _size * 0.5f;
 
 		for (int j = 0; j < _blocks[i]; j++) {
-			pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf , j + 0.9f, yf));
+			pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf, j + 0.9f, yf));
 
 			_pBlockModel->render(pBatcher, transform);
 		}
+	}
+
+	// Render agent
+	{
+		int x = _agentPosition % _size;
+		int y = _agentPosition / _size;
+
+		float xf = x - _size * 0.5f;
+		float yf = y - _size * 0.5f;
+
+		pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf, _blocks[_agentPosition] + 0.9f, yf));
+
+		_pAgentModel->render(pBatcher, transform);
 	}
 }
 

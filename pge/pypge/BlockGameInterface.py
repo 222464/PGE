@@ -45,7 +45,7 @@ class BlockGameEnv(gym.Env):
 		low = np.array([0,0,0,0,0,0,0,0,0])
 		high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
 
-		self.action_space = spaces.Discrete(4)
+		self.action_space = spaces.Discrete(8)
 		self.observation_space = spaces.Box(low, high)
 
 		self.state = np.zeros((9))
@@ -56,7 +56,7 @@ class BlockGameEnv(gym.Env):
 		self.capture = True
 		
 	def _step(self, action):
-		assert action>=0 and action<4, "%r (%s) invalid"%(action, type(action))
+		assert action>=0 and action<8, "%r (%s) invalid"%(action, type(action))
 
 		out = ''
 		
