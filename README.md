@@ -1,5 +1,7 @@
 #README
 
+![Image of BlockGame-v0](http://i1218.photobucket.com/albums/dd401/222464/PGE_LOGO.png)
+
 ## PGE - Parallel Game Engine
 
 An engine intended for fast and pretty 3D artficial intelligence experiments.
@@ -31,7 +33,7 @@ Typically, you can manually define an entry in CMake with the format `<library n
 When eventually the configuration does not result in errors you can hit generate. This will generate files necessary for your compiler.
 
 To use the engine with the OpenAI Gym, you will need to have the Gym installed. Follow the instructions on the OpenAI Gym site to do this.
-Once installed, all you need to do to use the PGE environments with the Gym is copy the PGE executable to the root directory (where CMakeLists.txt is), and create you Python experiment code such that it also starts from this directory.
+Once installed, all you need to do to use the PGE environments with the Gym is copy the PGE executable to the root directory (where CMakeLists.txt is), and create your Python experiment code such that it also starts from this directory.
 You can then import pypge (Python PGE), which will automatically register the environment with the Gym. The python bindings support Python 2.7, but 3 should work as well.
 
 Currently, there is one environment, but there are more to come!
