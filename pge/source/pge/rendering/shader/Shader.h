@@ -60,7 +60,7 @@ namespace pge {
 		GLuint _lastAttachment;
 
 		void checkProgram() {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 			GLint programID;
 			glGetIntegerv(GL_CURRENT_PROGRAM, &programID);
 

@@ -7,7 +7,7 @@
 #include <pge/rendering/bufferobjects/VBO.h>
 #include <pge/rendering/material/Material.h>
 
-#define D3D_STATIC_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#define PGE_STATIC_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
 namespace pge {
 	typedef GLushort staticMeshIndexType;

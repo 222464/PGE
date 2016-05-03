@@ -23,9 +23,9 @@ void pge::sfmloglSetup() {
 	glGenVertexArrays(1, &_vaoID);
 	glBindVertexArray(_vaoID);
 
-	glEnableVertexAttribArray(D3D_ATTRIB_POSITION);
-	glEnableVertexAttribArray(D3D_ATTRIB_NORMAL);
-	glEnableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
+	glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 	glFrontFace(GL_CCW);
 

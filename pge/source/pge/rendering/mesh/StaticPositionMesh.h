@@ -6,7 +6,7 @@
 #include <pge/rendering/SFMLOGL.h>
 #include <pge/rendering/bufferobjects/VBO.h>
 
-#define D3D_STATIC_POSITION_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#define PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
 namespace pge {
 	typedef GLushort staticPositionMeshIndexType;

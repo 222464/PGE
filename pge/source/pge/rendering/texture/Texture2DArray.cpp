@@ -22,7 +22,7 @@ bool Texture2DArray::createAsset(const std::string &name) {
 	}
 
 	if (names.empty()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not find any texture names in " << name << std::endl;
 #endif
 		return false;
@@ -37,7 +37,7 @@ bool Texture2DArray::createAsset(const std::string &name) {
 		sf::Image image;
 
 		if (!image.loadFromFile(names[i])) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 			std::cerr << "Could not load image file " << names[i] << std::endl;
 #endif
 			return false;
@@ -51,7 +51,7 @@ bool Texture2DArray::createAsset(const std::string &name) {
 		}
 		else {
 			if (image.getSize() != _size) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Image " << names[i] << " doesn't match the dimensions of the array!" << std::endl;
 #endif
 				return false;
@@ -69,7 +69,7 @@ bool Texture2DArray::createAsset(const std::string &name) {
 
 	glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	return true;
 }

@@ -16,7 +16,7 @@ bool StaticPositionModel::loadFromOBJ(const std::string &fileName, AABB3D &aabb,
 	std::ifstream fromFile(fileName);
 
 	if (!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not load model file " << fileName << std::endl;
 #endif
 		return false;

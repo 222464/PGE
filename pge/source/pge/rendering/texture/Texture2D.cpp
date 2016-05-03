@@ -43,7 +43,7 @@ bool Texture2D::createAsset(const std::string &name) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	return true;
 }

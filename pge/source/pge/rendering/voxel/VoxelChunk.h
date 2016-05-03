@@ -6,7 +6,7 @@
 
 #include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
 
-#define D3D_VOXEL_CHUNK_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#define PGE_VOXEL_CHUNK_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
 namespace pge {
 	typedef GLushort voxelChunkMeshIndexType;

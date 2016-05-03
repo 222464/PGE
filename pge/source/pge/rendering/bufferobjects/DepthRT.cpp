@@ -10,7 +10,7 @@ void DepthRT::create(unsigned int width, unsigned int height, Precision precisio
 	_width = width;
 	_height = height;
 
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	int result;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &result);
 	size_t uResult = static_cast<unsigned>(result);
@@ -48,7 +48,7 @@ void DepthRT::create(unsigned int width, unsigned int height, Precision precisio
 	glReadBuffer(GL_NONE);
 
 	// Check that the buffer was properly created
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cerr << "Could not create depth RT!" << std::endl;
 #endif

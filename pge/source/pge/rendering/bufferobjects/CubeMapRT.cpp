@@ -7,7 +7,7 @@
 using namespace pge;
 
 void CubeMapRT::create(unsigned int resolution, GLuint internalFormat, GLuint textureFormat, GLuint dataType) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	int result;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &result);
 	size_t uResult = static_cast<unsigned>(result);
@@ -48,7 +48,7 @@ void CubeMapRT::create(unsigned int resolution, GLuint internalFormat, GLuint te
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
 	// Check that the buffer was properly created
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cerr << "Could not create cube map FBO!" << std::endl;
 #endif
@@ -63,7 +63,7 @@ void CubeMapRT::create(unsigned int resolution, GLuint internalFormat, GLuint te
 	_baseViewRotations[4] = Quaternion::getFromMatrix(Matrix4x4f::cameraDirectionMatrix(Vec3f(0.0f, 0.0f, 1.0f), Vec3f(0.0f, -1.0f, 0.0f)));
 	_baseViewRotations[5] = Quaternion::getFromMatrix(Matrix4x4f::cameraDirectionMatrix(Vec3f(0.0f, 0.0f, -1.0f), Vec3f(0.0f, -1.0f, 0.0f)));
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void CubeMapRT::destroy() {

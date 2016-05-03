@@ -213,7 +213,7 @@ void SceneObjectLighting::postRender() {
 
 		getRenderScene()->renderNormalizedQuad();
 
-		D3D_GL_ERROR_CHECK();
+		PGE_GL_ERROR_CHECK();
 	}
 
 	_directionalLightShadowedShader->bind();
@@ -232,7 +232,7 @@ void SceneObjectLighting::postRender() {
 		Shader::validate(_directionalLightShadowedShader->getProgramID());
 		getRenderScene()->renderNormalizedQuad();
 
-		D3D_GL_ERROR_CHECK();
+		PGE_GL_ERROR_CHECK();
 	}
 
 	glEnable(GL_DEPTH_TEST);

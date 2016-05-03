@@ -29,7 +29,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 	std::ifstream fromFile(fileName);
 
 	if (!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not load model file " << fileName << std::endl;
 #endif
 		return false;
@@ -76,7 +76,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 
 			ss >> s >> t;
 
-#ifdef D3D_OBJ_FLIP_TEXCOORD_Y
+#ifdef PGE_OBJ_FLIP_TEXCOORD_Y
 			t = 1.0f - t;
 #endif
 
@@ -181,7 +181,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 			std::unordered_map<std::string, size_t>::iterator it = matReferences.find(matName);
 
 			if (it == matReferences.end()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Could not find material \"" << matName << "\"!" << std::endl;
 #endif
 				return false;
@@ -198,7 +198,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 			fullMaterialLibraryName << rootName << libName;
 
 			if (!Material::loadFromMTL(fullMaterialLibraryName.str(), &textureManager, matReferences, _materials)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;

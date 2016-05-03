@@ -131,7 +131,7 @@ void RenderScene::render(TextureRT &target) {
 	// Copy GBuffer to render target
 	_gBuffer.copyEffectToRenderTarget(target);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::renderToMainFramebuffer() {
@@ -182,7 +182,7 @@ void RenderScene::renderToMainFramebuffer() {
 	// Copy GBuffer to render target
 	_gBuffer.copyEffectToMainFramebuffer();
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::frame(float dt) {
@@ -298,7 +298,7 @@ void RenderScene::useShader(Shader* pShader) {
 		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::useShader(GBufferRenderShaderType type) {
@@ -310,7 +310,7 @@ void RenderScene::useShader(GBufferRenderShaderType type) {
 		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::useShader(Material &material) {
@@ -343,7 +343,7 @@ void RenderScene::useShader(Material &material) {
 		Shader::getCurrentShader()->bindShaderTextures();
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::updateShaderUniforms() {
@@ -358,7 +358,7 @@ void RenderScene::updateShaderUniforms() {
 	_gBufferRenderShaders[_heightNormal]->bind();
 	_gBufferRenderShaders[_heightNormal]->setUniformmat4("pgeViewModel", _renderCamera._projectionMatrix);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::setTransform(const Matrix4x4f &transform) {
@@ -376,7 +376,7 @@ void RenderScene::setTransform(const Matrix4x4f &transform) {
 	Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
 	Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::createMaterialInterface(UBOShaderInterface &materialInterface, Shader* pShader) {

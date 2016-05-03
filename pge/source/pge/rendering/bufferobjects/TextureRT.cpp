@@ -10,7 +10,7 @@ void TextureRT::create(unsigned int width, unsigned int height, bool useDepthAtt
 	_width = width;
 	_height = height;
 
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	int result;
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &result);
 	size_t uResult = static_cast<unsigned>(result);
@@ -30,7 +30,7 @@ void TextureRT::create(unsigned int width, unsigned int height, bool useDepthAtt
 	// Create empty texture
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, _width, _height, 0, textureFormat, dataType, nullptr);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	// Unbind texture
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -42,7 +42,7 @@ void TextureRT::create(unsigned int width, unsigned int height, bool useDepthAtt
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texID, 0); // The 0 is for mip map levels, we aren't using any
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	// If depth buffer attachment was desired
 	if (useDepthAttachment) {
@@ -59,13 +59,13 @@ void TextureRT::create(unsigned int width, unsigned int height, bool useDepthAtt
 
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-		D3D_GL_ERROR_CHECK();
+		PGE_GL_ERROR_CHECK();
 	}
 	else
 		_depthID = 0; // Unused
 
 	// Check that the buffer was properly created
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cerr << "Could not create FBO!" << std::endl;
 #endif

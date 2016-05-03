@@ -6,7 +6,7 @@
 #include <pge/scene/RenderScene.h>
 
 // Uncomment line below to flip texture coordinates across Y
-#define D3D_OBJ_FLIP_TEXCOORD_Y
+#define PGE_OBJ_FLIP_TEXCOORD_Y
 
 namespace pge {
 	struct StaticMeshIndexSet {

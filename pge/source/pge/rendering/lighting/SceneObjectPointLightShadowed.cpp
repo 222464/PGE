@@ -161,7 +161,7 @@ void SceneObjectPointLightShadowed::preRender() {
 			getRenderScene()->_shaderSwitchesEnabled = true;
 			getRenderScene()->_renderingShadows = false;
 
-			D3D_GL_ERROR_CHECK();
+			PGE_GL_ERROR_CHECK();
 		}
 	}
 }

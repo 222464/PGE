@@ -15,7 +15,7 @@ void UBOShaderInterface::create(const std::string &uniformBlockName, Shader* pSh
 
 	glGetActiveUniformBlockiv(_pShader->getProgramID(), _blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &_blockSize);
 
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	GLint numBlockUniforms;
 	glGetActiveUniformBlockiv(_pShader->getProgramID(), _blockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &numBlockUniforms);
 	assert(numBlockUniforms == numUniformNames);
@@ -37,7 +37,7 @@ void UBOShaderInterface::create(const std::string &uniformBlockName, Shader* pSh
 
 	glUniformBlockBinding(_pShader->getProgramID(), _blockIndex, _bufferBindIndex);
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void UBOShaderInterface::setUpBuffer(VBO &buffer) const {

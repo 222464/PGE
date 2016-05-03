@@ -88,7 +88,7 @@ void GBuffer::create(unsigned int width, unsigned int height) {
 	glDrawBuffers(_numBufferTextures, &_drawBuffers[0]);
 
 	// Check that the buffer was properly created
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cerr << "Could not created FBO!" << std::endl;
 #endif

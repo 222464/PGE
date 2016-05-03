@@ -372,7 +372,7 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(voxelChunkMeshIndexType) * _sharedData->_lods[lodIndex]._numIndices, &indices[0], GL_STATIC_DRAW);
 		_sharedData->_lods[lodIndex]._indices.unbind();
 
-		D3D_GL_ERROR_CHECK();
+		PGE_GL_ERROR_CHECK();
 
 		// ---------------------------------------- Generate Physics Mesh ----------------------------------------
 

@@ -10,7 +10,7 @@
 
 #include <fstream>
 
-#define D3D_FIXED_TIMESTEP 0.017f
+#define PGE_FIXED_TIMESTEP 0.017f
 
 int main(int argc, char *argv[]) {
 	int width = 640;
@@ -218,8 +218,8 @@ int main(int argc, char *argv[]) {
 				quit = true;
 		}
 
-#ifdef D3D_FIXED_TIMESTEP
-		scene->frame(D3D_FIXED_TIMESTEP);
+#ifdef PGE_FIXED_TIMESTEP
+		scene->frame(PGE_FIXED_TIMESTEP);
 #else
 		scene->frame(dt);
 #endif

@@ -41,9 +41,9 @@ void SceneObjectGUI::postRender() {
 	if (!_enabled)
 		return;
 
-	glDisableVertexAttribArray(D3D_ATTRIB_POSITION);
-	glDisableVertexAttribArray(D3D_ATTRIB_NORMAL);
-	glDisableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+	glDisableVertexAttribArray(PGE_ATTRIB_POSITION);
+	glDisableVertexAttribArray(PGE_ATTRIB_NORMAL);
+	glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 	pge::Shader::unbind();
 
@@ -64,9 +64,9 @@ void SceneObjectGUI::postRender() {
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	// Reset OpenGL
-	glEnableVertexAttribArray(D3D_ATTRIB_POSITION);
-	glEnableVertexAttribArray(D3D_ATTRIB_NORMAL);
-	glEnableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
+	glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

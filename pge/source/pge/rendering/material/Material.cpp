@@ -124,7 +124,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 	std::ifstream fromFile(fileName);
 
 	if(!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not load material file " << fileName << std::endl;
 #endif
 		return false;
@@ -149,7 +149,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if(header == "Ka") {
 			if(pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -159,7 +159,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if(header == "Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -169,7 +169,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if(header == "Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -179,7 +179,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -189,7 +189,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -207,7 +207,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -217,7 +217,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -235,7 +235,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -245,7 +245,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -263,7 +263,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -273,7 +273,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -291,7 +291,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -301,7 +301,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -319,7 +319,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -329,7 +329,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -347,7 +347,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -371,7 +371,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 	std::ifstream fromFile(fileName);
 
 	if (!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not load material file " << fileName << std::endl;
 #endif
 		return false;
@@ -401,7 +401,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ka") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -411,7 +411,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -421,7 +421,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -431,7 +431,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -441,7 +441,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -459,7 +459,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -469,7 +469,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -487,7 +487,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -497,7 +497,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -515,7 +515,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -525,7 +525,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -543,7 +543,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -553,7 +553,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -571,7 +571,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -581,7 +581,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -599,7 +599,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -623,7 +623,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 	std::ifstream fromFile(fileName);
 
 	if (!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not load material file " << fileName << std::endl;
 #endif
 		return false;
@@ -653,7 +653,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ka") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -663,7 +663,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -673,7 +673,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -683,7 +683,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -693,7 +693,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -711,7 +711,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -721,7 +721,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -739,7 +739,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -749,7 +749,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -767,7 +767,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -777,7 +777,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -795,7 +795,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -805,7 +805,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -823,7 +823,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;
@@ -833,7 +833,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Attempted to set material parameter before defining material in \"" << fileName << "\"!" << std::endl;
 #endif
 				return false;
@@ -851,7 +851,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 			std::shared_ptr<Asset> pAsset;
 
 			if (!pTextureManager->getAsset(mapName, pAsset)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
 				return false;

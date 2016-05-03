@@ -193,7 +193,7 @@ void VoxelTerrain::batchRender() {
 		_gBufferRenderShader->bind();
 		_gBufferRenderShader->bindShaderTextures();
 
-		glDisableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+		glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 		getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
 
@@ -210,23 +210,23 @@ void VoxelTerrain::batchRender() {
 
 			pChunk->_sharedData->_lods[lodIndex]._vertices.bind(GL_ARRAY_BUFFER);
 
-			glVertexAttribPointer(D3D_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), 0);
-			glVertexAttribPointer(D3D_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), reinterpret_cast<const GLvoid*>(sizeof(Vec3f)));
+			glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), 0);
+			glVertexAttribPointer(PGE_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), reinterpret_cast<const GLvoid*>(sizeof(Vec3f)));
 
 			pChunk->_sharedData->_lods[lodIndex]._indices.bind(GL_ELEMENT_ARRAY_BUFFER);
 
-			glDrawElements(GL_TRIANGLES, pChunk->_sharedData->_lods[lodIndex]._numIndices, D3D_VOXEL_CHUNK_INDEX_TYPE_ENUM, nullptr);
+			glDrawElements(GL_TRIANGLES, pChunk->_sharedData->_lods[lodIndex]._numIndices, PGE_VOXEL_CHUNK_INDEX_TYPE_ENUM, nullptr);
 		}
 
-		glEnableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+		glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 	}
 	else if (getRenderScene()->_renderingShadows) {
 		Shader* pPrevShader = Shader::getCurrentShader();
 
 		_depthRenderShader->bind();
 
-		glDisableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
-		glDisableVertexAttribArray(D3D_ATTRIB_NORMAL);
+		glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
+		glDisableVertexAttribArray(PGE_ATTRIB_NORMAL);
 
 		getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
 
@@ -243,15 +243,15 @@ void VoxelTerrain::batchRender() {
 
 			pChunk->_sharedData->_lods[lodIndex]._vertices.bind(GL_ARRAY_BUFFER);
 
-			glVertexAttribPointer(D3D_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), 0);
+			glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(VoxelChunk::Vertex), 0);
 
 			pChunk->_sharedData->_lods[lodIndex]._indices.bind(GL_ELEMENT_ARRAY_BUFFER);
 
-			glDrawElements(GL_TRIANGLES, pChunk->_sharedData->_lods[lodIndex]._numIndices, D3D_VOXEL_CHUNK_INDEX_TYPE_ENUM, nullptr);
+			glDrawElements(GL_TRIANGLES, pChunk->_sharedData->_lods[lodIndex]._numIndices, PGE_VOXEL_CHUNK_INDEX_TYPE_ENUM, nullptr);
 		}
 
-		glEnableVertexAttribArray(D3D_ATTRIB_NORMAL);
-		glEnableVertexAttribArray(D3D_ATTRIB_TEXCOORD);
+		glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
+		glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 		pPrevShader->bind();
 	}

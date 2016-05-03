@@ -169,7 +169,7 @@ bool Shader::link(GLuint id) {
 		return false;
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	return true;
 }
@@ -274,7 +274,7 @@ bool Shader::createAsset(const std::string &name) {
 		return false;
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 
 	return true;
 }

@@ -79,7 +79,7 @@ void SceneObjectDirectionalLightShadowed::updateUniformBuffer() {
 		_needsUniformBufferUpdate = false;
 	}
 
-	D3D_GL_ERROR_CHECK();
+	PGE_GL_ERROR_CHECK();
 }
 
 void SceneObjectDirectionalLightShadowed::getFrustumCornerPoints(float zDistance, std::array<Vec3f, 4> &points) {
@@ -202,7 +202,7 @@ void SceneObjectDirectionalLightShadowed::preRender() {
 		getRenderScene()->_shaderSwitchesEnabled = true;
 		getRenderScene()->_renderingShadows = false;
 
-		D3D_GL_ERROR_CHECK();
+		PGE_GL_ERROR_CHECK();
 	}
 }
 

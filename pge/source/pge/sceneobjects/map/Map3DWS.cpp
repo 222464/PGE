@@ -14,7 +14,7 @@ bool Map3DWS::createAsset(const std::string &name) {
 	std::ifstream fromFile(name, std::ios::binary);
 
 	if (!fromFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 		std::cerr << "Could not open file " << name << std::endl;
 #endif
 
@@ -354,14 +354,14 @@ bool Map3DWS::createAsset(const std::string &name) {
 		std::string materialFileName = name.substr(0, name.length() - 3) + "mtl";
 
 		if (!Material::loadFromMTL(materialFileName, chunk->_textureManager.get(), matNameToIndex, chunk->_model->_materials)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 			std::cerr << "Could not open file " << materialFileName << ". Generating the file." << std::endl;
 #endif
 
 			std::ofstream toFile(materialFileName);
 
 			if (!toFile.is_open()) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Could not open file " << materialFileName << " for generating!" << std::endl;
 #endif
 
@@ -390,7 +390,7 @@ bool Map3DWS::createAsset(const std::string &name) {
 			toFile.close();
 
 			if (!Material::loadFromMTL(materialFileName, chunk->_textureManager.get(), matNameToIndex, chunk->_model->_materials)) {
-#ifdef D3D_DEBUG
+#ifdef PGE_DEBUG
 				std::cerr << "Could not open generated file" << materialFileName << std::endl;
 #endif
 				return false;
