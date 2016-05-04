@@ -1,15 +1,15 @@
-#include <pge/sceneobjects/SceneObjectBlockGame.h>
+#include <pge/sceneobjects/SceneObjectSurf.h>
 
 #include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
 
 #include <iostream>
 #include <sstream>
 
-bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
+bool SceneObjectSurf::create() {
 	assert(getScene() != nullptr);
 
-	_size = size;
-	_numStartBlocks = numStartBlocks;
+	_size = 5;
+	_numStartBlocks = 5;
 
 	// Rendering
 	std::shared_ptr<pge::Asset> asset;
@@ -33,20 +33,19 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	_show = getRenderScene()->_renderingEnabled;
 
 	_socket = std::make_shared<sf::TcpSocket>();
-    printf("_socket->connect()\n");
+
 	_socket->connect(sf::IpAddress::LocalHost, _port);
-    printf("_socket->connect() connected\n");
 
 	return true;
 }
 
-void SceneObjectBlockGame::onAdd() {
+void SceneObjectSurf::onAdd() {
 	_batcherRef = getScene()->getNamed("smb");
 
 	assert(_batcherRef.isAlive());
 }
 
-void SceneObjectBlockGame::reset() {
+void SceneObjectSurf::reset() {
 	// Generate a random map
 	_rng.seed(_gameSeed);
 
@@ -69,7 +68,7 @@ void SceneObjectBlockGame::reset() {
 	_reward = 0.0f;
 }
 
-void SceneObjectBlockGame::act() {
+void SceneObjectSurf::act() {
 	int agentX = _agentPosition % _size;
 	int agentY = _agentPosition / _size;
 
@@ -77,7 +76,7 @@ void SceneObjectBlockGame::act() {
 	int oldPosY = agentY;
 
 	switch (_action) {
-	// Moves
+		// Moves
 	case 0:
 		agentY++;
 
@@ -94,12 +93,12 @@ void SceneObjectBlockGame::act() {
 		agentX--;
 
 		break;
-	// Pushes
+		// Pushes
 	case 4:
 		// If is valid push direction
 		if (agentY + 2 < _size) {
-			int &pushHeight = _blocks[(agentX) + (agentY + 1) * _size];
-			int &targetHeight = _blocks[(agentX) + (agentY + 2) * _size];
+			int &pushHeight = _blocks[(agentX)+(agentY + 1) * _size];
+			int &targetHeight = _blocks[(agentX)+(agentY + 2) * _size];
 
 			// If a block exists
 			if (pushHeight > 0) {
@@ -142,8 +141,8 @@ void SceneObjectBlockGame::act() {
 	case 6:
 		// If is valid push direction
 		if (agentX + 2 < _size) {
-			int &pushHeight = _blocks[(agentX + 1)+(agentY) * _size];
-			int &targetHeight = _blocks[(agentX + 2)+(agentY) * _size];
+			int &pushHeight = _blocks[(agentX + 1) + (agentY)* _size];
+			int &targetHeight = _blocks[(agentX + 2) + (agentY)* _size];
 
 			// If a block exists
 			if (pushHeight > 0) {
@@ -205,7 +204,7 @@ void SceneObjectBlockGame::act() {
 	_reward = _blocks[_agentPosition];
 }
 
-void SceneObjectBlockGame::synchronousUpdate(float dt) {
+void SceneObjectSurf::synchronousUpdate(float dt) {
 	if (_ticks >= _ticksPerAction || !getRenderScene()->_renderingEnabled) {
 		_ticks = 0;
 
@@ -216,8 +215,11 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 
 		_socket->receive(buffer.data(), 1 + 4, received);
 
+		assert(remoteAddress == sf::IpAddress::LocalHost);
+		assert(remotePort = _port);
+
 		if (buffer[0] == 'A') { // Action
-			_action = *reinterpret_cast<int*>(&buffer[1]);	
+			_action = *reinterpret_cast<int*>(&buffer[1]);
 		}
 		else if (buffer[0] == 'R') { // Reset
 			reset();
@@ -298,7 +300,7 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 			int reorgIndex = 0;
 
 			for (int y = 0; y < getRenderScene()->_gBuffer.getHeight(); y++)
-				for (int x = 0; x < getRenderScene()->_gBuffer.getWidth(); x++)	{
+				for (int x = 0; x < getRenderScene()->_gBuffer.getWidth(); x++) {
 					int start = 3 * (x + (getRenderScene()->_gBuffer.getHeight() - 1 - y) * getRenderScene()->_gBuffer.getWidth());
 
 					reorganized[reorgIndex++] = (*_capBytes)[start + 0];
@@ -326,7 +328,7 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 		_ticks++;
 }
 
-void SceneObjectBlockGame::deferredRender() {
+void SceneObjectSurf::deferredRender() {
 	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
 
 	// Render blocks
@@ -358,14 +360,14 @@ void SceneObjectBlockGame::deferredRender() {
 	}
 }
 
-void SceneObjectBlockGame::postRender() {
+void SceneObjectSurf::postRender() {
 	// Get data from effect buffer
 	glReadBuffer(GL_FRONT);
 
 	glReadPixels(0, 0, getRenderScene()->_gBuffer.getWidth(), getRenderScene()->_gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, _capBytes->data());
 }
 
-void SceneObjectBlockGame::onDestroy() {
+void SceneObjectSurf::onDestroy() {
 	if (_socket != nullptr)
 		_socket->disconnect();
 }

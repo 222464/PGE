@@ -55,23 +55,23 @@ namespace pge {
 			return x * other.x + y * other.y + z * other.z + w * other.w;
 		}
 
-		Quaternion Quaternion::operator+(const Quaternion &other) const {
+		Quaternion operator+(const Quaternion &other) const {
 			return Quaternion(w + other.w, x + other.x, y + other.y, z + other.z);
 		}
 
-		Quaternion Quaternion::operator-(const Quaternion &other) const {
+		Quaternion operator-(const Quaternion &other) const {
 			return Quaternion(w - other.w, x - other.x, y - other.y, z - other.z);
 		}
 
-		Quaternion Quaternion::operator-() const {
+		Quaternion operator-() const {
 			return Quaternion(-w, -x, -y, -z);
 		}
 
-		Quaternion Quaternion::operator*(float scale) const {
+		Quaternion operator*(float scale) const {
 			return Quaternion(w * scale, x * scale, y * scale, z * scale);
 		}
 
-		Quaternion Quaternion::operator/(float scale) const {
+		Quaternion operator/(float scale) const {
 			float scaleInv = 1.0f / scale;
 			return Quaternion(w * scaleInv, x * scaleInv, y * scaleInv, z * scaleInv);
 		}

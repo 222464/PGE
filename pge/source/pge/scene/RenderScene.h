@@ -17,7 +17,7 @@ namespace pge {
 		};
 
 	private:
-		sf::RenderWindow* _pWindow;
+		sf::Window* _pWindow;
 
 		VBO _sceneUniformBuffer;
 
@@ -47,7 +47,7 @@ namespace pge {
 
 		RenderScene();
 
-		void createRenderScene(size_t numWorkers, const AABB3D &rootRegion, sf::RenderWindow* pWindow,
+		void createRenderScene(size_t numWorkers, const AABB3D &rootRegion, sf::Window* pWindow,
 			const std::shared_ptr<Shader> &gBufferRender,
 			const std::shared_ptr<Shader> &gBufferRenderNormal,
 			const std::shared_ptr<Shader> &gBufferRenderHeightNormal,
@@ -76,7 +76,7 @@ namespace pge {
 			_normalizedQuad.render();
 		}
 
-		sf::RenderWindow* getRenderWindow() const {
+		sf::Window* getRenderWindow() const {
 			return _pWindow;
 		}
 

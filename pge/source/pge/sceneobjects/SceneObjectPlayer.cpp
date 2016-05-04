@@ -32,10 +32,6 @@ void SceneObjectPlayer::onAdd() {
 	_input = getScene()->getNamed("buffIn");
 
 	assert(_input.isAlive());
-
-	_gui = getScene()->getNamed("gui");
-
-	assert(_gui.isAlive());
 }
 
 void SceneObjectPlayer::update(float dt) {
@@ -116,9 +112,5 @@ void SceneObjectPlayer::update(float dt) {
 }
 
 void SceneObjectPlayer::synchronousUpdate(float dt) {
-	SceneObjectGUI* pGUI = static_cast<SceneObjectGUI*>(_gui.get());
-
-	pGUI->_enabled = !_acceptingInput;
-
 	getRenderScene()->getRenderWindow()->setMouseCursorVisible(!_acceptingInput);
 }
