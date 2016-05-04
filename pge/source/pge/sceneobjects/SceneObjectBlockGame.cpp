@@ -33,8 +33,9 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	_show = getRenderScene()->_renderingEnabled;
 
 	_socket = std::make_shared<sf::TcpSocket>();
-
+    printf("_socket->connect()\n");
 	_socket->connect(sf::IpAddress::LocalHost, _port);
+    printf("_socket->connect() connected\n");
 
 	return true;
 }
@@ -214,9 +215,6 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 		size_t received = 0;
 
 		_socket->receive(buffer.data(), 1 + 4, received);
-
-		assert(remoteAddress == sf::IpAddress::LocalHost);
-		assert(remotePort = _port);
 		
 		if (buffer[0] == 'A') { // Action
 			_action = *reinterpret_cast<int*>(&buffer[1]);	

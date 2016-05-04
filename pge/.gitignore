@@ -1,0 +1,7 @@
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+pge
+pypge/BlockGameInterface.pyc
+pypge/__init__.pyc

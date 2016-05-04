@@ -2,6 +2,7 @@
 
 #include <pge/util/Math.h>
 #include <algorithm>
+#include <cmath>
 
 #include <assert.h>
 
