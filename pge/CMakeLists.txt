@@ -11,10 +11,6 @@ find_package(SFML 2 REQUIRED system window graphics network audio)
  
 include_directories(${SFML_INCLUDE_DIR})
 
-find_package(GLEW REQUIRED)
- 
-include_directories(${GLEW_INCLUDE_DIR})
-
 find_package(OpenGL REQUIRED)
  
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -43,7 +39,6 @@ file(GLOB_RECURSE SOURCES
 
 add_executable(pge ${SOURCES})
 
-target_link_libraries(pge ${GLEW_LIBRARIES})
 target_link_libraries(pge ${SFML_LIBRARIES})
 target_link_libraries(pge ${OPENGL_LIBRARIES})
 target_link_libraries(pge ${BULLET_LIBRARIES})

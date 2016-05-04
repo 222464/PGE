@@ -434,24 +434,6 @@ void Shader::unbindShaderTextures() {
 	glActiveTexture(GL_TEXTURE0);
 }
 
-void Shader::bindShaderImages() {
-	// Bind all textures
-	for (std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.begin(); it != _textures.end(); it++) {
-		if (it->second._isImage) {
-			glBindImageTexture(it->second._attachment, it->second._textureHandle, it->second._level, it->second._isLayered, it->second._layer, it->second._access, it->second._format);
-		}
-	}
-}
-
-void Shader::unbindShaderImages() {
-	// Bind all used textures
-	for (std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.begin(); it != _textures.end(); it++) {
-		if (it->second._isImage) {
-			glBindImageTexture(it->second._attachment, 0, it->second._level, it->second._isLayered, it->second._layer, it->second._access, it->second._format);
-		}
-	}
-}
-
 int Shader::getAttributeLocation(const std::string &name) {
 	int paramLoc;
 

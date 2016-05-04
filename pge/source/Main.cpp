@@ -75,13 +75,15 @@ int main(int argc, char *argv[]) {
 		window.setFramerateLimit(0);
 	}
 
-	GLenum error = glewInit();
+	if (ogl_LoadFunctions() == ogl_LOAD_FAILED) {
+		std::cerr << "Could not load OpenGL extensions!" << std::endl;
+		abort();
+	}
 
 	// -------------------------------- OpenGL Setup --------------------------------
-    printf("%s\n", glGetString(GL_VERSION));
+    
 	pge::sfmloglSetup();
-    printf("pge::sfmloglSetup() done\n");
-
+   
 	glViewport(0, 0, window.getSize().x, window.getSize().y);
 
 	pge::checkForGLError();
