@@ -18,7 +18,7 @@ _enabled(true)
 	_aabb.calculateHalfDims();
 	_aabb.calculateCenter();
 
-	_updateFaces.assign(true);
+	_updateFaces.fill(true);
 
 	_faceObjects.reset(new std::array<std::vector<AABB3D>, 6>());
 }
@@ -44,7 +44,7 @@ void SceneObjectPointLightShadowed::setPosition(const Vec3f &position) {
 
 	_aabb.setCenter(position);
 
-	_updateFaces.assign(true);
+	_updateFaces.fill(true);
 
 	updateAABB();
 }
@@ -62,7 +62,7 @@ void SceneObjectPointLightShadowed::setRange(float range) {
 
 	_aabb.setHalfDims(Vec3f(_range, _range, _range));
 
-	_updateFaces.assign(true);
+	_updateFaces.fill(true);
 
 	updateAABB();
 }

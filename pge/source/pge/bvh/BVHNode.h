@@ -11,7 +11,7 @@ namespace pge {
 			float _coord;
 			bool _isMin;
 
-			bool operator<(const CoordAndIsMin &other) {
+			bool operator<(const CoordAndIsMin &other) const {
 				return _coord < other._coord;
 			}
 		};

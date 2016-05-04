@@ -20,8 +20,11 @@ bool pge::checkForGLError() {
 }
 
 void pge::sfmloglSetup() {
+    printf("pge::sfmloglSetup() entered\n");
 	glGenVertexArrays(1, &_vaoID);
+    printf("glGenVertexArrays\n");
 	glBindVertexArray(_vaoID);
+    printf("glBindVertexArray\n");
 
 	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
 	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);

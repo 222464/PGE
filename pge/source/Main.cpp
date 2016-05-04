@@ -58,10 +58,11 @@ int main(int argc, char *argv[]) {
 	sf::RenderWindow window;
 	sf::ContextSettings settings;
 
-	settings.majorVersion = 4;
-	settings.minorVersion = 4;
+	settings.majorVersion = 4; // was 4
+	settings.minorVersion = 1; // was 4
 	settings.stencilBits = 0;
 	settings.antialiasingLevel = 0;
+    //settings.attributeFlags = sf::ContextSettings::Core;
 
 	window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
 
@@ -76,11 +77,10 @@ int main(int argc, char *argv[]) {
 
 	GLenum error = glewInit();
 
-	assert(error == GLEW_NO_ERROR);
-
 	// -------------------------------- OpenGL Setup --------------------------------
-
+    printf("%s\n", glGetString(GL_VERSION));
 	pge::sfmloglSetup();
+    printf("pge::sfmloglSetup() done\n");
 
 	glViewport(0, 0, window.getSize().x, window.getSize().y);
 
