@@ -4,12 +4,10 @@
 #include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
 #include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
 #include <pge/physics/DynamicCharacterController.h>
-#include <pge/sceneobjects/gui/SceneObjectGUI.h>
 
 class SceneObjectPlayer : public pge::SceneObject {
 private:
 	pge::SceneObjectRef _input;
-	pge::SceneObjectRef _gui;
 
 	std::shared_ptr<pge::DynamicCharacterController> _characterController;
 

@@ -9,7 +9,7 @@ RenderScene::RenderScene()
 _renderingEnabled(true)
 {}
 
-void RenderScene::createRenderScene(size_t numWorkers, const AABB3D &rootRegion, sf::RenderWindow* pWindow,
+void RenderScene::createRenderScene(size_t numWorkers, const AABB3D &rootRegion, sf::Window* pWindow,
 	const std::shared_ptr<Shader> &gBufferRender,
 	const std::shared_ptr<Shader> &gBufferRenderNormal,
 	const std::shared_ptr<Shader> &gBufferRenderHeightNormal,

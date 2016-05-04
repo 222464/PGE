@@ -55,11 +55,11 @@ int main(int argc, char *argv[]) {
 		height = std::stoi(s4);
 	}
 
-	sf::RenderWindow window;
+	sf::Window window;
 	sf::ContextSettings settings;
 
 	settings.majorVersion = 4;
-	settings.minorVersion = 4;
+	settings.minorVersion = 0;
 	settings.stencilBits = 0;
 	settings.antialiasingLevel = 0;
 
