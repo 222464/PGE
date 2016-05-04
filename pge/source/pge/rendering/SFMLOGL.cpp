@@ -1,5 +1,7 @@
 #include <pge/rendering/SFMLOGL.h>
 
+#include <GL/GLU.h>
+
 #include <iostream>
 
 using namespace pge;
@@ -20,11 +22,8 @@ bool pge::checkForGLError() {
 }
 
 void pge::sfmloglSetup() {
-    printf("pge::sfmloglSetup() entered\n");
 	glGenVertexArrays(1, &_vaoID);
-    printf("glGenVertexArrays\n");
-	glBindVertexArray(_vaoID);
-    printf("glBindVertexArray\n");
+    glBindVertexArray(_vaoID);
 
 	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
 	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
+#include <gl_core_4_4.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 

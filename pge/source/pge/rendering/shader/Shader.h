@@ -186,9 +186,6 @@ namespace pge {
 		void bindShaderTextures();
 		void unbindShaderTextures();
 
-		void bindShaderImages();
-		void unbindShaderImages();
-
 		static Asset* assetFactory() {
 			return new Shader();
 		}
