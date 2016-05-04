@@ -6,7 +6,7 @@ import numpy as np
 import socket
 import struct
 
-pgeExePath = 'pge'
+pgeExePath = './pge'
 IP = 'localhost'
 PORT = 54003
 MAX_CHUNK = 16384 # Must match d3d value

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <assert.h>
+#include <cstddef>
 
 namespace pge {
 	class SceneObjectRef {

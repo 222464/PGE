@@ -47,3 +47,6 @@ target_link_libraries(pge ${GLEW_LIBRARIES})
 target_link_libraries(pge ${SFML_LIBRARIES})
 target_link_libraries(pge ${OPENGL_LIBRARIES})
 target_link_libraries(pge ${BULLET_LIBRARIES})
+
+set_property(TARGET pge PROPERTY CXX_STANDARD 14)
+set_property(TARGET pge PROPERTY CXX_STANDARD_REQUIRED ON)
