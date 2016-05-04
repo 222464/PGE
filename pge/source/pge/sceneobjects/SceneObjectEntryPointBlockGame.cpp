@@ -19,6 +19,7 @@
 #include <pge/rendering/imageeffects/SceneObjectFog.h>
 
 #include <pge/sceneobjects/SceneObjectFloatingCamera.h>
+#include <pge/sceneobjects/SceneObjectOrbitCamera.h>
 
 #include <pge/system/SoftwareImage2D.h>
 
@@ -55,7 +56,7 @@ void SceneObjectEntryPointBlockGame::onAdd() {
 
 	// Control
 
-	std::shared_ptr<SceneObjectFloatingCamera> camera(new SceneObjectFloatingCamera());
+	std::shared_ptr<SceneObjectOrbitCamera> camera(new SceneObjectOrbitCamera());
 
 	getRenderScene()->add(camera, false);
 
