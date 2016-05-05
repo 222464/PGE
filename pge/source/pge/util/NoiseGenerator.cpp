@@ -50,7 +50,7 @@ float NoiseGenerator::interpolateCosine(float val1, float val2, float coeff_inte
 	float coeff_angle = coeff_interpolate * _pi;
 
 	// Cosine of angle converted to [0, 1] range to serve as the new coefficient of interpolation
-	float clampedCos = (1.0f - std::cosf(coeff_angle)) * 0.5f;
+	float clampedCos = (1.0f - cosf(coeff_angle)) * 0.5f;
 
 	// Use this as the new "curved" coefficient of interpolation for a linear interpolation between the two values
 	return val1 * (1.0f - clampedCos) + val2 * clampedCos;
@@ -68,7 +68,7 @@ float NoiseGenerator::smoothNoise3D(int x, int y, int z) {
 		if (deltaX == 0 && deltaY == 0)
 			sum += noise3D(x, y, z) * 0.25f;
 		else {
-			float dist = std::sqrtf(static_cast<float>(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ)) * 2.0f;
+			float dist = sqrtf(static_cast<float>(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ)) * 2.0f;
 			sum += noise3D(x + deltaX, y + deltaY, z + deltaZ) / (dist * dist);
 		}
 	}
@@ -201,8 +201,8 @@ float NoiseGenerator::perlinNoise3D(float x, float y, float z, int octaves, floa
 		// The higher the octave, the higher the frequency, and the lower the amplitude
 		// The frequency multiplier is multiplied by the coordinates to increase/decrease the wave frequency
 		// The result of the noise is multiplied by the amplitude to determine how much it affects the final result
-		float frequency = 1.0f / std::powf(frequencyBase, static_cast<float>(oct));
-		float amplitude = std::powf(persistence, static_cast<float>(oct));
+		float frequency = 1.0f / powf(frequencyBase, static_cast<float>(oct));
+		float amplitude = powf(persistence, static_cast<float>(oct));
 
 		result += interpolatedNoise3D(x * frequency, y * frequency, z * frequency) * amplitude;
 	}

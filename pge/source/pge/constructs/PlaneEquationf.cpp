@@ -25,7 +25,7 @@ void PlaneEquationf::fromAnchorNormal(const Vec3f &point, const Vec3f &normal) {
 }
 
 void PlaneEquationf::normalizedFromEquationCoeffs(float A, float B, float C, float D) {
-	float magInv = 1.0f / std::sqrt(A * A + B * B + C * C);
+	float magInv = 1.0f / sqrtf(A * A + B * B + C * C);
 
 	a = A * magInv;
 	b = B * magInv;
@@ -34,7 +34,7 @@ void PlaneEquationf::normalizedFromEquationCoeffs(float A, float B, float C, flo
 }
 
 float PlaneEquationf::distanceTo(const Vec3f &point) const {
-	return std::fabsf(a * point.x + b * point.y + c * point.z + d) / sqrtf(a * a + b * b + c * c);
+	return fabsf(a * point.x + b * point.y + c * point.z + d) / sqrtf(a * a + b * b + c * c);
 }
 
 float PlaneEquationf::signedDistanceTo(const Vec3f &point) const {

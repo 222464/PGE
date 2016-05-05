@@ -215,9 +215,6 @@ void SceneObjectSurf::synchronousUpdate(float dt) {
 
 		_socket->receive(buffer.data(), 1 + 4, received);
 
-		assert(remoteAddress == sf::IpAddress::LocalHost);
-		assert(remotePort = _port);
-
 		if (buffer[0] == 'A') { // Action
 			_action = *reinterpret_cast<int*>(&buffer[1]);
 		}

@@ -32,7 +32,7 @@ void SceneObjectFloatingCamera::update(float dt) {
 		_angleX -= mousePosition.x * _sensitivity;
 		_angleY -= mousePosition.y * _sensitivity;
 
-		_angleX = std::fmodf(_angleX, pge::_piTimes2);
+		_angleX = fmodf(_angleX, pge::_piTimes2);
 
 		if (_angleY < -pge::_piOver2)
 			_angleY = -pge::_piOver2;

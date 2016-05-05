@@ -102,8 +102,8 @@ Matrix3x3f Matrix3x3f::translateMatrix(const Vec2f translation) {
 }
 
 Matrix3x3f Matrix3x3f::rotateMatrix(float angle) {
-	float cosOfAngle = std::cosf(angle);
-	float sinOfAngle = std::sinf(angle);
+	float cosOfAngle = cosf(angle);
+	float sinOfAngle = sinf(angle);
 
 	Matrix3x3f rotationMatrix;
 
