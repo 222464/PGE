@@ -12,12 +12,13 @@ PGE is currently set up to interface with the OpenAI Gym (https://github.com/ope
 
 To get started with PGE, you need your favorite compiler and CMake (http://www.cmake.org/cmake/resources/software.html).
 
-You will also need to install 3 libraries: Bullet Physics, and SFML, and GLEW.
+You will also need to install 2 libraries: Bullet Physics and SFML.
 
 Get the libraries here:
 https://github.com/bulletphysics/bullet3/releases
 http://www.sfml-dev.org/download.php
-http://glew.sourceforge.net/index.html
+
+You may also need to generate an OpenGL extension loader with glLoadGen, if the existing include ones don't work for you: https://bitbucket.org/alfonse/glloadgen/wiki/Home 
 
 Once you have these libraries all set up, set CMake's source code directory to the PGE directory (the one that contains the /source folder as well as a CMakeLists.txt).
 

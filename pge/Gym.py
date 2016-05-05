@@ -12,7 +12,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('BlockGame-v0')
+    env = gym.make('CartPole3D-v0')
 
     # You provide the directory to write to (can be an existing
     # directory, but can't contain previous monitor results. You can
@@ -20,8 +20,8 @@ if __name__ == '__main__':
     outdir = '/tmp/random-agent-results'
     env.monitor.start(outdir, force=True)#video_callable=lambda i : False
 
-    episode_count = 4
-    max_steps = 60 * 4
+    episode_count = 400
+    max_steps = 60 * 10
     reward = 0
     totalReward = 0
     done = False
@@ -30,7 +30,7 @@ if __name__ == '__main__':
         ob = env.reset()
 
         for j in xrange(max_steps):
-            action = np.random.randint(0, 8)
+            action = np.random.rand(2) * 2.0 - 1.0
             ob, reward, done, _ = env.step(action)
             totalReward += reward
 
@@ -44,5 +44,5 @@ if __name__ == '__main__':
 
     # Upload to the scoreboard. We could also do this from another
     # process if we wanted.
-    logger.info("Successfully ran RandomAgent. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
-    gym.upload(outdir, algorithm_id='random')
+    #logger.info("Successfully ran RandomAgent. Now trying to upload results to the scoreboard. If it breaks, you can always just try re-uploading the same results.")
+    #gym.upload(outdir, algorithm_id='random')

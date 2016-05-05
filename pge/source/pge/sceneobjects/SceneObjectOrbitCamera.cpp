@@ -7,7 +7,7 @@
 #include <pge/rendering/lighting/SceneObjectPointLight.h>
 
 SceneObjectOrbitCamera::SceneObjectOrbitCamera()
-	: _focusPoint(pge::Vec3f(0.0f, 0.0f, 0.0f)), _distance(12.0f), _tilt(0.8f),
+	: _focusPoint(pge::Vec3f(0.0f, 1.0f, 0.0f)), _distance(12.0f), _tilt(0.8f),
 	_angle(0.0f), _angularVelocity(0.08f)
 {}
 

@@ -33,9 +33,8 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	_show = getRenderScene()->_renderingEnabled;
 
 	_socket = std::make_shared<sf::TcpSocket>();
-    printf("_socket->connect()\n");
+
 	_socket->connect(sf::IpAddress::LocalHost, _port);
-    printf("_socket->connect() connected\n");
 
 	return true;
 }
@@ -211,26 +210,35 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 
 		std::array<char, _maxBatchSize> buffer;
 
-		// Receive 1 byte
+		std::array<char, 1 + 4> msg;
+
 		size_t received = 0;
+		size_t totalReceived = 0;
 
-		_socket->receive(buffer.data(), 1 + 4, received);
+		while (totalReceived < msg.size()) {
+			_socket->receive(buffer.data(), msg.size() - totalReceived, received);
 
-		if (buffer[0] == 'A') { // Action
-			_action = *reinterpret_cast<int*>(&buffer[1]);	
+			for (int i = 0; i < received; i++)
+				msg[totalReceived + i] = buffer[i];
+
+			totalReceived += received;
 		}
-		else if (buffer[0] == 'R') { // Reset
+
+		if (msg[0] == 'A') { // Action
+			_action = *reinterpret_cast<int*>(&msg[1]);
+		}
+		else if (msg[0] == 'R') { // Reset
 			reset();
 		}
-		else if (buffer[0] == 'C') { // Capture + action
-			_action = *reinterpret_cast<int*>(&buffer[1]);
+		else if (msg[0] == 'C') { // Capture + action
+			_action = *reinterpret_cast<int*>(&msg[1]);
 
 			_capture = true;
 
 			getRenderScene()->_renderingEnabled = true;
 		}
-		else if (buffer[0] == 'S') { // Stop capture + action
-			_action = *reinterpret_cast<int*>(&buffer[1]);
+		else if (msg[0] == 'S') { // Stop capture + action
+			_action = *reinterpret_cast<int*>(&msg[1]);
 
 			_capture = false;
 
