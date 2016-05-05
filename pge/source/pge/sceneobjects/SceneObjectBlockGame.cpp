@@ -34,7 +34,7 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 
 	_socket = std::make_shared<sf::TcpSocket>();
 
-	_socket->connect(sf::IpAddress::LocalHost, _port);
+	_socket->connect(sf::IpAddress::LocalHost, _port, sf::seconds(5.0f));
 
 	return true;
 }
