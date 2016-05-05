@@ -39,12 +39,17 @@ You can then import pypge (Python PGE), which will automatically register the en
 
 Currently, there is one environment, but there are more to come!
 
-| Name         | Description                                                                                                          | State                                                                   | Action                    |
-|--------------|----------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|---------------------------|
-| BlockGame-v0 | A simple block stacking game in 3D. The agent must get as high up as possible, by moving blocks to build structures. | 9 integers in range [0, inf) (3x3 square of block heights around agent) | 8 discrete actions [0, 8) |
+| Name          | Description                                                                                                                      | State                                                                   | Action                    |
+|---------------|----------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|---------------------------|
+| BlockGame-v0  | A simple block stacking game in 3D. The agent must get as high up as possible, by moving blocks to build structures.             | 9 integers in range [0, inf) (3x3 square of block heights around agent) | 8 discrete actions [0, 8) |
+| CartPole3D-v0 | Cart pole extended to 3 dimensions. The agent must balance an inverted pendulum on a cart that can move horizontally in X and Z. | 8 real values. Approximate range of (-1.0, 1.0).                        | 2 real values in [-1, 1]  |
 
 ### Images
 
 BlockGame-v0:
 
 ![Image of BlockGame-v0](http://i1218.photobucket.com/albums/dd401/222464/blockgame-v0-1.png)
+
+CartPole3D-v0:
+
+![Image of CartPole3D-v0](http://i1218.photobucket.com/albums/dd401/222464/cartPole3D1.png)
