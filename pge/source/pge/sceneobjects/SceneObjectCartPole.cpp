@@ -144,7 +144,7 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		else if (msg[0] == 'R') { // Reset
 			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
-			//reset();
+			reset();
 		}
 		else if (msg[0] == 'C') { // Capture + action
 			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
@@ -193,13 +193,13 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		index += sizeof(float);
 
 		for (int i = 0; i < obs.size(); i++) {
-			*reinterpret_cast<int*>(&buffer[index]) = obs[i];
+			*reinterpret_cast<float*>(&buffer[index]) = obs[i];
 
 			index += sizeof(float);
 		}
 
 		// Reset flag
-		*reinterpret_cast<int*>(&buffer[index]) = static_cast<char>(_doneLastFrame);
+		*reinterpret_cast<char*>(&buffer[index]) = static_cast<char>(_doneLastFrame);
 
 		_doneLastFrame = false;
 
