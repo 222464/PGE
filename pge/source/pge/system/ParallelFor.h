@@ -7,7 +7,7 @@ namespace pge {
 	template<typename Iterator, class Function>
 	void parallelFor(const Iterator &first, const Iterator &last, Function &&f, const int nthreads = 1, const int threshold = 1000)
 	{
-		const unsigned int group = std::max(std::max(ptrdiff_t(1), ptrdiff_t(std::abs(threshold))), ((last - first)) / std::abs(nthreads));
+		const unsigned int group = std::max(std::max(ptrdiff_t(1), ptrdiff_t(abs(threshold))), ((last - first)) / abs(nthreads));
 
 		std::vector<std::thread> threads;
 

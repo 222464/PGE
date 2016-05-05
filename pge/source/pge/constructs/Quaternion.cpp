@@ -9,9 +9,9 @@ const float Quaternion::_quaternionDotTolerance = 0.9999f;
 Quaternion::Quaternion(float angle, const Vec3f &axis) {
 	angle *= 0.5f;
 
-	float sinAngle = std::sinf(angle);
+	float sinAngle = sinf(angle);
  
-	w = std::cosf(angle);
+	w = cosf(angle);
 	x = axis.x * sinAngle;
 	y = axis.y * sinAngle;
 	z = axis.z * sinAngle;
@@ -20,8 +20,8 @@ Quaternion::Quaternion(float angle, const Vec3f &axis) {
 void Quaternion::normalize() {
 	float m2 = x * x + y * y + z * z + w * w;
 
-	if (std::fabsf(m2) > _quaternionNormalizationTolerance && std::fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
-		float mInv = 1.0f / std::sqrtf(m2);
+	if (fabsf(m2) > _quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
+		float mInv = 1.0f / sqrtf(m2);
 
 		w *= mInv;
 		x *= mInv;
@@ -33,8 +33,8 @@ void Quaternion::normalize() {
 Quaternion Quaternion::normalized() const {
 	float m2 = x * x + y * y + z * z + w * w;
 
-	if (std::fabsf(m2) > _quaternionNormalizationTolerance && std::fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
-		float mInv = 1.0f / std::sqrtf(m2);
+	if (fabsf(m2) > _quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
+		float mInv = 1.0f / sqrtf(m2);
 
 		return Quaternion(w * mInv, x * mInv, y * mInv, z * mInv);
 	}
@@ -43,7 +43,7 @@ Quaternion Quaternion::normalized() const {
 }
 
 Vec3f Quaternion::getAxis() const {
-	float s = std::sqrtf(1.0f - w * w);
+	float s = sqrtf(1.0f - w * w);
 
 	if (s < _quaternionNormalizationTolerance)
 		return Vec3f(x, y, z);
@@ -63,9 +63,9 @@ Quaternion Quaternion::operator*(const Quaternion &other) const {
 void Quaternion::rotate(float angle, const Vec3f &axis) {
 	angle *= 0.5f;
 
-	float sinAngle = std::sinf(angle);
+	float sinAngle = sinf(angle);
 
-	w = std::cosf(angle);
+	w = cosf(angle);
 	x = axis.x * sinAngle;
 	y = axis.y * sinAngle;
 	z = axis.z * sinAngle;
@@ -73,7 +73,7 @@ void Quaternion::rotate(float angle, const Vec3f &axis) {
 
 void Quaternion::setFromRotateDifference(const Vec3f &v1, const Vec3f &v2) {
 	Vec3f axis(v1.cross(v2));
-	float angle = std::acosf(v1.dot(v2));
+	float angle = acosf(v1.dot(v2));
 
 	rotate(angle, axis);
 }
@@ -82,7 +82,7 @@ void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
 	float trace = mat._elements[0] + mat._elements[5] + mat._elements[10];
 
 	if(trace > 0.0f) { 
-		float s = std::sqrtf(trace + 1.0f) * 2.0f;
+		float s = sqrtf(trace + 1.0f) * 2.0f;
 
 		float sInv = 1.0f / s;
 
@@ -91,7 +91,7 @@ void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
 		y = (mat._elements[2] - mat._elements[8]) * sInv; 
 		z = (mat._elements[4] - mat._elements[1]) * sInv; 
 	} else if(mat._elements[0] > mat._elements[5] && mat._elements[0] > mat._elements[10]) { 
-		float s = std::sqrtf(1.0f + mat._elements[0] - mat._elements[5] - mat._elements[10]) * 2.0f;
+		float s = sqrtf(1.0f + mat._elements[0] - mat._elements[5] - mat._elements[10]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
@@ -100,7 +100,7 @@ void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
 		y = (mat._elements[1] + mat._elements[4]) * sInv; 
 		z = (mat._elements[2] + mat._elements[8]) * sInv; 
 	} else if(mat._elements[5] > mat._elements[10]) { 
-		float s = std::sqrtf(1.0f + mat._elements[5] - mat._elements[0] - mat._elements[10]) * 2.0f;
+		float s = sqrtf(1.0f + mat._elements[5] - mat._elements[0] - mat._elements[10]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
@@ -109,7 +109,7 @@ void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
 		y = 0.25f * s;
 		z = (mat._elements[6] + mat._elements[9]) * sInv; 
 	} else { 
-		float s = std::sqrtf(1.0f + mat._elements[10] - mat._elements[0] - mat._elements[5]) * 2.0f;
+		float s = sqrtf(1.0f + mat._elements[10] - mat._elements[0] - mat._elements[5]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
@@ -193,13 +193,13 @@ Matrix4x4f Quaternion::getMatrix() const {
 
 void Quaternion::setFromEulerAngles(const Vec3f &eulerAngles) {
 	// Could also just multiply quaternions rotated along axes, can better optimize like this though
-	float cx = std::cosf(eulerAngles.x / 2.0f);
-	float cy = std::cosf(eulerAngles.y / 2.0f);
-	float cz = std::cosf(eulerAngles.z / 2.0f);
+	float cx = cosf(eulerAngles.x / 2.0f);
+	float cy = cosf(eulerAngles.y / 2.0f);
+	float cz = cosf(eulerAngles.z / 2.0f);
 
-	float sx = std::sinf(eulerAngles.x / 2.0f);
-	float sy = std::sinf(eulerAngles.y / 2.0f);
-	float sz = std::sinf(eulerAngles.z / 2.0f);
+	float sx = sinf(eulerAngles.x / 2.0f);
+	float sy = sinf(eulerAngles.y / 2.0f);
+	float sz = sinf(eulerAngles.z / 2.0f);
 
 	w = cx * cy * cz - sx * sy * sz;
 	x = cx * sy * sz + sx * cy * cz;
@@ -211,7 +211,7 @@ void Quaternion::setFromRotationMatrix3x3f(const Matrix3x3f &mat) {
 	float trace = mat._elements[0] + mat._elements[4] + mat._elements[8];
 
 	if(trace > 0.0f) {
-		w = 0.5f * std::sqrtf(1.0f + trace);
+		w = 0.5f * sqrtf(1.0f + trace);
 
 		float wTimes4Inv = 1.0f / (w * 4.0f);
 
@@ -219,7 +219,7 @@ void Quaternion::setFromRotationMatrix3x3f(const Matrix3x3f &mat) {
 		y = (mat._elements[6] - mat._elements[2]) * wTimes4Inv;
 		z = (mat._elements[1] - mat._elements[3]) * wTimes4Inv;
 	} else if(mat._elements[0] > mat._elements[4] && mat._elements[0] > mat._elements[8]) {
-		float s = 2.0f * std::sqrtf(1.0f + mat._elements[0] - mat._elements[4] - mat._elements[8]);
+		float s = 2.0f * sqrtf(1.0f + mat._elements[0] - mat._elements[4] - mat._elements[8]);
 		float sInv = 1.0f / s;
 
 		w = (mat._elements[5] - mat._elements[7]) * sInv;
@@ -227,7 +227,7 @@ void Quaternion::setFromRotationMatrix3x3f(const Matrix3x3f &mat) {
 		y = (mat._elements[3] - mat._elements[1]) * sInv;
 		z = (mat._elements[6] - mat._elements[2]) * sInv;
 	} else if(mat._elements[4] > mat._elements[8]) {
-		float s = 2.0f * std::sqrtf(1.0f + mat._elements[4] - mat._elements[0] - mat._elements[8]);
+		float s = 2.0f * sqrtf(1.0f + mat._elements[4] - mat._elements[0] - mat._elements[8]);
 		float sInv = 1.0f / s;
 
 		w = (mat._elements[6] - mat._elements[2]) * sInv;
@@ -235,7 +235,7 @@ void Quaternion::setFromRotationMatrix3x3f(const Matrix3x3f &mat) {
 		y = 0.25f * s;
 		z = (mat._elements[7] - mat._elements[5]) * sInv;
 	} else {
-		float s = 2.0f * std::sqrtf(1.0f + mat._elements[8] - mat._elements[0] - mat._elements[4]);
+		float s = 2.0f * sqrtf(1.0f + mat._elements[8] - mat._elements[0] - mat._elements[4]);
 		float sInv = 1.0f / s;
 
 		w = (mat._elements[1] - mat._elements[3]) * sInv;
