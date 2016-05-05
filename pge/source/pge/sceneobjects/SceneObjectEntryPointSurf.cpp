@@ -19,7 +19,7 @@
 #include <pge/rendering/imageeffects/SceneObjectFog.h>
 
 #include <pge/sceneobjects/SceneObjectFloatingCamera.h>
-#include <pge/sceneobjects/SceneObjectOrbitCamera.h>
+#include <pge/sceneobjects/SceneObjectSurfCharacterController.h>
 
 #include <pge/system/SoftwareImage2D.h>
 
@@ -56,9 +56,11 @@ void SceneObjectEntryPointSurf::onAdd() {
 
 	// Control
 
-	std::shared_ptr<SceneObjectOrbitCamera> camera(new SceneObjectOrbitCamera());
+	std::shared_ptr<SceneObjectSurfCharacterController> surfer(new SceneObjectSurfCharacterController());
 
-	getRenderScene()->add(camera, false);
+	getRenderScene()->add(surfer, false);
+
+	surfer->create(physicsWorld.get(), pge::Vec3f(0.0f, 10.0f, 0.0f), 0.2f, 1.6f, 100.0f, 0.2f);
 
 	// Map
 
@@ -74,17 +76,17 @@ void SceneObjectEntryPointSurf::onAdd() {
 
 	getScene()->add(prop, true);
 
-	prop->create("resources/models/BlockGame.obj");
+	prop->create("resources/models/surfTrack1.obj");
 
 	prop->calculateAABB();
 
-	std::shared_ptr<SceneObjectSurf> cartPole(new SceneObjectSurf());
+	//std::shared_ptr<SceneObjectSurf> surf(new SceneObjectSurf());
 
-	getRenderScene()->add(cartPole, false);
+	//getRenderScene()->add(surf, false);
 
-	cartPole->create();
+	//surf->create();
 
-	cartPole->_layer = 100.0f;
+	//surf->_layer = 100.0f;
 
 	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 

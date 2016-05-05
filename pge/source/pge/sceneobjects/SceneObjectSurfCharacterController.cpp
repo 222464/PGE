@@ -1,14 +1,25 @@
 #include <pge/sceneobjects/SceneObjectSurfCharacterController.h>
 
-using namespace pge;
+#include <pge/scene/RenderScene.h>
 
-SceneObjectSurfCharacterController::SceneObjectSurfCharacterController(Scene* pScene, SceneObjectPhysicsWorld* pPhysicsWorld, const Vec3f &spawnPos, float radius, float height, float mass, float stepHeight)
-: _physicsWorld(pPhysicsWorld), _pScene(pScene), _bottomYOffset(height * 0.5f + radius), _bottomRoundedRegionYOffset((height + radius) * 0.5f),
-_deceleration(0.1f), _maxSpeed(5.0f), _jumpImpulse(400.0f),
+#include <pge/util/Math.h>
+
+#include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
+
+SceneObjectSurfCharacterController::SceneObjectSurfCharacterController()
+: _deceleration(0.1f), _maxSpeed(5.0f), _jumpImpulse(400.0f),
 _manualVelocity(0.0f, 0.0f, 0.0f), _onGround(false), _hittingWall(false),
-_jumpRechargeTimer(0.0f), _jumpRechargeTime(0.1f), _stepHeight(stepHeight),
-_mustCrouch(false), _floorNormal(0.0f, 1.0f, 0.0f)
-{
+_jumpRechargeTimer(0.0f), _jumpRechargeTime(0.1f),
+_mustCrouch(false), _floorNormal(0.0f, 1.0f, 0.0f),
+_sensitivity(0.01f), _angleX(0.0f), _angleY(0.0f)
+{}
+
+void SceneObjectSurfCharacterController::create(pge::SceneObjectPhysicsWorld* pPhysicsWorld, const pge::Vec3f &spawnPos, float radius, float height, float mass, float stepHeight) {
+	_physicsWorld = pPhysicsWorld;
+	_bottomYOffset = height * 0.5f + radius;
+	_bottomRoundedRegionYOffset = (height + radius) * 0.5f;
+	_stepHeight = stepHeight;
+
 	_pCollisionShape.reset(new btCapsuleShape(radius, height));
 
 	_pMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(1.0f, 0.0f, 0.0f, 0.0f).normalized(), bt(spawnPos))));
@@ -50,22 +61,22 @@ _mustCrouch(false), _floorNormal(0.0f, 1.0f, 0.0f)
 
 SceneObjectSurfCharacterController::~SceneObjectSurfCharacterController() {
 	if (_physicsWorld.isAlive()) {
-		SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(_physicsWorld.get());
+		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
 
 		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBody.get());
 		pPhysicsWorld->_pDynamicsWorld->removeCollisionObject(_pGhostObject.get());
 	}
 }
 
-void SceneObjectSurfCharacterController::walk(const Vec2f &dir) {
+void SceneObjectSurfCharacterController::walk(const pge::Vec2f &dir) {
 	// Prevent from going over maximum speed
 	float speed = _manualVelocity.magnitude();
 
 	if (speed < _maxSpeed)
-		_manualVelocity += Vec3f(dir.x, 0.0f, dir.y);
+		_manualVelocity += pge::Vec3f(dir.x, 0.0f, dir.y);
 }
 
-void SceneObjectSurfCharacterController::update(float dt) {
+void SceneObjectSurfCharacterController::physUpdate(float dt) {
 	// Sync ghost with actually object
 	_pGhostObject->setWorldTransform(_pRigidBody->getWorldTransform());
 
@@ -73,9 +84,9 @@ void SceneObjectSurfCharacterController::update(float dt) {
 	_pMotionState->getWorldTransform(_motionTransform);
 
 	_onGround = false;
-	_floorNormal = Vec3f(0.0f, 1.0f, 0.0f);
+	_floorNormal = pge::Vec3f(0.0f, 1.0f, 0.0f);
 
-	std::vector<Vec3f> surfaceHitNormals;
+	std::vector<pge::Vec3f> surfaceHitNormals;
 
 	parseGhostContacts(surfaceHitNormals);
 
@@ -87,7 +98,7 @@ void SceneObjectSurfCharacterController::update(float dt) {
 		_jumpRechargeTimer += dt;
 }
 
-void SceneObjectSurfCharacterController::parseGhostContacts(std::vector<Vec3f> &surfaceHitNormals) {
+void SceneObjectSurfCharacterController::parseGhostContacts(std::vector<pge::Vec3f> &surfaceHitNormals) {
 	btManifoldArray manifoldArray;
 	btBroadphasePairArray &pairArray = _pGhostObject->getOverlappingPairCache()->getOverlappingPairArray();
 	int numPairs = pairArray.size();
@@ -95,7 +106,7 @@ void SceneObjectSurfCharacterController::parseGhostContacts(std::vector<Vec3f> &
 	// Set false now, may be set true in test
 	_hittingWall = false;
 
-	SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
 
 	for (int i = 0; i < numPairs; i++) {
 		manifoldArray.clear();
@@ -137,8 +148,8 @@ void SceneObjectSurfCharacterController::parseGhostContacts(std::vector<Vec3f> &
 	}
 }
 
-void SceneObjectSurfCharacterController::updateVelocity(const std::vector<Vec3f> &surfaceHitNormals, float dt) {
-	SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(_physicsWorld.get());
+void SceneObjectSurfCharacterController::updateVelocity(const std::vector<pge::Vec3f> &surfaceHitNormals, float dt) {
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
 
 	// Adjust only xz velocity
 	_manualVelocity.y = _pRigidBody->getLinearVelocity().getY();
@@ -154,7 +165,7 @@ void SceneObjectSurfCharacterController::updateVelocity(const std::vector<Vec3f>
 	if (_hittingWall) {
 		for (size_t i = 0, size = surfaceHitNormals.size(); i < size; i++) {
 			// Cancel velocity across normal
-			Vec3f velInNormalDir(_manualVelocity.project(surfaceHitNormals[i]));
+			pge::Vec3f velInNormalDir(_manualVelocity.project(surfaceHitNormals[i]));
 
 			// Apply correction
 			_manualVelocity -= velInNormalDir * 1.05f;
@@ -168,7 +179,7 @@ void SceneObjectSurfCharacterController::updateVelocity(const std::vector<Vec3f>
 void SceneObjectSurfCharacterController::updatePosition(float dt) {
 	_mustCrouch = false;
 
-	SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
 
 	// Ray cast, ignore rigid body
 	IgnoreBodyAndGhostCast rayCallBackBottom(_pRigidBody.get(), _pGhostObject.get());
@@ -182,12 +193,12 @@ void SceneObjectSurfCharacterController::updatePosition(float dt) {
 		if (_pRigidBody->getLinearVelocity().getY() < 0.01f) {
 			_pRigidBody->getWorldTransform().getOrigin().setY(previousY + (_bottomYOffset + _stepHeight) * (1.0f - rayCallBackBottom.m_closestHitFraction) * 0.5f * dt);
 
-			Vec3f vel(cons(_pRigidBody->getLinearVelocity()));
+			pge::Vec3f vel(cons(_pRigidBody->getLinearVelocity()));
 
 			// Cancel velocity across normal
 			_floorNormal = cons(rayCallBackBottom.m_hitNormalWorld);
 
-			Vec3f velInNormalDir(vel.project(_floorNormal));
+			pge::Vec3f velInNormalDir(vel.project(_floorNormal));
 
 			// Apply correction
 			_manualVelocity -= velInNormalDir * 1.05f;
@@ -209,10 +220,10 @@ void SceneObjectSurfCharacterController::updatePosition(float dt) {
 	if (rayCallBackTop.hasHit()) {
 		_pRigidBody->getWorldTransform().setOrigin(_previousPosition);
 
-		Vec3f vel(cons(_pRigidBody->getLinearVelocity()));
+		pge::Vec3f vel(cons(_pRigidBody->getLinearVelocity()));
 
 		// Cancel velocity across normal
-		Vec3f velInNormalDir(vel.project(cons(rayCallBackTop.m_hitNormalWorld)));
+		pge::Vec3f velInNormalDir(vel.project(cons(rayCallBackTop.m_hitNormalWorld)));
 
 		// Apply correction
 		_manualVelocity -= velInNormalDir * 1.05f;
@@ -238,4 +249,31 @@ void SceneObjectSurfCharacterController::jump() {
 
 		_pRigidBody->getWorldTransform().getOrigin().setY(previousY + jumpYOffset);
 	}
+}
+
+void SceneObjectSurfCharacterController::onAdd() {
+	_input = getScene()->getNamed("buffIn");
+}
+
+void SceneObjectSurfCharacterController::update(float dt) {
+	pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(_input.get());
+
+	sf::Vector2i mousePosition = sf::Mouse::getPosition(*getRenderScene()->getRenderWindow()) - sf::Vector2i(128, 128);
+	sf::Mouse::setPosition(sf::Vector2i(128, 128), *getRenderScene()->getRenderWindow());
+
+	_angleX -= mousePosition.x * _sensitivity;
+	_angleY -= mousePosition.y * _sensitivity;
+
+	_angleX = std::fmodf(_angleX, pge::_piTimes2);
+
+	if (_angleY < -pge::_piOver2)
+		_angleY = -pge::_piOver2;
+	else if (_angleY > pge::_piOver2)
+		_angleY = pge::_piOver2;
+
+	getRenderScene()->_logicCamera._rotation = pge::Quaternion(_angleX, pge::Vec3f(0.0f, 1.0f, 0.0f)) * pge::Quaternion(_angleY, pge::Vec3f(1.0f, 0.0f, 0.0f));
+
+	getRenderScene()->_logicCamera._position = getPosition() + pge::Vec3f(0.0f, _bottomYOffset, 0.0f);
+
+	physUpdate(dt);
 }

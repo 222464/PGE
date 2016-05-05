@@ -7,6 +7,11 @@ from gym.envs.registration import registry, register, make, spec
 register(
     id='BlockGame-v0',
     entry_point='pypge.BlockGameInterface:BlockGameEnv',
-    timestep_limit=200,
-    reward_threshold=25.0,
+    timestep_limit=1000
+)
+
+register(
+    id='CartPole3D-v0',
+    entry_point='pypge.CartPole3DInterface:CartPole3DEnv',
+    timestep_limit=600
 )

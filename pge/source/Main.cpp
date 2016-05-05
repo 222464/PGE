@@ -1,6 +1,9 @@
 #include <pge/scene/RenderScene.h>
 
 #include <pge/sceneobjects/SceneObjectEntryPointBlockGame.h>
+#include <pge/sceneobjects/SceneObjectEntryPointSurf.h>
+#include <pge/sceneobjects/SceneObjectEntryPointCartPole.h>
+
 #include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
 
 #include <pge/rendering/lighting/SceneObjectLighting.h>
@@ -28,10 +31,15 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		std::string s1 = argv[1];
-
 		
 		if (s1 == "BlockGame-v0") {
 			entryPoint.reset(new SceneObjectEntryPointBlockGame());
+		}
+		else if (s1 == "CartPole3D-v0") {
+			entryPoint.reset(new SceneObjectEntryPointCartPole());
+		}
+		else if (s1 == "Surf-v0") {
+			entryPoint.reset(new SceneObjectEntryPointSurf());
 		}
 		else {
 			std::cerr << "Invalid environment name (\"" << s1 << "\" given)" << std::endl;

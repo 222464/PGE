@@ -6,113 +6,127 @@
 
 #include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
 
-namespace pge {
-	class IgnoreBodyAndGhostCast : public btCollisionWorld::ClosestRayResultCallback {
-	private:
-		btRigidBody* _pBody;
-		btPairCachingGhostObject* _pGhostObject;
+class IgnoreBodyAndGhostCast : public btCollisionWorld::ClosestRayResultCallback {
+private:
+	btRigidBody* _pBody;
+	btPairCachingGhostObject* _pGhostObject;
 
-	public:
-		IgnoreBodyAndGhostCast(btRigidBody* pBody, btPairCachingGhostObject* pGhostObject)
-			: btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0)),
-			_pBody(pBody), _pGhostObject(pGhostObject)
-		{}
+public:
+	IgnoreBodyAndGhostCast(btRigidBody* pBody, btPairCachingGhostObject* pGhostObject)
+		: btCollisionWorld::ClosestRayResultCallback(btVector3(0.0, 0.0, 0.0), btVector3(0.0, 0.0, 0.0)),
+		_pBody(pBody), _pGhostObject(pGhostObject)
+	{}
 
-		btScalar addSingleResult(btCollisionWorld::LocalRayResult &rayResult, bool normalInWorldSpace) {
-			if (rayResult.m_collisionObject == _pBody || rayResult.m_collisionObject == _pGhostObject)
-				return 1.0f;
+	btScalar addSingleResult(btCollisionWorld::LocalRayResult &rayResult, bool normalInWorldSpace) {
+		if (rayResult.m_collisionObject == _pBody || rayResult.m_collisionObject == _pGhostObject)
+			return 1.0f;
 
-			return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
-		}
-	};
+		return ClosestRayResultCallback::addSingleResult(rayResult, normalInWorldSpace);
+	}
+};
 
-	class SceneObjectSurfCharacterController {
-		SceneObjectRef _physicsWorld;
+class SceneObjectSurfCharacterController : public pge::SceneObject {
+private:
+	pge::SceneObjectRef _input;
 
-		Scene* _pScene;
+	pge::SceneObjectRef _physicsWorld;
 
-		std::shared_ptr<btCollisionShape> _pCollisionShape;
-		std::shared_ptr<btDefaultMotionState> _pMotionState;
-		std::shared_ptr<btRigidBody> _pRigidBody;
-		std::shared_ptr<btPairCachingGhostObject> _pGhostObject;
+	std::shared_ptr<btCollisionShape> _pCollisionShape;
+	std::shared_ptr<btDefaultMotionState> _pMotionState;
+	std::shared_ptr<btRigidBody> _pRigidBody;
+	std::shared_ptr<btPairCachingGhostObject> _pGhostObject;
 
-		bool _onGround;
-		bool _hittingWall;
+	bool _onGround;
+	bool _hittingWall;
 
-		float _bottomYOffset;
-		float _bottomRoundedRegionYOffset;
+	float _bottomYOffset;
+	float _bottomRoundedRegionYOffset;
 
-		btTransform _motionTransform;
+	btTransform _motionTransform;
 
-		Vec3f _manualVelocity;
+	pge::Vec3f _manualVelocity;
 
-		btVector3 _previousPosition;
+	btVector3 _previousPosition;
 
-		float _jumpRechargeTimer;
+	float _jumpRechargeTimer;
 
-		bool _mustCrouch;
+	bool _mustCrouch;
 
-		Vec3f _floorNormal;
+	pge::Vec3f _floorNormal;
 
-		void parseGhostContacts(std::vector<Vec3f> &surfaceHitNormals);
+	void parseGhostContacts(std::vector<pge::Vec3f> &surfaceHitNormals);
 
-		void updateVelocity(const std::vector<Vec3f> &surfaceHitNormals, float dt);
-		void updatePosition(float dt);
+	void updateVelocity(const std::vector<pge::Vec3f> &surfaceHitNormals, float dt);
+	void updatePosition(float dt);
 
-	public:
-		float _deceleration;
-		float _maxSpeed;
-		float _jumpImpulse;
+public:
+	float _deceleration;
+	float _maxSpeed;
+	float _jumpImpulse;
 
-		float _jumpRechargeTime;
+	float _jumpRechargeTime;
 
-		float _stepHeight;
+	float _stepHeight;
 
-		SceneObjectSurfCharacterController(Scene* pScene, SceneObjectPhysicsWorld* pPhysicsWorld, const Vec3f &spawnPos, float radius, float height, float mass, float stepHeight);
-		~SceneObjectSurfCharacterController();
+	// Camera
+	float _sensitivity;
 
-		// Acceleration vector in XZ plane
-		void walk(const Vec2f &dir);
+	float _angleX, _angleY;
 
-		// Flattens vector
-		void walk(const Vec3f &dir) {
-			walk(Vec2f(dir.x, dir.z).normalized() * dir.magnitude());
-		}
+	SceneObjectSurfCharacterController();
+	~SceneObjectSurfCharacterController();
 
-		void update(float dt);
+	void create(pge::SceneObjectPhysicsWorld* pPhysicsWorld, const pge::Vec3f &spawnPos, float radius, float height, float mass, float stepHeight);
 
-		void jump();
+	// Acceleration vector in XZ plane
+	void walk(const pge::Vec2f &dir);
 
-		Vec3f getPosition() const {
-			return cons(_pRigidBody->getWorldTransform().getOrigin());
-		}
+	// Flattens vector
+	void walk(const pge::Vec3f &dir) {
+		walk(pge::Vec2f(dir.x, dir.z).normalized() * dir.magnitude());
+	}
 
-		void setPosition(const Vec3f &position) {
-			_pRigidBody->getWorldTransform().setOrigin(bt(position));
-		}
+	void physUpdate(float dt);
 
-		Vec3f getLinearVelocity() const {
-			return cons(_pRigidBody->getLinearVelocity());
-		}
+	void jump();
 
-		void setLinearVelocity(const Vec3f &velocity) {
-			_pRigidBody->setLinearVelocity(bt(velocity));
-		}
+	// Inherited from SceneObject
+	void onAdd();
+	void update(float dt);
 
-		bool isOnGround() const {
-			return _onGround;
-		}
+	pge::Vec3f getPosition() const {
+		return cons(_pRigidBody->getWorldTransform().getOrigin());
+	}
 
-		bool mustCrouch() const {
-			return _mustCrouch;
-		}
+	void setPosition(const pge::Vec3f &position) {
+		_pRigidBody->getWorldTransform().setOrigin(bt(position));
+	}
 
-		btRigidBody* getRigidBody() const {
-			return _pRigidBody.get();
-		}
+	pge::Vec3f getLinearVelocity() const {
+		return cons(_pRigidBody->getLinearVelocity());
+	}
 
-		btPairCachingGhostObject* getGhostObject() const {
-			return _pGhostObject.get();
-		}
-	};
-}
+	void setLinearVelocity(const pge::Vec3f &velocity) {
+		_pRigidBody->setLinearVelocity(bt(velocity));
+	}
+
+	bool isOnGround() const {
+		return _onGround;
+	}
+
+	bool mustCrouch() const {
+		return _mustCrouch;
+	}
+
+	btRigidBody* getRigidBody() const {
+		return _pRigidBody.get();
+	}
+
+	btPairCachingGhostObject* getGhostObject() const {
+		return _pGhostObject.get();
+	}
+
+	SceneObject* copyFactory() {
+		return new SceneObjectSurfCharacterController(*this);
+	}
+};
