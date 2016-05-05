@@ -7,16 +7,14 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 file(GLOB_RECURSE SOURCES
-    "*.h"
-    "*.cpp"
+    "source/*.h"
+    "source/*.cpp"
 )
 list(APPEND SOURCES "source/gl_core_4_4.c")
  
 add_executable(pge ${SOURCES})
 include_directories("${PROJECT_SOURCE_DIR}/source")
 
-set_property(TARGET pge PROPERTY CXX_STANDARD 11)
-set_property(TARGET pge PROPERTY CXX_STANDARD_REQUIRED ON)
 
 find_package(SFML 2 REQUIRED system window graphics network audio)
 message(STATUS "SFML incs: " ${SFML_INCLUDE_DIR})
@@ -55,4 +53,7 @@ if(MSVC)
     string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
   endforeach()
 endif()
+
+set_property(TARGET pge PROPERTY CXX_STANDARD 11)
+set_property(TARGET pge PROPERTY CXX_STANDARD_REQUIRED ON)
 
