@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/assetManager/Asset.h>
+#include <pge/assetmanager/Asset.h>
 
 #include <pge/rendering/SFMLOGL.h>
 

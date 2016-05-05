@@ -223,8 +223,8 @@ Matrix4x4f Matrix4x4f::translateMatrix(const Vec3f translation) {
 }
 
 Matrix4x4f Matrix4x4f::rotateMatrixX(float angle) {
-	float cosOfAngle = std::cosf(angle);
-	float sinOfAngle = std::sinf(angle);
+	float cosOfAngle = cosf(angle);
+	float sinOfAngle = sinf(angle);
 
 	Matrix4x4f rotationMatrix;
 
@@ -239,8 +239,8 @@ Matrix4x4f Matrix4x4f::rotateMatrixX(float angle) {
 }
 
 Matrix4x4f Matrix4x4f::rotateMatrixY(float angle) {
-	float cosOfAngle = std::cosf(angle);
-	float sinOfAngle = std::sinf(angle);
+	float cosOfAngle = cosf(angle);
+	float sinOfAngle = sinf(angle);
 
 	Matrix4x4f rotationMatrix;
 
@@ -255,8 +255,8 @@ Matrix4x4f Matrix4x4f::rotateMatrixY(float angle) {
 }
 
 Matrix4x4f Matrix4x4f::rotateMatrixZ(float angle) {
-	float cosOfAngle = std::cosf(angle);
-	float sinOfAngle = std::sinf(angle);
+	float cosOfAngle = cosf(angle);
+	float sinOfAngle = sinf(angle);
 
 	Matrix4x4f rotationMatrix;
 
@@ -412,7 +412,7 @@ Matrix4x4f Matrix4x4f::identityMatrix() {
 }
 
 Matrix4x4f Matrix4x4f::perspectiveMatrix(float fovY, float aspectRatio, float zNear, float zFar) {
-	float f = 1.0f / std::tanf(0.5f * fovY);
+	float f = 1.0f / tanf(0.5f * fovY);
 
 	float nearMinusFar = zNear - zFar;
 

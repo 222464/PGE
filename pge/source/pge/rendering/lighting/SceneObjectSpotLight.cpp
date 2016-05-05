@@ -98,8 +98,8 @@ void SceneObjectSpotLight::deferredRender() {
 }
 
 void SceneObjectSpotLight::updateSpotLightInternals() {
-	_spotAngleCos = std::cosf(_spotAngle);
-	_endConeRadius = _range * std::tanf(_spotAngle);
+	_spotAngleCos = cosf(_spotAngle);
+	_endConeRadius = _range * tanf(_spotAngle);
 
 	// X axis shifted unit AABB for transform
 	_aabb.setHalfDims(Vec3f(0.5f, 1.0f, 1.0f));

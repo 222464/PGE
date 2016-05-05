@@ -20,7 +20,7 @@ void SceneObjectOrbitCamera::update(float dt) {
 
 	_angle += dt * _angularVelocity;
 
-	pge::Vec3f pos = _focusPoint + pge::Vec3f(std::cos(_angle) * _distance, std::sin(_tilt) * _distance, std::sin(_angle) * _distance);
+	pge::Vec3f pos = _focusPoint + pge::Vec3f(cosf(_angle) * _distance, sinf(_tilt) * _distance, sinf(_angle) * _distance);
 
 	pge::Quaternion lookDir = pge::Quaternion::getFromMatrix(pge::Matrix4x4f::cameraDirectionMatrix((_focusPoint - pos).normalized(), pge::Vec3f(0.0f, 1.0f, 0.0f)));
 

@@ -107,7 +107,7 @@ float FormTriangle::getArea() {
 
 	float s = (a + b + c) * 0.5f;
 
-	return std::sqrtf(s * (s - a) * (s - b) * (s - c));
+	return sqrtf(s * (s - a) * (s - b) * (s - c));
 }
 
 bool FormTriangle::isAdjacent(const FormTriangle &other) const {

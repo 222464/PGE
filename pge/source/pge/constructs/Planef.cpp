@@ -11,7 +11,7 @@ void Planef::fromPoints(const Vec3f &p1, const Vec3f &p2, const Vec3f &p3) {
 }
 
 float Planef::distanceTo(const Vec3f &point) const {
-	return std::fabsf(_normal.x * (point.x - _point.x) + _normal.y * (point.y - _point.y) + _normal.z * (point.z - _point.z)) / _normal.magnitude();
+	return fabsf(_normal.x * (point.x - _point.x) + _normal.y * (point.y - _point.y) + _normal.z * (point.z - _point.z)) / _normal.magnitude();
 }
 
 float Planef::signedDistanceTo(const Vec3f &point) const {
