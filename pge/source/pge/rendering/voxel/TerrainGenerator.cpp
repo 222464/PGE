@@ -43,7 +43,7 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 	const float grassYOffset = -0.2f;
 
-	const float grassAngleCos = std::cosf(_pi * 0.3f);
+	const float grassAngleCos = cosf(_pi * 0.3f);
 
 	//const float lightChance = 0.02f;
 

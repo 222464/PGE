@@ -31,7 +31,7 @@ namespace pge {
 		Quaternion(float angle, const Vec3f &axis);
 
 		float magnitude() const {
-			return std::sqrtf(x * x + y * y + z * z + w * w);
+			return sqrtf(x * x + y * y + z * z + w * w);
 		}
 
 		float magnitudeSquared() const {
@@ -42,7 +42,7 @@ namespace pge {
 		void normalize();
 
 		float getAngle() const {
-			return 2.0f * std::acosf(w);
+			return 2.0f * acosf(w);
 		}
 
 		Vec3f getAxis() const;

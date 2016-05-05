@@ -1,6 +1,6 @@
 #include <pge/rendering/SFMLOGL.h>
 
-#include <GL/GLU.h>
+#include <GL/glu.h>
 
 #include <iostream>
 

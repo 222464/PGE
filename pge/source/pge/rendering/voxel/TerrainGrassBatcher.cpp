@@ -36,7 +36,7 @@ void TerrainGrassBatcher::create(const std::shared_ptr<Texture2D> &grassTileSetD
 }
 
 void TerrainGrassBatcher::update(float dt) {
-	_waveTimer = std::fmodf(_waveTimer + _waveRate * dt, _piTimes2);
+	_waveTimer = fmodf(_waveTimer + _waveRate * dt, _piTimes2);
 }
 
 void TerrainGrassBatcher::batchRender() {
