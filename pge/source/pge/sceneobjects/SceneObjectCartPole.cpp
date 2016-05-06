@@ -196,7 +196,6 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 			getRenderScene()->_close = true;
 		}
 
-		std::cout << "Actions: " << _action.x << " " << _action.y << std::endl;
 		_action.x = std::min(1.0f, std::max(-1.0f, _action.x));
 		_action.y = std::min(1.0f, std::max(-1.0f, _action.y));
 		
@@ -238,11 +237,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		}
 
 		// Reset flag
-		*reinterpret_cast<char*>(&buffer[index]) = static_cast<char>(_doneLastFrame);
+		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(_doneLastFrame);
 
 		_doneLastFrame = false;
 
-		index += sizeof(char);
+		index += sizeof(int);
 
 		// Submit number of batches of _maxBatchSize
 		int numBatches = _capBytes->size() / _maxBatchSize + ((_capBytes->size() % _maxBatchSize) == 0 ? 0 : 1);

@@ -89,7 +89,7 @@ class CartPole3DEnv(gym.Env):
 		# Receive new state
 		
 		# Read
-		sizeR = 4 + 8 * 4 + 1 + 4
+		sizeR = 4 + 8 * 4 + 4 + 4
 
 		data = self.connection.recv(sizeR)
 
@@ -99,7 +99,7 @@ class CartPole3DEnv(gym.Env):
 		for i in range(0, 8):
 			self.state[i] = struct.unpack('f', data[4 + i * 4:4 + i * 4 + 4])[0]
 		
-		done = struct.unpack('c', data[sizeR-5:sizeR-4])[0] == 1
+		done = struct.unpack('i', data[sizeR-8:sizeR-4])[0] != 0
 		
 		# If capturing, expect additional data	
 		numChunks = struct.unpack('i', data[sizeR-4:sizeR])[0]
