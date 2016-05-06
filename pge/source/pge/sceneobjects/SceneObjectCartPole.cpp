@@ -23,6 +23,9 @@ bool SceneObjectCartPole::create() {
 
 	_pPoleModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
+	// Get reference to physics world
+	_physicsWorld = getScene()->getNamedCheckQueue("physWrld");
+
 	reset();
 
 	_capture = false;
@@ -50,12 +53,74 @@ void SceneObjectCartPole::reset() {
 	// Slightly random angle
 	std::uniform_real_distribution<float> pertDist(-0.05f, 0.05f);
 
-	// Generate a random map
-	_cartAccel = pge::Vec2f(0.0f, 0.0f);
-	_cartPos = pge::Vec2f(0.0f, 0.0f);
-	_cartVel = pge::Vec2f(0.0f, 0.0f);
-	_poleAngle = pge::Vec2f(pertDist(_rng), pertDist(_rng));
-	_poleVel = pge::Vec2f(0.0f, 0.0f);
+	assert(_physicsWorld.isAlive());
+
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+
+	// Remove old
+	if (_pConstraint != nullptr)
+		pPhysicsWorld->_pDynamicsWorld->removeConstraint(_pConstraint.get());
+
+	if (_pRigidBodyFloor != nullptr)
+		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyFloor.get());
+
+	if (_pRigidBodyCart != nullptr)
+		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyCart.get());
+
+	if (_pRigidBodyPole != nullptr)
+		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyPole.get());
+
+	// Physics
+	_pCollisionShapeFloor.reset(new btBoxShape(btVector3(4.0f, 0.5f, 4.0f)));
+	_pCollisionShapeCart.reset(new btBoxShape(bt(_pCartModel->getAABB().getHalfDims())));
+	_pCollisionShapePole.reset(new btCapsuleShape(0.05f, 1.0f));
+
+	_pMotionStateFloor.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.25f, 0.0f))));
+	_pMotionStateCart.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.85f, 0.0f))));
+	_pMotionStatePole.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, pertDist(_rng), pertDist(_rng)), btVector3(0.0f, 0.85f + 0.5f + 0.05f, 0.0f))));
+
+	const float floorMass = 0.0f;
+	const float cartMass = 10.0f;
+	const float poleMass = 10.0f;
+
+	btVector3 floorInertia, cartInertia, poleInertia;
+
+	btVector3 inertia;
+	_pCollisionShapeFloor->calculateLocalInertia(floorMass, floorInertia);
+	_pCollisionShapeCart->calculateLocalInertia(cartMass, cartInertia);
+	_pCollisionShapePole->calculateLocalInertia(poleMass, poleInertia);
+
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIFloor(floorMass, _pMotionStateFloor.get(), _pCollisionShapeFloor.get(), floorInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCICart(cartMass, _pMotionStateCart.get(), _pCollisionShapeCart.get(), cartInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIPole(poleMass, _pMotionStatePole.get(), _pCollisionShapePole.get(), poleInertia);
+
+	rigidBodyCIFloor.m_restitution = 0.001f;
+	rigidBodyCIFloor.m_friction = 0.01f;
+
+	rigidBodyCICart.m_restitution = 0.001f;
+	rigidBodyCICart.m_friction = 0.01f;
+
+	rigidBodyCIPole.m_restitution = 0.001f;
+	rigidBodyCIPole.m_friction = 0.01f;
+
+	_pRigidBodyFloor.reset(new btRigidBody(rigidBodyCIFloor));
+	_pRigidBodyCart.reset(new btRigidBody(rigidBodyCICart));
+	_pRigidBodyPole.reset(new btRigidBody(rigidBodyCIPole));
+
+	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyFloor.get());
+	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyCart.get());
+	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyPole.get());
+
+	_pRigidBodyCart->setAngularFactor(0.0f); // No rotation
+
+	btTransform frameA = btTransform::getIdentity();
+	btTransform frameB = btTransform::getIdentity();
+
+	frameA.setOrigin(btVector3(0.0f, 0.05f, 0.0f));
+	frameB.setOrigin(btVector3(0.0f, -0.5f, 0.0f));
+	_pConstraint.reset(new btConeTwistConstraint(*_pRigidBodyCart, *_pRigidBodyPole, frameA, frameB));
+
+	pPhysicsWorld->_pDynamicsWorld->addConstraint(_pConstraint.get(), true);
 
 	_action = pge::Vec2f(0.0f, 0.0f);
 	_ticksPerAction = 0;
@@ -64,55 +129,20 @@ void SceneObjectCartPole::reset() {
 }
 
 void SceneObjectCartPole::act() {
-	const float dt = 0.017f;
-	const float g = 9.81f;
-	const float poleRotationalFriction = 0.01f;
-	const float cartFriction = 0.01f;
-	const float maxSpeed = 3.0f;
-	const float agentForce = 3000.0f;
-	const float poleLength = 1.0f;
-	const float massMass = 10.0f;
-	const float cartMass = 10.0f;
-
-	float poleAngleAccelX = _cartAccel.x * std::cos(_poleAngle.x) + g * std::sin(_poleAngle.x);
-	float poleAngleAccelY = _cartAccel.y * std::cos(_poleAngle.y) + g * std::sin(_poleAngle.y);
-	_poleVel += -poleRotationalFriction * _poleVel + pge::Vec2f(poleAngleAccelX, poleAngleAccelY) * dt;
-	_poleAngle += _poleVel * dt;
-
-	float forceX = 0.0f;
-
-	if (std::abs(_action.x) < maxSpeed)
-		forceX = std::max(-agentForce, std::min(agentForce, agentForce * _action.x));
-
-	float forceY = 0.0f;
-
-	if (std::abs(_action.y) < maxSpeed)
-		forceY = std::max(-agentForce, std::min(agentForce, agentForce * _action.y));
-
-	_cartAccel.x = 0.25f * (forceX + massMass * poleLength * poleAngleAccelX * std::cos(_poleAngle.x) - massMass * poleLength * _poleVel.x * _poleVel.x * std::sin(_poleAngle.x)) / (massMass + cartMass);
-	_cartAccel.y = 0.25f * (forceY + massMass * poleLength * poleAngleAccelY * std::cos(_poleAngle.y) - massMass * poleLength * _poleVel.y * _poleVel.y * std::sin(_poleAngle.y)) / (massMass + cartMass);
-	_cartVel += -cartFriction * _cartVel + pge::Vec2f(_cartAccel.x, _cartAccel.y) * dt;
-	_cartPos += _cartVel * dt;
-
-	_poleAngle.x = std::fmod(_poleAngle.x, (2.0f * pge::_pi));
-	_poleAngle.y = std::fmod(_poleAngle.y, (2.0f * pge::_pi));
-
-	if (_poleAngle.x < 0.0f)
-		_poleAngle.x += pge::_pi * 2.0f;
-
-	if (_poleAngle.y < 0.0f)
-		_poleAngle.y += pge::_pi * 2.0f;
-
-	const float angleTolerance = 0.8f;
+	const float force = 100.0f;
 	const float positionTolerance = 3.5f;
+	const float angleTolerance = 0.7f;
 
-	float nAngleX = _poleAngle.x > pge::_pi ? pge::_piTimes2 - _poleAngle.x : _poleAngle.x;
-	float nAngleY = _poleAngle.y > pge::_pi ? pge::_piTimes2 - _poleAngle.y : _poleAngle.y;
+	_pRigidBodyCart->applyCentralForce(btVector3(_action.x, 0.0f, _action.y) * force);
 
-	_reward = -nAngleX - nAngleY;
+	btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
+	btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
 
-	if (std::abs(nAngleX) > angleTolerance || std::abs(nAngleY) > angleTolerance ||
-		std::abs(_cartPos.x) > positionTolerance || std::abs(_cartPos.y) > positionTolerance) {
+	_reward = rot.angleShortestPath(btQuaternion::getIdentity());
+
+	if (_reward > angleTolerance ||
+		std::abs(pos.getX()) > positionTolerance || std::abs(pos.getZ()) > positionTolerance) {
+		std::cout << "Pole fell or is out of bounds. Resetting..." << std::endl;
 		reset();
 		_doneLastFrame = true;
 	}
@@ -166,6 +196,7 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 			getRenderScene()->_close = true;
 		}
 
+		std::cout << "Actions: " << _action.x << " " << _action.y << std::endl;
 		_action.x = std::min(1.0f, std::max(-1.0f, _action.x));
 		_action.y = std::min(1.0f, std::max(-1.0f, _action.y));
 		
@@ -176,14 +207,22 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		// Observation (8 values)
 		std::vector<float> obs(8);
 
-		obs[0] = _cartPos.x;
-		obs[1] = _cartPos.y;
-		obs[2] = _cartVel.x;
-		obs[3] = _cartVel.y;
-		obs[4] = _poleAngle.x;
-		obs[5] = _poleAngle.y;
-		obs[6] = _poleVel.x;
-		obs[7] = _poleVel.y;
+		btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
+		btVector3 vel = _pRigidBodyCart->getLinearVelocity();
+		btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
+		btVector3 angleVel = _pRigidBodyPole->getAngularVelocity();
+
+		pge::Quaternion rotC = cons(rot);
+		pge::Vec3f rotE = rotC.getEulerAngles();
+
+		obs[0] = pos.getX();
+		obs[1] = pos.getZ();
+		obs[2] = vel.getX();
+		obs[3] = vel.getZ();
+		obs[4] = rotE.x;
+		obs[5] = rotE.z;
+		obs[6] = angleVel.getX();
+		obs[7] = angleVel.getZ();
 
 		// First add reward
 		int index = 0;
@@ -257,14 +296,20 @@ void SceneObjectCartPole::deferredRender() {
 
 	{
 		// Render cart
-		pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(_cartPos.x, 0.9f, _cartPos.y));
+		pge::Matrix4x4f transform;
+
+		_pRigidBodyCart->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
 
 		_pCartModel->render(pBatcher, transform);
 	}
 
 	{
 		// Render pole
-		pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(_cartPos.x, 1.0f, _cartPos.y)) * pge::Matrix4x4f::rotateMatrixX(_poleAngle.x) * pge::Matrix4x4f::rotateMatrixZ(_poleAngle.y);
+		pge::Matrix4x4f transform;
+
+		_pRigidBodyPole->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
+
+		transform *= pge::Matrix4x4f::translateMatrix(pge::Vec3f(0.0f, -0.5f, 0.0f));
 
 		_pPoleModel->render(pBatcher, transform);
 	}
@@ -280,4 +325,20 @@ void SceneObjectCartPole::postRender() {
 void SceneObjectCartPole::onDestroy() {
 	if (_socket != nullptr)
 		_socket->disconnect();
+
+	if (_physicsWorld.isAlive()) {
+		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+
+		if (_pConstraint != nullptr)
+			pPhysicsWorld->_pDynamicsWorld->removeConstraint(_pConstraint.get());
+
+		if (_pRigidBodyFloor != nullptr)
+			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyFloor.get());
+
+		if (_pRigidBodyCart != nullptr)
+			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyCart.get());
+
+		if (_pRigidBodyPole != nullptr)
+			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyPole.get());
+	}
 }
