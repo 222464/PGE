@@ -58,7 +58,7 @@ class CartPole3DEnv(gym.Env):
 	def _step(self, action):
 		assert action[0]>=-1 and action[0]<=1 and action[1]>=-1 and action[1]<=1, "%r (%s) invalid"%(action, type(action))
 
-		actionf = np.array(action, dtype=np.float32)
+		actionf = action.astype(np.float32)
 		
 		out = ''
 		
@@ -99,7 +99,7 @@ class CartPole3DEnv(gym.Env):
 		for i in range(0, 8):
 			self.state[i] = struct.unpack('f', data[4 + i * 4:4 + i * 4 + 4])[0]
 		
-		done = struct.unpack('c', data[sizeR-5:sizeR-4])[0]
+		done = struct.unpack('c', data[sizeR-5:sizeR-4])[0] == 1
 		
 		# If capturing, expect additional data	
 		numChunks = struct.unpack('i', data[sizeR-4:sizeR])[0]
