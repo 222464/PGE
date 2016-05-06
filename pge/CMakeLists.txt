@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(PGE)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
 
 # This is only required for the script to work in the version control
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
@@ -14,7 +14,7 @@ list(APPEND SOURCES "source/gl_core_4_4.c")
  
 add_executable(pge ${SOURCES})
 include_directories("${PROJECT_SOURCE_DIR}/source")
-
+#target_compile_definitions(pge PRIVATE PGE_DEBUG)
 
 find_package(SFML 2 REQUIRED system window graphics network audio)
 message(STATUS "SFML incs: " ${SFML_INCLUDE_DIR})
