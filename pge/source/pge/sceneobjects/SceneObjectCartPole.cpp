@@ -13,12 +13,12 @@ bool SceneObjectCartPole::create() {
 	// Rendering
 	std::shared_ptr<pge::Asset> asset;
 
-	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/cart.obj", asset))
+	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/Cart.obj", asset))
 		return false;
 
 	_pCartModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
-	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/pole.obj", asset))
+	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/Pole.obj", asset))
 		return false;
 
 	_pPoleModel = static_cast<pge::StaticModelOBJ*>(asset.get());
