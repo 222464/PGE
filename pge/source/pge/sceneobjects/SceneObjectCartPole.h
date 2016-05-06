@@ -5,6 +5,9 @@
 #include <pge/scene/RenderScene.h>
 
 #include <pge/sceneobjects/SceneObjectProp.h>
+#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+
+#include <BulletDynamics/ConstraintSolver/btConeTwistConstraint.h>
 
 class SceneObjectCartPole : public pge::SceneObject {
 private:
@@ -19,11 +22,26 @@ private:
 	int _ticksPerAction;
 	int _ticks;
 
-	pge::Vec2f _cartAccel;
-	pge::Vec2f _cartPos;
-	pge::Vec2f _cartVel;
-	pge::Vec2f _poleAngle;
-	pge::Vec2f _poleVel;
+	// Physics
+	pge::SceneObjectRef _physicsWorld;
+
+	// Floor
+	std::shared_ptr<btCollisionShape> _pCollisionShapeFloor;
+	std::shared_ptr<btDefaultMotionState> _pMotionStateFloor;
+	std::shared_ptr<btRigidBody> _pRigidBodyFloor;
+
+	// Cart
+	std::shared_ptr<btCollisionShape> _pCollisionShapeCart;
+	std::shared_ptr<btDefaultMotionState> _pMotionStateCart;
+	std::shared_ptr<btRigidBody> _pRigidBodyCart;
+
+	// Pole
+	std::shared_ptr<btCollisionShape> _pCollisionShapePole;
+	std::shared_ptr<btDefaultMotionState> _pMotionStatePole;
+	std::shared_ptr<btRigidBody> _pRigidBodyPole;
+
+	// Joint
+	std::shared_ptr<btConeTwistConstraint> _pConstraint;
 
 	float _reward;
 
