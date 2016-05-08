@@ -129,7 +129,7 @@ void SceneObjectCartPole::reset() {
 }
 
 void SceneObjectCartPole::act() {
-	const float force = 100.0f;
+	const float force = 1000.0f;
 	const float positionTolerance = 3.5f;
 	const float angleTolerance = 0.7f;
 
@@ -138,9 +138,9 @@ void SceneObjectCartPole::act() {
 	btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
 	btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
 
-	_reward = rot.angleShortestPath(btQuaternion::getIdentity());
+	_reward = -rot.angleShortestPath(btQuaternion::getIdentity());
 
-	if (_reward > angleTolerance ||
+	if (_reward < -angleTolerance ||
 		std::abs(pos.getX()) > positionTolerance || std::abs(pos.getZ()) > positionTolerance) {
 		std::cout << "Pole fell or is out of bounds. Resetting..." << std::endl;
 		reset();

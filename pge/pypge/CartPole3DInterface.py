@@ -22,7 +22,7 @@ class CartPole3DEnv(gym.Env):
 		
 		self.width = 640
 		self.height = 480
-		self.show = 'show'
+		self.show = 'hide'
 
 		self.p = subprocess.Popen([pgeExePath, 'CartPole3D-v0', self.show, str(self.width), str(self.height)])
 		
