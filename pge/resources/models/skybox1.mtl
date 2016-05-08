@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysFront2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysFront2048.png
 
 newmtl Material.001_CloudyLightRaysBack2048.png
 Ns 96.078431
@@ -21,7 +21,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysBack2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysBack2048.png
 
 newmtl Material.001_CloudyLightRaysDown2048.png
 Ns 96.078431
@@ -32,7 +32,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysDown2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysDown2048.png
 
 newmtl Material.001_CloudyLightRaysLeft2048.png
 Ns 96.078431
@@ -43,7 +43,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysLeft2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysLeft2048.png
 
 newmtl Material.001_CloudyLightRaysRight2048.png
 Ns 96.078431
@@ -54,7 +54,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysRight2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysRight2048.png
 
 newmtl Material.001_CloudyLightRaysUp2048.png
 Ns 96.078431
@@ -65,4 +65,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-map_Kd C:\Users\BlackBox\Downloads\skyboxset1\SkyboxSet1\CloudyLightRays\CloudyLightRaysUp2048.png
+map_Kd resources/environmentmaps/skybox1/CloudyLightRaysUp2048.png
