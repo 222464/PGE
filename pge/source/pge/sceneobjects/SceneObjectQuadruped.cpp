@@ -10,10 +10,10 @@
 #include <sstream>
 
 const int constraintSolverIterations = 80;
-const float maxLimbBend = pge::_piOver4;
-const float maxSpeed = 6.0f;
-const float maxForce = 1000.0f;
-const float interpFactor = 100.0f;
+const float maxLimbBend = pge::_pi * 0.125f;
+const float maxSpeed = 30.0f;
+const float maxForce = 5000.0f;
+const float interpFactor = 400.0f;
 
 void SceneObjectQuadruped::Leg::create(pge::SceneObjectPhysicsWorld* pPhysicsWorld, btRigidBody* pBodyPart, const btVector3 &rootPos) {
 	// Remove old
@@ -54,7 +54,7 @@ void SceneObjectQuadruped::Leg::create(pge::SceneObjectPhysicsWorld* pPhysicsWor
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIUpper(upperMass, _upper._pMotionState.get(), _upper._pCollisionShape.get(), upperInertia);
 
 	rigidBodyCILower.m_restitution = 0.05f;
-	rigidBodyCILower.m_friction = 0.5f;
+	rigidBodyCILower.m_friction = 10.0f;
 
 	rigidBodyCIUpper.m_restitution = 0.05f;
 	rigidBodyCIUpper.m_friction = 0.5f;
@@ -290,6 +290,15 @@ void SceneObjectQuadruped::act(float dt) {
 
 	_reward = dist - _prevDist;
 
+	// If fell over
+	if (_pRigidBodyForward->getWorldTransform().getRotation().angleShortestPath(btQuaternion::getIdentity()) > pge::_piOver2 * 0.9f) {
+		_doneLastFrame = true;
+
+		_reward = -1.0f;
+
+		reset();
+	}
+
 	_prevDist = dist;
 }
 
@@ -330,6 +339,11 @@ void SceneObjectQuadruped::synchronousUpdate(float dt) {
 			}
 			_capture = true;
 
+			if (!getRenderScene()->_renderingEnabled) {
+				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
+				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
+			}
+
 			getRenderScene()->_renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
@@ -339,6 +353,11 @@ void SceneObjectQuadruped::synchronousUpdate(float dt) {
 			_capture = false;
 
 			if (!_show) {
+				if (getRenderScene()->_renderingEnabled) {
+					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
+					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
+				}
+
 				getRenderScene()->_renderingEnabled = false;
 			}
 		}

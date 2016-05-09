@@ -78,14 +78,8 @@ int main(int argc, char *argv[]) {
 
 	window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
 
-	if (show) {
-		window.setVerticalSyncEnabled(true);
-		window.setFramerateLimit(60);
-	}
-	else {
-		window.setVerticalSyncEnabled(false);
-		window.setFramerateLimit(0);
-	}
+	window.setVerticalSyncEnabled(false);
+	window.setFramerateLimit(0);
 
 	if (ogl_LoadFunctions() == ogl_LOAD_FAILED) {
 		std::cerr << "Could not load OpenGL extensions!" << std::endl;

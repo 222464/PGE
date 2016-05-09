@@ -181,6 +181,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 
 			_capture = true;
 
+			if (!getRenderScene()->_renderingEnabled) {
+				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
+				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
+			}
+
 			getRenderScene()->_renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
@@ -189,6 +194,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 			_capture = false;
 
 			if (!_show) {
+				if (getRenderScene()->_renderingEnabled) {
+					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
+					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
+				}
+
 				getRenderScene()->_renderingEnabled = false;
 			}
 		}

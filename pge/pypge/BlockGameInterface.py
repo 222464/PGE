@@ -53,7 +53,7 @@ class BlockGameEnv(gym.Env):
 		self.r = False
 		self.close = False
 		self.capturePrev = False
-		self.capture = True
+		self.capture = False
 		
 	def _step(self, action):
 		assert action>=0 and action<8, "%r (%s) invalid"%(action, type(action))
@@ -129,10 +129,12 @@ class BlockGameEnv(gym.Env):
 
 	def _reset(self):
 		self.r = True
+		self.capture = False
 		self.state = np.zeros((9))
 		return self.state
 
 	def _render(self, mode='human', close=False):
+		self.capture = True
 		if close:
 			if self.viewer is not None:
 				self.viewer.close()

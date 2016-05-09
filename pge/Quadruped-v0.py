@@ -4,6 +4,8 @@ import os
 import numpy as np
 import gym
 import pypge
+from SDRRL import SDRRL
+import math
 
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
@@ -21,19 +23,34 @@ if __name__ == '__main__':
     env.monitor.start(outdir, force=True)#video_callable=lambda i : False
 
     episode_count = 400
-    max_steps = 60 * 10
+    max_steps = 40 * 10
     reward = 0
     totalReward = 0
     done = False
+    
+    numClocks = 20
+    
+    clockPhases = np.random.rand(numClocks, 1) * math.pi * 2.0
+    clockFrequencies = np.random.randn(numClocks, 1) * 0.2
+    
+    agent = SDRRL(34 + numClocks, 64, 27, -0.1, 0.1)
 
     for i in xrange(episode_count):
         ob = env.reset()
 
         for j in xrange(max_steps):
-            action = np.random.rand(27) * 2.0 - 1.0
+            obsMat = np.matrix(ob).T
+            
+            clockInputs = np.ones((numClocks, 1)) * j
+            
+            clocks = np.sin(np.multiply(clockInputs, clockFrequencies) + clockPhases)
+            
+            obsMat = np.concatenate((obsMat, clocks), axis=0)
+
+            action = agent.simStep(reward, obsMat).T[0]
             ob, reward, done, _ = env.step(action)
             totalReward += reward
-
+            
             if done:
                 print("Total reward: " + str(totalReward))
                 totalReward = 0

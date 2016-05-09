@@ -53,7 +53,7 @@ class Quadruped3DEnv(gym.Env):
 		self.r = False
 		self.close = False
 		self.capturePrev = False
-		self.capture = True
+		self.capture = False
 		
 	def _step(self, action):
 		for i in range(0, 27):
@@ -143,9 +143,11 @@ class Quadruped3DEnv(gym.Env):
 	def _reset(self):
 		self.r = True
 		self.state = np.zeros((34))
+		self.capture = False
 		return self.state
 
 	def _render(self, mode='human', close=False):
+		self.capture = True
 		if close:
 			if self.viewer is not None:
 				self.viewer.close()

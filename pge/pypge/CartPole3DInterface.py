@@ -53,7 +53,7 @@ class CartPole3DEnv(gym.Env):
 		self.r = False
 		self.close = False
 		self.capturePrev = False
-		self.capture = True
+		self.capture = False
 		
 	def _step(self, action):
 		assert action[0]>=-1 and action[0]<=1 and action[1]>=-1 and action[1]<=1, "%r (%s) invalid"%(action, type(action))
@@ -103,7 +103,7 @@ class CartPole3DEnv(gym.Env):
 		
 		# If capturing, expect additional data	
 		numChunks = struct.unpack('i', data[sizeR-4:sizeR])[0]
-
+		
 		# Check if capture is included
 		if numChunks != 0:	
 			imgData = bytearray()
@@ -132,9 +132,11 @@ class CartPole3DEnv(gym.Env):
 	def _reset(self):
 		self.r = True
 		self.state = np.zeros((8))
+		self.capture = False
 		return self.state
 
 	def _render(self, mode='human', close=False):
+		self.capture = True
 		if close:
 			if self.viewer is not None:
 				self.viewer.close()

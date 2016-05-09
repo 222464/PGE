@@ -37,9 +37,12 @@ if __name__ == '__main__':
             ob, reward, done, _ = env.step(action)
             totalReward += reward
 
+            reward = 0.0
+
             if done:
                 print("Total reward: " + str(totalReward))
                 totalReward = 0
+                reward = -1.0
                 break
 
     # Dump result info to disk

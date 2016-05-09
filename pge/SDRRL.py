@@ -20,11 +20,11 @@ class SDRRL(object):
         self._prevV = 0.0
 
         self._alpha = 0.05
-        self._beta = 0.001
+        self._beta = 0.002
         self._gamma = 0.95
         self._lambda = 0.9
         self._activeRatio = 0.1
-        self._noise = 0.1
+        self._noise = 0.04
 
     def simStep(self, reward, state):
         numActive = int(self._activeRatio * self._numHidden)
