@@ -3,6 +3,7 @@
 #include <pge/sceneobjects/SceneObjectEntryPointBlockGame.h>
 #include <pge/sceneobjects/SceneObjectEntryPointSurf.h>
 #include <pge/sceneobjects/SceneObjectEntryPointCartPole.h>
+#include <pge/sceneobjects/SceneObjectEntryPointQuadruped.h>
 
 #include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
 
@@ -37,6 +38,9 @@ int main(int argc, char *argv[]) {
 		}
 		else if (s1 == "CartPole3D-v0") {
 			entryPoint.reset(new SceneObjectEntryPointCartPole());
+		}
+		else if (s1 == "Quadruped3D-v0") {
+			entryPoint.reset(new SceneObjectEntryPointQuadruped());
 		}
 		else if (s1 == "Surf-v0") {
 			entryPoint.reset(new SceneObjectEntryPointSurf());

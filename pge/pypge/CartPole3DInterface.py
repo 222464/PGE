@@ -9,7 +9,7 @@ import struct
 pgeExePath = './pge'
 IP = 'localhost'
 PORT = 54003
-MAX_CHUNK = 16384 # Must match d3d value
+MAX_CHUNK = 16384 # Must match pge value
 TIMEOUT = 5.0
 
 class CartPole3DEnv(gym.Env):
@@ -22,7 +22,7 @@ class CartPole3DEnv(gym.Env):
 		
 		self.width = 640
 		self.height = 480
-		self.show = 'hide'
+		self.show = 'show'
 
 		self.p = subprocess.Popen([pgeExePath, 'CartPole3D-v0', self.show, str(self.width), str(self.height)])
 		

@@ -2,17 +2,21 @@
 
 using namespace pge;
 
+SceneObjectPhysicsWorld::SceneObjectPhysicsWorld()
+	: _steps(3), _subSteps(80)
+{}
+
 void SceneObjectPhysicsWorld::onQueue() {
 	_pBroadphase.reset(new btDbvtBroadphase());
 	_pCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	_pDispatcher.reset(new btCollisionDispatcher(_pCollisionConfiguration.get()));
 
-	_pSolver.reset(new btMultiBodyConstraintSolver());
+	_pSolver.reset(new btNNCGConstraintSolver());
 
-	_pDynamicsWorld.reset(new btMultiBodyDynamicsWorld(_pDispatcher.get(), _pBroadphase.get(), _pSolver.get(), _pCollisionConfiguration.get()));
+	_pDynamicsWorld.reset(new btDiscreteDynamicsWorld(_pDispatcher.get(), _pBroadphase.get(), _pSolver.get(), _pCollisionConfiguration.get()));
 
 	_pGhostPairCallBack.reset(new btGhostPairCallback());
-
+	
 	_pDynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 
 	_pDynamicsWorld->getPairCache()->setInternalGhostPairCallback(_pGhostPairCallBack.get());

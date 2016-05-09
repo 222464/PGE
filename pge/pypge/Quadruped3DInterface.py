@@ -12,7 +12,7 @@ PORT = 54003
 MAX_CHUNK = 16384 # Must match pge value
 TIMEOUT = 5.0
 
-class BlockGameEnv(gym.Env):
+class Quadruped3DEnv(gym.Env):
 	metadata = {
 		'render.modes': ['human', 'rgb_array'],
 		'video.frames_per_second' : 50
@@ -24,7 +24,7 @@ class BlockGameEnv(gym.Env):
 		self.height = 480
 		self.show = 'show'
 
-		self.p = subprocess.Popen([pgeExePath, 'BlockGame-v0', self.show, str(self.width), str(self.height)])
+		self.p = subprocess.Popen([pgeExePath, 'Quadruped3D-v0', self.show, str(self.width), str(self.height)])
 		
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.s.bind((IP, PORT))
@@ -42,13 +42,13 @@ class BlockGameEnv(gym.Env):
 
 		self.img = np.zeros((self.height, self.width, 3), dtype=np.uint8)
 
-		low = np.array([0,0,0,0,0,0,0,0,0])
-		high = np.array([np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
-
-		self.action_space = spaces.Discrete(8)
+		low = np.array([-np.inf for i in range(0, 34)])
+		high = np.array([np.inf for i in range(0, 34)])
+		
+		self.action_space = spaces.Box(np.array([-1.0 for i in range(0, 27)]), np.array([1.0 for i in range(0, 27)]))
 		self.observation_space = spaces.Box(low, high)
 
-		self.state = np.zeros((9))
+		self.state = np.zeros((34))
 
 		self.r = False
 		self.close = False
@@ -56,47 +56,62 @@ class BlockGameEnv(gym.Env):
 		self.capture = True
 		
 	def _step(self, action):
-		assert action>=0 and action<8, "%r (%s) invalid"%(action, type(action))
+		for i in range(0, 27):
+			assert action[i]>=-1 and action[i]<=1, "%r (%s) invalid"%(action[i], type(action[i]))
 
+		actionf = action.astype(np.float32)
+		
 		out = ''
 		
 		willCapture = self.capture
 
 		if self.r: 
 			out = 'R'
-			out += struct.pack('i', action)
+			for i in range(0, 27):
+				out += struct.pack('f', actionf[i])
 			self.r = False
 			willCapture = False
 		elif self.capture:# and not self.capturePrev:
 			out = 'C'
-			out += struct.pack('i', action)
+			for i in range(0, 27):
+				out += struct.pack('f', actionf[i])
 		elif not self.capture:# and self.capturePrev:
 			out = 'S'
-			out += struct.pack('i', action)
+			for i in range(0, 27):
+				out += struct.pack('f', actionf[i])
 		elif self.close:
 			willCapture = False
 			out = 'X'
-			out += struct.pack('i', action)
+			for i in range(0, 27):
+				out += struct.pack('f', actionf[i])
 		else:
 			out = 'A'
-			out += struct.pack('i', action)
-			
+			for i in range(0, 27):
+				out += struct.pack('f', actionf[i])
+				
 		# Write action
+		assert(len(out) == 1 + 27 * 4)
+		
 		self.connection.send(out)
 
 		# Receive new state
 		
 		# Read
-		sizeR = 4 + 9 * 4 + 4
+		sizeR = 4 + 34 * 4 + 4 + 4
 
-		data = self.connection.recv(sizeR)
-
+		data = ''
+		
+		while len(data) < sizeR:
+			data += self.connection.recv(sizeR - len(data))
+			
 		# Read reward
 		reward = struct.unpack('f', data[0:4])[0]
 			
-		for i in range(0, 9):
-			self.state[i] = struct.unpack('i', data[4 + i * 4:4 + i * 4 + 4])[0]
-			
+		for i in range(0, 34):
+			self.state[i] = struct.unpack('f', data[4 + i * 4:4 + i * 4 + 4])[0]
+		
+		done = struct.unpack('i', data[sizeR-8:sizeR-4])[0] != 0
+		
 		# If capturing, expect additional data	
 		numChunks = struct.unpack('i', data[sizeR-4:sizeR])[0]
 
@@ -119,8 +134,6 @@ class BlockGameEnv(gym.Env):
 
 			self.img = np.array(imgData).reshape((self.height, self.width, 3))
 			
-		done = False
-
 		done = bool(done)
 
 		self.capturePrev = self.capture
@@ -129,7 +142,7 @@ class BlockGameEnv(gym.Env):
 
 	def _reset(self):
 		self.r = True
-		self.state = np.zeros((9))
+		self.state = np.zeros((34))
 		return self.state
 
 	def _render(self, mode='human', close=False):
