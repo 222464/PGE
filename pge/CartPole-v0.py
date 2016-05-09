@@ -4,6 +4,7 @@ import os
 import numpy as np
 import gym
 import pypge
+from SDRRL import SDRRL
 
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
@@ -25,12 +26,14 @@ if __name__ == '__main__':
     reward = 0
     totalReward = 0
     done = False
+    
+    agent = SDRRL(8, 32, 2, -0.01, 0.01)
 
     for i in xrange(episode_count):
         ob = env.reset()
 
         for j in xrange(max_steps):
-            action = np.random.rand(2) * 2.0 - 1.0
+            action = agent.simStep(reward, np.matrix(ob).T).T[0]
             ob, reward, done, _ = env.step(action)
             totalReward += reward
 
