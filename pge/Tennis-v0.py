@@ -27,13 +27,13 @@ if __name__ == '__main__':
     totalReward = 0
     done = False
     
-    agent = SDRRL(10, 32, 2, -0.01, 0.01)
+    agent = SDRRL(10, 64, 2, -0.1, 0.1)
 
     for i in xrange(episode_count):
         ob = env.reset()
 
         for j in xrange(max_steps):
-            action = agent.simStep(reward, np.matrix(ob).T).T[0]
+            action = agent.simStep(reward, np.matrix(ob).T * 0.1).T[0]
             ob, reward, done, _ = env.step(action)
             totalReward += reward
             if done:

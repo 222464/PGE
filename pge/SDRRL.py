@@ -19,12 +19,13 @@ class SDRRL(object):
 
         self._prevV = 0.0
 
-        self._alpha = 0.05
-        self._beta = 0.002
+        self._alphaFF = 0.01
+        self._alphaAction = 0.1
+        self._alphaQ = 0.05
         self._gamma = 0.95
         self._lambda = 0.9
-        self._activeRatio = 0.1
-        self._noise = 0.04
+        self._activeRatio = 0.04
+        self._noise = 0.08
 
     def simStep(self, reward, state):
         numActive = int(self._activeRatio * self._numHidden)
@@ -34,7 +35,7 @@ class SDRRL(object):
         for i in range(0, self._numHidden):
             activations[i] = -np.sum(np.square(state.T - self._weightsFF[i]))
 
-        activations = np.dot(self._weightsFF, state)
+        #activations = np.dot(self._weightsFF, state)
 
         # Generate tuples for sorting
         heap = [(activations.item(0), 0)]
@@ -67,16 +68,16 @@ class SDRRL(object):
         delta = state - recon
 
         # Update
-        self._weightsFF += self._beta * np.dot(self._hiddenStates, delta.T)
+        self._weightsFF += self._alphaFF * np.dot(self._hiddenStates, delta.T)
 
         tdError = reward + self._gamma * q - self._prevV
 
         self._tracesQ = np.maximum(self._tracesQ * self._lambda, hiddenStatesPrev.T)
 
-        self._weightsQ += self._alpha * tdError * self._tracesQ
+        self._weightsQ += self._alphaQ * tdError * self._tracesQ
 
         if tdError > 0.0:
-            self._weightsAction += self._alpha * np.dot(self._actionDelta, hiddenStatesPrev.T)
+            self._weightsAction += self._alphaAction * np.dot(self._actionDelta, hiddenStatesPrev.T)
 
         self._prevV = q
         

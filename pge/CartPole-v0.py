@@ -13,7 +13,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
-    env = gym.make('CartPole3D-v0')
+    env = gym.make('CartPole-v0')
 
     # You provide the directory to write to (can be an existing
     # directory, but can't contain previous monitor results. You can
@@ -27,14 +27,14 @@ if __name__ == '__main__':
     totalReward = 0
     done = False
     
-    agent = SDRRL(8, 32, 2, -0.01, 0.01)
+    agent = SDRRL(4, 64, 1, -0.05, 0.05)
 
     for i in xrange(episode_count):
         ob = env.reset()
 
         for j in xrange(max_steps):
             action = agent.simStep(reward, np.matrix(ob).T).T[0]
-            ob, reward, done, _ = env.step(action)
+            ob, reward, done, _ = env.step(int(action > 0.0))
             totalReward += reward
 
             reward = 0.0
