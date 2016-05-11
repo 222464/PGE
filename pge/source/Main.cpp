@@ -4,6 +4,7 @@
 #include <pge/sceneobjects/SceneObjectEntryPointSurf.h>
 #include <pge/sceneobjects/SceneObjectEntryPointCartPole.h>
 #include <pge/sceneobjects/SceneObjectEntryPointQuadruped.h>
+#include <pge/sceneobjects/SceneObjectEntryPointTennis.h>
 
 #include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
 
@@ -44,6 +45,9 @@ int main(int argc, char *argv[]) {
 		}
 		else if (s1 == "Surf-v0") {
 			entryPoint.reset(new SceneObjectEntryPointSurf());
+		}
+		else if (s1 == "Tennis3D-v0") {
+			entryPoint.reset(new SceneObjectEntryPointTennis());
 		}
 		else {
 			std::cerr << "Invalid environment name (\"" << s1 << "\" given)" << std::endl;

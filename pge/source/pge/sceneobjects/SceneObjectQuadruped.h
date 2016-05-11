@@ -76,8 +76,6 @@ private:
 
 	bool _doneLastFrame;
 
-	std::vector<int> _blocks;
-
 	std::mt19937 _rng;
 
 	bool _capture;

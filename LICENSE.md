@@ -22,4 +22,4 @@ freely, subject to the following restrictions:
 PGE uses the following external libraries:
 SFML
 Bullet
-GLEW
+glLoadGen

@@ -85,7 +85,6 @@ void SceneObjectCartPole::reset() {
 
 	btVector3 floorInertia, cartInertia, poleInertia;
 
-	btVector3 inertia;
 	_pCollisionShapeFloor->calculateLocalInertia(floorMass, floorInertia);
 	_pCollisionShapeCart->calculateLocalInertia(cartMass, cartInertia);
 	_pCollisionShapePole->calculateLocalInertia(poleMass, poleInertia);
