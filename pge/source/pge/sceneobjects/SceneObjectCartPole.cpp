@@ -85,7 +85,6 @@ void SceneObjectCartPole::reset() {
 
 	btVector3 floorInertia, cartInertia, poleInertia;
 
-	btVector3 inertia;
 	_pCollisionShapeFloor->calculateLocalInertia(floorMass, floorInertia);
 	_pCollisionShapeCart->calculateLocalInertia(cartMass, cartInertia);
 	_pCollisionShapePole->calculateLocalInertia(poleMass, poleInertia);
@@ -129,7 +128,7 @@ void SceneObjectCartPole::reset() {
 }
 
 void SceneObjectCartPole::act() {
-	const float force = 100.0f;
+	const float force = 1000.0f;
 	const float positionTolerance = 3.5f;
 	const float angleTolerance = 0.7f;
 
@@ -138,9 +137,9 @@ void SceneObjectCartPole::act() {
 	btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
 	btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
 
-	_reward = rot.angleShortestPath(btQuaternion::getIdentity());
+	_reward = -rot.angleShortestPath(btQuaternion::getIdentity());
 
-	if (_reward > angleTolerance ||
+	if (_reward < -angleTolerance ||
 		std::abs(pos.getX()) > positionTolerance || std::abs(pos.getZ()) > positionTolerance) {
 		std::cout << "Pole fell or is out of bounds. Resetting..." << std::endl;
 		reset();
@@ -181,6 +180,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 
 			_capture = true;
 
+			if (!getRenderScene()->_renderingEnabled) {
+				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
+				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
+			}
+
 			getRenderScene()->_renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
@@ -189,6 +193,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 			_capture = false;
 
 			if (!_show) {
+				if (getRenderScene()->_renderingEnabled) {
+					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
+					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
+				}
+
 				getRenderScene()->_renderingEnabled = false;
 			}
 		}
@@ -196,7 +205,6 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 			getRenderScene()->_close = true;
 		}
 
-		std::cout << "Actions: " << _action.x << " " << _action.y << std::endl;
 		_action.x = std::min(1.0f, std::max(-1.0f, _action.x));
 		_action.y = std::min(1.0f, std::max(-1.0f, _action.y));
 		
@@ -238,11 +246,11 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		}
 
 		// Reset flag
-		*reinterpret_cast<char*>(&buffer[index]) = static_cast<char>(_doneLastFrame);
+		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(_doneLastFrame);
 
 		_doneLastFrame = false;
 
-		index += sizeof(char);
+		index += sizeof(int);
 
 		// Submit number of batches of _maxBatchSize
 		int numBatches = _capBytes->size() / _maxBatchSize + ((_capBytes->size() % _maxBatchSize) == 0 ? 0 : 1);

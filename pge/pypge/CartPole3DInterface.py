@@ -9,7 +9,7 @@ import struct
 pgeExePath = './pge'
 IP = 'localhost'
 PORT = 54003
-MAX_CHUNK = 16384 # Must match d3d value
+MAX_CHUNK = 16384 # Must match pge value
 TIMEOUT = 5.0
 
 class CartPole3DEnv(gym.Env):
@@ -53,7 +53,7 @@ class CartPole3DEnv(gym.Env):
 		self.r = False
 		self.close = False
 		self.capturePrev = False
-		self.capture = True
+		self.capture = False
 		
 	def _step(self, action):
 		assert action[0]>=-1 and action[0]<=1 and action[1]>=-1 and action[1]<=1, "%r (%s) invalid"%(action, type(action))
@@ -89,7 +89,7 @@ class CartPole3DEnv(gym.Env):
 		# Receive new state
 		
 		# Read
-		sizeR = 4 + 8 * 4 + 1 + 4
+		sizeR = 4 + 8 * 4 + 4 + 4
 
 		data = self.connection.recv(sizeR)
 
@@ -99,11 +99,11 @@ class CartPole3DEnv(gym.Env):
 		for i in range(0, 8):
 			self.state[i] = struct.unpack('f', data[4 + i * 4:4 + i * 4 + 4])[0]
 		
-		done = struct.unpack('c', data[sizeR-5:sizeR-4])[0] == 1
+		done = struct.unpack('i', data[sizeR-8:sizeR-4])[0] != 0
 		
 		# If capturing, expect additional data	
 		numChunks = struct.unpack('i', data[sizeR-4:sizeR])[0]
-
+		
 		# Check if capture is included
 		if numChunks != 0:	
 			imgData = bytearray()
@@ -132,9 +132,11 @@ class CartPole3DEnv(gym.Env):
 	def _reset(self):
 		self.r = True
 		self.state = np.zeros((8))
+		self.capture = False
 		return self.state
 
 	def _render(self, mode='human', close=False):
+		self.capture = True
 		if close:
 			if self.viewer is not None:
 				self.viewer.close()
