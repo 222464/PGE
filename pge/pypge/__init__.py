@@ -1,7 +1,7 @@
 from BlockGameInterface import BlockGameEnv
 from CartPole3DInterface import CartPole3DEnv
 from Quadruped3DInterface import Quadruped3DEnv
-from TennisInterface import TennisEnv
+from Tennis3DInterface import Tennis3DEnv
 from gym.envs.registration import registry, register, make, spec
 
 # Games
