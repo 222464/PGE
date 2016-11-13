@@ -27,7 +27,7 @@ if __name__ == '__main__':
     totalReward = 0
     done = False
     
-    agent = SDRRL(4, 64, 1, -0.05, 0.05)
+    agent = SDRRL(4, 128, 1, -0.05, 0.05)
 
     for i in xrange(episode_count):
         ob = env.reset()
