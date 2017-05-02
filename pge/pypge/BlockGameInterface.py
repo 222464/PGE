@@ -58,27 +58,27 @@ class BlockGameEnv(gym.Env):
 	def _step(self, action):
 		assert action>=0 and action<8, "%r (%s) invalid"%(action, type(action))
 
-		out = ''
+		out = bytes()
 		
 		willCapture = self.capture
 
 		if self.r: 
-			out = 'R'
+			out = b'R'
 			out += struct.pack('i', action)
 			self.r = False
 			willCapture = False
 		elif self.capture:# and not self.capturePrev:
-			out = 'C'
+			out = b'C'
 			out += struct.pack('i', action)
 		elif not self.capture:# and self.capturePrev:
-			out = 'S'
+			out = b'S'
 			out += struct.pack('i', action)
 		elif self.close:
 			willCapture = False
-			out = 'X'
+			out = b'X'
 			out += struct.pack('i', action)
 		else:
-			out = 'A'
+			out = b'A'
 			out += struct.pack('i', action)
 			
 		# Write action
@@ -146,5 +146,5 @@ class BlockGameEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send('X')
+		self.connection.send(b'X')
 		self.connection.close()

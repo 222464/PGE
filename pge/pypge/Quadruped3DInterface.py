@@ -61,31 +61,31 @@ class Quadruped3DEnv(gym.Env):
 
 		actionf = action.astype(np.float32)
 		
-		out = ''
+		out = bytes()
 		
 		willCapture = self.capture
 
 		if self.r: 
-			out = 'R'
+			out = b'R'
 			for i in range(0, 27):
 				out += struct.pack('f', actionf[i])
 			self.r = False
 			willCapture = False
 		elif self.capture:# and not self.capturePrev:
-			out = 'C'
+			out = b'C'
 			for i in range(0, 27):
 				out += struct.pack('f', actionf[i])
 		elif not self.capture:# and self.capturePrev:
-			out = 'S'
+			out = b'S'
 			for i in range(0, 27):
 				out += struct.pack('f', actionf[i])
 		elif self.close:
 			willCapture = False
-			out = 'X'
+			out = b'X'
 			for i in range(0, 27):
 				out += struct.pack('f', actionf[i])
 		else:
-			out = 'A'
+			out = b'A'
 			for i in range(0, 27):
 				out += struct.pack('f', actionf[i])
 				
@@ -99,7 +99,7 @@ class Quadruped3DEnv(gym.Env):
 		# Read
 		sizeR = 4 + 34 * 4 + 4 + 4
 
-		data = ''
+		data = bytes()
 		
 		while len(data) < sizeR:
 			data += self.connection.recv(sizeR - len(data))
@@ -159,5 +159,5 @@ class Quadruped3DEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send('X')
+		self.connection.send(b'X')
 		self.connection.close()

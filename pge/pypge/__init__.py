@@ -1,7 +1,7 @@
-from BlockGameInterface import BlockGameEnv
-from CartPole3DInterface import CartPole3DEnv
-from Quadruped3DInterface import Quadruped3DEnv
-from TennisInterface import TennisEnv
+from pypge.BlockGameInterface import BlockGameEnv
+from pypge.CartPole3DInterface import CartPole3DEnv
+from pypge.Quadruped3DInterface import Quadruped3DEnv
+from pypge.Tennis3DInterface import Tennis3DEnv
 from gym.envs.registration import registry, register, make, spec
 
 # Games

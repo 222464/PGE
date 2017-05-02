@@ -60,27 +60,27 @@ class CartPole3DEnv(gym.Env):
 
 		actionf = action.astype(np.float32)
 		
-		out = ''
+		out = bytes()
 		
 		willCapture = self.capture
 
 		if self.r: 
-			out = 'R'
+			out = b'R'
 			out += struct.pack('ff', actionf[0], actionf[1]) # Dummy data
 			self.r = False
 			willCapture = False
 		elif self.capture:# and not self.capturePrev:
-			out = 'C'
+			out = b'C'
 			out += struct.pack('ff', actionf[0], actionf[1])
 		elif not self.capture:# and self.capturePrev:
-			out = 'S'
+			out = b'S'
 			out += struct.pack('ff', actionf[0], actionf[1])
 		elif self.close:
 			willCapture = False
-			out = 'X'
+			out = b'X'
 			out += struct.pack('ff', actionf[0], actionf[1]) # Dummy data
 		else:
-			out = 'A'
+			out = b'A'
 			out += struct.pack('ff', actionf[0], actionf[1])
 			
 		# Write action
@@ -148,5 +148,5 @@ class CartPole3DEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send('X')
+		self.connection.send(b'X')
 		self.connection.close()

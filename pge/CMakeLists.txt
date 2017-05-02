@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.1)
 
 project(PGE)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
