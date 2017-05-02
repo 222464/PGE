@@ -4,7 +4,6 @@ import os
 import numpy as np
 import gym
 import pypge
-from SDRRL import SDRRL
 
 if __name__ == '__main__':
     # You can optionally set up the logger. Also fine to set the level
@@ -19,7 +18,7 @@ if __name__ == '__main__':
     # directory, but can't contain previous monitor results. You can
     # also dump to a tempdir if you'd like: tempfile.mkdtemp().
     outdir = '/tmp/random-agent-results'
-    env.monitor.start(outdir, force=True)#video_callable=lambda i : False
+    env = gym.wrappers.Monitor(env, outdir, force=True)
 
     episode_count = 400
     max_steps = 60 * 10
@@ -27,18 +26,22 @@ if __name__ == '__main__':
     totalReward = 0
     done = False
     
-    agent = SDRRL(10, 64, 2, -0.1, 0.1)
-
-    for i in xrange(episode_count):
+    for i in range(episode_count):
         ob = env.reset()
 
-        for j in xrange(max_steps):
-            action = agent.simStep(reward, np.matrix(ob).T * 0.1).T[0]
+        for j in range(max_steps):
+            action = env.action_space.sample()
+
             ob, reward, done, _ = env.step(action)
+
             totalReward += reward
+
+            reward = 0.0
+
             if done:
                 print("Total reward: " + str(totalReward))
                 totalReward = 0
+                reward = -1.0
                 break
 
     # Dump result info to disk
