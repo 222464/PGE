@@ -1,6 +1,6 @@
-#README
+# README
 
-![Image of BlockGame-v0](http://i1218.photobucket.com/albums/dd401/222464/PGE_LOGO.png)
+![Logo](http://i1218.photobucket.com/albums/dd401/222464/PGELogo.png)
 
 ## PGE - Parallel Game Engine
 
