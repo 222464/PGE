@@ -1,6 +1,6 @@
 # README
 
-![Logo](http://i1218.photobucket.com/albums/dd401/222464/PGELogo.png)
+![Logo](http://i1218.photobucket.com/albums/dd401/222464/PGELogo_Small.png)
 
 ## PGE - Parallel Game Engine
 
