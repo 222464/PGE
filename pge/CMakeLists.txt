@@ -40,6 +40,14 @@ message(STATUS "Bullet libs: " ${BULLET_LIBRARIES})
 include_directories(${BULLET_INCLUDE_DIR})
 target_link_libraries(pge ${BULLET_LIBRARIES})
 
+find_package(Threads REQUIRED)
+if(THREADS_HAVE_PTHREAD_ARG)
+  target_compile_options(PUBLIC pge "-pthread")
+endif()
+if(CMAKE_THREAD_LIBS_INIT)
+  target_link_libraries(pge "${CMAKE_THREAD_LIBS_INIT}")
+endif()
+
 if(MSVC)
   set(CompilerFlags
         CMAKE_CXX_FLAGS
