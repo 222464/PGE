@@ -1,6 +1,6 @@
 # README
 
-![Logo](http://i1218.photobucket.com/albums/dd401/222464/PGELogo_Small.png)
+![Logo](./PGELogo_Small.PNG)
 
 ## PGE - Parallel Game Engine
 
@@ -48,16 +48,16 @@ You can then import pypge (Python PGE), which will automatically register the en
 
 BlockGame-v0:
 
-![Image of BlockGame-v0](http://i1218.photobucket.com/albums/dd401/222464/blockgame-v0-1.png)
+![Image of BlockGame-v0](./blockgame-v0-1.PNG)
 
 CartPole3D-v0:
 
-![Image of CartPole3D-v0](http://i1218.photobucket.com/albums/dd401/222464/cartPole3D1.png)
+![Image of CartPole3D-v0](./cartPole3D1.PNG)
 
 Quadruped3D-v0:
 
-![Image of Quadruped3D-v0](http://i1218.photobucket.com/albums/dd401/222464/quadruped1.png)
+![Image of Quadruped3D-v0](./quadruped1.PNG)
 
 Tennis3D-v0:
 
-![Image of Tennis3D-v0](http://i1218.photobucket.com/albums/dd401/222464/tennis.png)
+![Image of Tennis3D-v0](./tennis.PNG)
