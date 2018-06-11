@@ -23,6 +23,7 @@ class Quadruped3DEnv(gym.Env):
 		self.width = 640
 		self.height = 480
 		self.show = 'show'
+		self.connectionReset = False
 
 		self.p = subprocess.Popen([pgeExePath, 'Quadruped3D-v0', self.show, str(self.width), str(self.height)])
 		
@@ -55,7 +56,7 @@ class Quadruped3DEnv(gym.Env):
 		self.capturePrev = False
 		self.capture = False
 		
-	def _step(self, action):
+	def step(self, action):
 		for i in range(0, 27):
 			assert action[i]>=-1 and action[i]<=1, "%r (%s) invalid"%(action[i], type(action[i]))
 
@@ -102,7 +103,11 @@ class Quadruped3DEnv(gym.Env):
 		data = bytes()
 		
 		while len(data) < sizeR:
-			data += self.connection.recv(sizeR - len(data))
+			try:
+				data += self.connection.recv(sizeR - len(data))
+			except ConnectionResetError:
+				self.connectionReset = True
+				exit(0)
 			
 		# Read reward
 		reward = struct.unpack('f', data[0:4])[0]
@@ -140,13 +145,13 @@ class Quadruped3DEnv(gym.Env):
 
 		return self.state, reward, done, {}
 
-	def _reset(self):
+	def reset(self):
 		self.r = True
 		self.state = np.zeros((34))
 		self.capture = False
 		return self.state
 
-	def _render(self, mode='human', close=False):
+	def render(self, mode='human', close=False):
 		self.capture = True
 		if close:
 			if self.viewer is not None:
@@ -159,5 +164,6 @@ class Quadruped3DEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send(b'X')
-		self.connection.close()
+		if not self.connectionReset:
+			self.connection.send(b'X')
+			self.connection.close()

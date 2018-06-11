@@ -23,6 +23,7 @@ class BlockGameEnv(gym.Env):
 		self.width = 640
 		self.height = 480
 		self.show = 'show'
+		self.connectionReset = False
 
 		self.p = subprocess.Popen([pgeExePath, 'BlockGame-v0', self.show, str(self.width), str(self.height)])
 		
@@ -55,7 +56,7 @@ class BlockGameEnv(gym.Env):
 		self.capturePrev = False
 		self.capture = False
 		
-	def _step(self, action):
+	def step(self, action):
 		assert action>=0 and action<8, "%r (%s) invalid"%(action, type(action))
 
 		out = bytes()
@@ -89,7 +90,13 @@ class BlockGameEnv(gym.Env):
 		# Read
 		sizeR = 4 + 9 * 4 + 4
 
-		data = self.connection.recv(sizeR)
+		data = None
+
+		try:
+			data = self.connection.recv(sizeR)
+		except ConnectionResetError:
+			self.connectionReset = True
+			exit(0)
 
 		# Read reward
 		reward = struct.unpack('f', data[0:4])[0]
@@ -127,13 +134,13 @@ class BlockGameEnv(gym.Env):
 
 		return self.state, reward, done, {}
 
-	def _reset(self):
+	def reset(self):
 		self.r = True
 		self.capture = False
 		self.state = np.zeros((9))
 		return self.state
 
-	def _render(self, mode='human', close=False):
+	def render(self, mode='human', close=False):
 		self.capture = True
 		if close:
 			if self.viewer is not None:
@@ -146,5 +153,6 @@ class BlockGameEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send(b'X')
-		self.connection.close()
+		if not self.connectionReset:
+			self.connection.send(b'X')
+			self.connection.close()

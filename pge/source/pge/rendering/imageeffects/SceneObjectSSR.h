@@ -27,7 +27,7 @@ namespace pge {
 		float _reflectionRadius;
 
 		SceneObjectSSR()
-			: _numBlurPasses(1), _blurRadius(0.001327f)
+			: _numBlurPasses(3), _blurRadius(0.001727f)
 		{}
 
 		void create(const std::shared_ptr<Shader> &blurShaderHorizontalEdgeAware,

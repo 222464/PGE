@@ -8,7 +8,8 @@ smooth in vec3 viewNormal;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
 
-uniform float pgeShininess = 96.0;
+uniform float pgeSpecular = 1.0;
+uniform float pgeShininess = 1.0;
 uniform float pgeTextureStretchScalar = 0.3;
 
 uniform float pgeSideSeparationExponent = 7.0;
@@ -60,5 +61,5 @@ void main() {
 		blend.y * texture(pgeDiffuseMapArray, vec3(coord3, 1)).rgb +
 		blend.z * texture(pgeDiffuseMapArray, vec3(coord2, 1)).rgb +
 		blend.w * texture(pgeDiffuseMapArray, vec3(coord1, 2)).rgb),
-		0.0);
+		pgeSpecular);
 }

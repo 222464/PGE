@@ -23,6 +23,7 @@ class CartPole3DEnv(gym.Env):
 		self.width = 640
 		self.height = 480
 		self.show = 'show'
+		self.connectionReset = False
 
 		self.p = subprocess.Popen([pgeExePath, 'CartPole3D-v0', self.show, str(self.width), str(self.height)])
 		
@@ -55,7 +56,7 @@ class CartPole3DEnv(gym.Env):
 		self.capturePrev = False
 		self.capture = False
 		
-	def _step(self, action):
+	def step(self, action):
 		assert action[0]>=-1 and action[0]<=1 and action[1]>=-1 and action[1]<=1, "%r (%s) invalid"%(action, type(action))
 
 		actionf = action.astype(np.float32)
@@ -91,7 +92,13 @@ class CartPole3DEnv(gym.Env):
 		# Read
 		sizeR = 4 + 8 * 4 + 4 + 4
 
-		data = self.connection.recv(sizeR)
+		data = None
+
+		try:
+			data = self.connection.recv(sizeR)
+		except ConnectionResetError:
+			self.connectionReset = True
+			exit(0)
 
 		# Read reward
 		reward = struct.unpack('f', data[0:4])[0]
@@ -129,13 +136,13 @@ class CartPole3DEnv(gym.Env):
 
 		return self.state, reward, done, {}
 
-	def _reset(self):
+	def reset(self):
 		self.r = True
 		self.state = np.zeros((8))
 		self.capture = False
 		return self.state
 
-	def _render(self, mode='human', close=False):
+	def render(self, mode='human', close=False):
 		self.capture = True
 		if close:
 			if self.viewer is not None:
@@ -148,5 +155,6 @@ class CartPole3DEnv(gym.Env):
 			pass
 			
 	def __del__(self):
-		self.connection.send(b'X')
-		self.connection.close()
+		if not self.connectionReset:
+			self.connection.send(b'X')
+			self.connection.close()

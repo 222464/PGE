@@ -10,13 +10,13 @@ uniform sampler2D pgeNoiseMap;
 uniform vec2 pgeSizeInv;
 
 const float pgeRayStep = 0.2;
-const int pgeMaxSteps = 30;
+const int pgeMaxSteps = 16;
 const float pgeSearchDist = pgeRayStep * pgeMaxSteps;
 const float pgeSearchDistInv = 1.0 / pgeSearchDist;
-const int pgeNumBinarySearchSteps = 3;
+const int pgeNumBinarySearchSteps = 2;
 const float pgeError = 2.0;
 const float pgeEnvMapPower = 0.1;
-const int pgeSamples = 1;
+const int pgeSamples = 4;
 const float pgeSamplesInv = 1.0 / pgeSamples;
 const float pgeScreenEdgePower = 4.0;
 const float pgeZAlignedExtraLength = 8.0;
