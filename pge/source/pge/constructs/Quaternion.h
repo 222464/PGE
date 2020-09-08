@@ -1,15 +1,15 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec4f.h>
-#include <pge/constructs/Matrix3x3f.h>
-#include <pge/constructs/Matrix4x4f.h>
+#include "Vec3f.h"
+#include "Vec4f.h"
+#include "Matrix3x3f.h"
+#include "Matrix4x4f.h"
 
 namespace pge {
 	class Quaternion {
 	public:
-		static const float _quaternionNormalizationTolerance;
-		static const float _quaternionDotTolerance;
+		static const float quaternionNormalizationTolerance;
+		static const float quaternionDotTolerance;
 
 		float w, x, y, z;
 

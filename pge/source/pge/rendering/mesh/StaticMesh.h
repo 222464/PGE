@@ -1,11 +1,11 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec2f.h>
+#include "../../constructs/Vec3f.h"
+#include "../../constructs/Vec2f.h"
 
-#include <pge/rendering/SFMLOGL.h>
-#include <pge/rendering/bufferobjects/VBO.h>
-#include <pge/rendering/material/Material.h>
+#include "../SFMLOGL.h"
+#include "../bufferobjects/VBO.h"
+#include "../material/Material.h"
 
 #define PGE_STATIC_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
@@ -15,22 +15,22 @@ namespace pge {
 	class StaticMesh {
 	public:
 		struct Vertex {
-			Vec3f _position;
-			Vec3f _normal;
-			Vec2f _texCoord;
+			Vec3f position;
+			Vec3f normal;
+			Vec2f texCoord;
 		};
 	private:
-		VBO _interleavedBuffer;
-		VBO _indexBuffer;
+		VBO interleavedBuffer;
+		VBO indexBuffer;
 
 	public:
-		std::vector<Vertex> _vertices;
-		std::vector<staticMeshIndexType> _indices;
+		std::vector<Vertex> vertices;
+		std::vector<staticMeshIndexType> indices;
 
-		size_t _numIndices;
+		size_t numIndices;
 
 		StaticMesh()
-			: _numIndices(0)
+			: numIndices(0)
 		{}
 
 		void create(bool useBuffer = true);
@@ -38,8 +38,8 @@ namespace pge {
 		void updateBuffers();
 
 		void clearArrays() {
-			_vertices.clear();
-			_indices.clear();
+			vertices.clear();
+			indices.clear();
 		}
 
 		void renderFromBuffers();
@@ -56,7 +56,7 @@ namespace pge {
 		}
 
 		bool hasBuffer() const {
-			return _interleavedBuffer.created();
+			return interleavedBuffer.created();
 		}
 	};
 }

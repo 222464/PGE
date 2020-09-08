@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
-#include <pge/constructs/Quaternion.h>
+#include "../../constructs/Quaternion.h"
 
-#include <pge/rendering/Camera.h>
+#include "../Camera.h"
 
 #include <assert.h>
 
@@ -15,16 +15,16 @@ namespace pge {
 			_16, _32
 		};
 	private:
-		GLuint _fboID;
-		GLuint _depthCubeMapID;
+		GLuint fboID;
+		GLuint depthCubeMapID;
 
-		unsigned int _resolution;
+		unsigned int resolution;
 
-		std::array<Quaternion, 6> _baseViewRotations;
+		std::array<Quaternion, 6> baseViewRotations;
 
 	public:
 		CubeMapDepthRT()
-			: _fboID(0)
+			: fboID(0)
 		{}
 
 		~CubeMapDepthRT() {
@@ -38,23 +38,23 @@ namespace pge {
 		void renderFace(class RenderScene* pRenderScene, const Vec3f &position, unsigned char face, float zNear, float zFar, float distance);
 
 		unsigned int getResolution() const {
-			return _resolution;
+			return resolution;
 		}
 
 		void setViewport() {
-			glViewport(0, 0, _resolution, _resolution);
+			glViewport(0, 0, resolution, resolution);
 		}
 
 		void bind() {
-			glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 		}
 
 		void bindDraw() {
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboID);
 		}
 
 		void bindRead() {
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboID);
 		}
 
 		static void unbind() {
@@ -70,15 +70,15 @@ namespace pge {
 		}
 
 		GLuint getDepthTextureID() const {
-			return _depthCubeMapID;
+			return depthCubeMapID;
 		}
 
 		GLuint getFBOID() const {
-			return _fboID;
+			return fboID;
 		}
 
 		bool created() const {
-			return _fboID != 0;
+			return fboID != 0;
 		}
 
 		Camera getCamera(unsigned char face, const Vec3f &position, float zNear, float zFar) const;

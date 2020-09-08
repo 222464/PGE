@@ -1,22 +1,22 @@
 #pragma once
 
-#include <pge/geometry/Form.h>
+#include "Form.h"
 
-#include <pge/constructs/Vec2f.h>
-#include <pge/constructs/Vec3f.h>
+#include "../constructs/Vec2f.h"
+#include "../constructs/Vec3f.h"
 
-#include <pge/constructs/AABB3D.h>
+#include "../constructs/AABB3D.h"
 
 #include <array>
 
 namespace pge {
 	class FormTriangle : public Form {
 	public:
-		unsigned short _materialIndex;
+		unsigned short materialIndex;
 
-		std::array<Vec3f, 3> _points;
-		std::array<Vec3f, 3> _normals;
-		std::array<Vec2f, 3> _uv;
+		std::array<Vec3f, 3> points;
+		std::array<Vec3f, 3> normals;
+		std::array<Vec2f, 3> uv;
 
 		FormTriangle();
 

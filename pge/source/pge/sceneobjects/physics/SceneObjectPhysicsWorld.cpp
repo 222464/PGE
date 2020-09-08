@@ -1,46 +1,46 @@
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "SceneObjectPhysicsWorld.h"
 
 using namespace pge;
 
 SceneObjectPhysicsWorld::SceneObjectPhysicsWorld()
-	: _steps(3), _subSteps(80)
+	: steps(3), subSteps(80)
 {}
 
 void SceneObjectPhysicsWorld::onQueue() {
-	_pBroadphase.reset(new btDbvtBroadphase());
-	_pCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
-	_pDispatcher.reset(new btCollisionDispatcher(_pCollisionConfiguration.get()));
+	pBroadphase.reset(new btDbvtBroadphase());
+	pCollisionConfiguration.reset(new btDefaultCollisionConfiguration());
+	pDispatcher.reset(new btCollisionDispatcher(pCollisionConfiguration.get()));
 
-	_pSolver.reset(new btNNCGConstraintSolver());
+	pSolver.reset(new btNNCGConstraintSolver());
 
-	_pDynamicsWorld.reset(new btDiscreteDynamicsWorld(_pDispatcher.get(), _pBroadphase.get(), _pSolver.get(), _pCollisionConfiguration.get()));
+	pDynamicsWorld.reset(new btDiscreteDynamicsWorld(pDispatcher.get(), pBroadphase.get(), pSolver.get(), pCollisionConfiguration.get()));
 
-	_pGhostPairCallBack.reset(new btGhostPairCallback());
+	pGhostPairCallBack.reset(new btGhostPairCallback());
 	
-	_pDynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
+	pDynamicsWorld->setGravity(btVector3(0.0f, -9.81f, 0.0f));
 
-	_pDynamicsWorld->getPairCache()->setInternalGhostPairCallback(_pGhostPairCallBack.get());
+	pDynamicsWorld->getPairCache()->setInternalGhostPairCallback(pGhostPairCallBack.get());
 }
 
 void SceneObjectPhysicsWorld::onDestroy() {
-	_pDynamicsWorld.reset();
+	pDynamicsWorld.reset();
 
-	_pGhostPairCallBack.reset();
+	pGhostPairCallBack.reset();
 
-	_pSolver.reset();
+	pSolver.reset();
 
-	_pDispatcher.reset();
+	pDispatcher.reset();
 
-	_pCollisionConfiguration.reset();
+	pCollisionConfiguration.reset();
 
-	_pBroadphase.reset();
+	pBroadphase.reset();
 }
 
 void SceneObjectPhysicsWorld::synchronousUpdate(float dt) {
-	assert(_steps > 0);
+	assert(steps > 0);
 
-	float timeStep = dt / _steps;
+	float timeStep = dt / steps;
 
-	for (int i = 0; i < _steps; i++)
-		_pDynamicsWorld->stepSimulation(timeStep, _subSteps);
+	for (int i = 0; i < steps; i++)
+		pDynamicsWorld->stepSimulation(timeStep, subSteps);
 }

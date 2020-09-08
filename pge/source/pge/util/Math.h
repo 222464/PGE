@@ -1,10 +1,10 @@
 #pragma once
 
 namespace pge {
-	const float _pi = 3.14159265359f;
-	const float _piOver2 = 0.5f * _pi;
-	const float _piOver4 = 0.25f * _pi;
-	const float _piTimes2 = 2.0f * _pi;
+	const float pi = 3.14159265359f;
+	const float piOver2 = 0.5f * pi;
+	const float piOver4 = 0.25f * pi;
+	const float piTimes2 = 2.0f * pi;
 
 	template<class T>
 	T clamp(T value, T min, T max) {

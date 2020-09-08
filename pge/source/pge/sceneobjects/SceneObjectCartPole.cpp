@@ -1,8 +1,8 @@
-#include <pge/sceneobjects/SceneObjectCartPole.h>
+#include "SceneObjectCartPole.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "../rendering/model/SceneObjectStaticModelBatcher.h"
 
-#include <pge/util/Math.h>
+#include "../util/Math.h"
 
 #include <iostream>
 #include <sstream>
@@ -16,68 +16,68 @@ bool SceneObjectCartPole::create() {
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/Cart.obj", asset))
 		return false;
 
-	_pCartModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pCartModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/Pole.obj", asset))
 		return false;
 
-	_pPoleModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pPoleModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	// Get reference to physics world
-	_physicsWorld = getScene()->getNamedCheckQueue("physWrld");
+	physicsWorld = getScene()->getNamedCheckQueue("physWrld");
 
 	reset();
 
-	_capture = false;
+	capture = false;
 
-	_capBytes = std::make_shared<std::vector<char>>(getRenderScene()->_gBuffer.getWidth() * getRenderScene()->_gBuffer.getHeight() * 3, 0);
+	capBytes = std::make_shared<std::vector<char>>(getRenderScene()->gBuffer.getWidth() * getRenderScene()->gBuffer.getHeight() * 3, 0);
 
-	_show = getRenderScene()->_renderingEnabled;
+	show = getRenderScene()->renderingEnabled;
 
-	_socket = std::make_shared<sf::TcpSocket>();
+	socket = std::make_shared<sf::TcpSocket>();
 
-	_socket->connect(sf::IpAddress::LocalHost, _port, sf::seconds(5.0f));
+	socket->connect(sf::IpAddress::LocalHost, port, sf::seconds(5.0f));
 
-	_doneLastFrame = false;
+	doneLastFrame = false;
 
 	return true;
 }
 
 void SceneObjectCartPole::onAdd() {
-	_batcherRef = getScene()->getNamed("smb");
+	batcherRef = getScene()->getNamed("smb");
 
-	assert(_batcherRef.isAlive());
+	assert(batcherRef.isAlive());
 }
 
 void SceneObjectCartPole::reset() {
 	// Slightly random angle
 	std::uniform_real_distribution<float> pertDist(-0.05f, 0.05f);
 
-	assert(_physicsWorld.isAlive());
+	assert(physicsWorld.isAlive());
 
-	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get());
 
 	// Remove old
-	if (_pConstraint != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeConstraint(_pConstraint.get());
+	if (pConstraint != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeConstraint(pConstraint.get());
 
-	if (_pRigidBodyFloor != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyFloor.get());
+	if (pRigidBodyFloor != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyFloor.get());
 
-	if (_pRigidBodyCart != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyCart.get());
+	if (pRigidBodyCart != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyCart.get());
 
-	if (_pRigidBodyPole != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyPole.get());
+	if (pRigidBodyPole != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyPole.get());
 
 	// Physics
-	_pCollisionShapeFloor.reset(new btBoxShape(btVector3(4.0f, 0.5f, 4.0f)));
-	_pCollisionShapeCart.reset(new btBoxShape(bt(_pCartModel->getAABB().getHalfDims())));
-	_pCollisionShapePole.reset(new btCapsuleShape(0.05f, 1.0f));
+	pCollisionShapeFloor.reset(new btBoxShape(btVector3(4.0f, 0.5f, 4.0f)));
+	pCollisionShapeCart.reset(new btBoxShape(bt(pCartModel->getAABB().getHalfDims())));
+	pCollisionShapePole.reset(new btCapsuleShape(0.05f, 1.0f));
 
-	_pMotionStateFloor.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.25f, 0.0f))));
-	_pMotionStateCart.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.85f, 0.0f))));
-	_pMotionStatePole.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, pertDist(_rng), pertDist(_rng)), btVector3(0.0f, 0.85f + 0.5f + 0.05f, 0.0f))));
+	pMotionStateFloor.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.25f, 0.0f))));
+	pMotionStateCart.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), btVector3(0.0f, 0.85f, 0.0f))));
+	pMotionStatePole.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, pertDist(rng), pertDist(rng)), btVector3(0.0f, 0.85f + 0.5f + 0.05f, 0.0f))));
 
 	const float floorMass = 0.0f;
 	const float cartMass = 10.0f;
@@ -85,13 +85,13 @@ void SceneObjectCartPole::reset() {
 
 	btVector3 floorInertia, cartInertia, poleInertia;
 
-	_pCollisionShapeFloor->calculateLocalInertia(floorMass, floorInertia);
-	_pCollisionShapeCart->calculateLocalInertia(cartMass, cartInertia);
-	_pCollisionShapePole->calculateLocalInertia(poleMass, poleInertia);
+	pCollisionShapeFloor->calculateLocalInertia(floorMass, floorInertia);
+	pCollisionShapeCart->calculateLocalInertia(cartMass, cartInertia);
+	pCollisionShapePole->calculateLocalInertia(poleMass, poleInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIFloor(floorMass, _pMotionStateFloor.get(), _pCollisionShapeFloor.get(), floorInertia);
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCICart(cartMass, _pMotionStateCart.get(), _pCollisionShapeCart.get(), cartInertia);
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIPole(poleMass, _pMotionStatePole.get(), _pCollisionShapePole.get(), poleInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIFloor(floorMass, pMotionStateFloor.get(), pCollisionShapeFloor.get(), floorInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCICart(cartMass, pMotionStateCart.get(), pCollisionShapeCart.get(), cartInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIPole(poleMass, pMotionStatePole.get(), pCollisionShapePole.get(), poleInertia);
 
 	rigidBodyCIFloor.m_restitution = 0.001f;
 	rigidBodyCIFloor.m_friction = 0.01f;
@@ -102,29 +102,29 @@ void SceneObjectCartPole::reset() {
 	rigidBodyCIPole.m_restitution = 0.001f;
 	rigidBodyCIPole.m_friction = 0.01f;
 
-	_pRigidBodyFloor.reset(new btRigidBody(rigidBodyCIFloor));
-	_pRigidBodyCart.reset(new btRigidBody(rigidBodyCICart));
-	_pRigidBodyPole.reset(new btRigidBody(rigidBodyCIPole));
+	pRigidBodyFloor.reset(new btRigidBody(rigidBodyCIFloor));
+	pRigidBodyCart.reset(new btRigidBody(rigidBodyCICart));
+	pRigidBodyPole.reset(new btRigidBody(rigidBodyCIPole));
 
-	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyFloor.get());
-	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyCart.get());
-	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyPole.get());
+	pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBodyFloor.get());
+	pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBodyCart.get());
+	pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBodyPole.get());
 
-	_pRigidBodyCart->setAngularFactor(0.0f); // No rotation
+	pRigidBodyCart->setAngularFactor(0.0f); // No rotation
 
 	btTransform frameA = btTransform::getIdentity();
 	btTransform frameB = btTransform::getIdentity();
 
 	frameA.setOrigin(btVector3(0.0f, 0.05f, 0.0f));
 	frameB.setOrigin(btVector3(0.0f, -0.5f, 0.0f));
-	_pConstraint.reset(new btConeTwistConstraint(*_pRigidBodyCart, *_pRigidBodyPole, frameA, frameB));
+	pConstraint.reset(new btConeTwistConstraint(*pRigidBodyCart, *pRigidBodyPole, frameA, frameB));
 
-	pPhysicsWorld->_pDynamicsWorld->addConstraint(_pConstraint.get(), true);
+	pPhysicsWorld->pDynamicsWorld->addConstraint(pConstraint.get(), true);
 
-	_action = pge::Vec2f(0.0f, 0.0f);
-	_ticksPerAction = 0;
-	_ticks = 0;
-	_reward = 0.0f;
+	action = pge::Vec2f(0.0f, 0.0f);
+	ticksPerAction = 0;
+	ticks = 0;
+	reward = 0.0f;
 }
 
 void SceneObjectCartPole::act() {
@@ -132,26 +132,26 @@ void SceneObjectCartPole::act() {
 	const float positionTolerance = 3.5f;
 	const float angleTolerance = 0.7f;
 
-	_pRigidBodyCart->applyCentralForce(btVector3(_action.x, 0.0f, _action.y) * force);
+	pRigidBodyCart->applyCentralForce(btVector3(action.x, 0.0f, action.y) * force);
 
-	btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
-	btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
+	btVector3 pos = pRigidBodyCart->getWorldTransform().getOrigin();
+	btQuaternion rot = pRigidBodyPole->getWorldTransform().getRotation();
 
-	_reward = -rot.angleShortestPath(btQuaternion::getIdentity());
+	reward = -rot.angleShortestPath(btQuaternion::getIdentity());
 
-	if (_reward < -angleTolerance ||
+	if (reward < -angleTolerance ||
 		std::abs(pos.getX()) > positionTolerance || std::abs(pos.getZ()) > positionTolerance) {
 		std::cout << "Pole fell or is out of bounds. Resetting..." << std::endl;
 		reset();
-		_doneLastFrame = true;
+		doneLastFrame = true;
 	}
 }
 
 void SceneObjectCartPole::synchronousUpdate(float dt) {
-	if (_ticks >= _ticksPerAction || !getRenderScene()->_renderingEnabled) {
-		_ticks = 0;
+	if (ticks >= ticksPerAction || !getRenderScene()->renderingEnabled) {
+		ticks = 0;
 
-		std::array<char, _maxBatchSize> buffer;
+		std::array<char, maxBatchSize> buffer;
 
 		std::array<char, 1 + 4 + 4> msg;
 
@@ -159,7 +159,7 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		size_t totalReceived = 0;
 
 		while (totalReceived < msg.size()) {
-			_socket->receive(buffer.data(), msg.size() - totalReceived, received);
+			socket->receive(buffer.data(), msg.size() - totalReceived, received);
 
 			for (int i = 0; i < received; i++)
 				msg[totalReceived + i] = buffer[i];
@@ -168,45 +168,45 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		}
 
 		if (msg[0] == 'A') { // Action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 		}
 		else if (msg[0] == 'R') { // Reset
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
 			reset();
 		}
 		else if (msg[0] == 'C') { // Capture + action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
-			_capture = true;
+			capture = true;
 
-			if (!getRenderScene()->_renderingEnabled) {
+			if (!getRenderScene()->renderingEnabled) {
 				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
 				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
 			}
 
-			getRenderScene()->_renderingEnabled = true;
+			getRenderScene()->renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
-			_capture = false;
+			capture = false;
 
-			if (!_show) {
-				if (getRenderScene()->_renderingEnabled) {
+			if (!show) {
+				if (getRenderScene()->renderingEnabled) {
 					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
 					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
 				}
 
-				getRenderScene()->_renderingEnabled = false;
+				getRenderScene()->renderingEnabled = false;
 			}
 		}
 		else if (msg[0] == 'X') { // Exit
-			getRenderScene()->_close = true;
+			getRenderScene()->close = true;
 		}
 
-		_action.x = std::min(1.0f, std::max(-1.0f, _action.x));
-		_action.y = std::min(1.0f, std::max(-1.0f, _action.y));
+		action.x = std::min(1.0f, std::max(-1.0f, action.x));
+		action.y = std::min(1.0f, std::max(-1.0f, action.y));
 		
 		act();
 
@@ -215,10 +215,10 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		// Observation (8 values)
 		std::vector<float> obs(8);
 
-		btVector3 pos = _pRigidBodyCart->getWorldTransform().getOrigin();
-		btVector3 vel = _pRigidBodyCart->getLinearVelocity();
-		btQuaternion rot = _pRigidBodyPole->getWorldTransform().getRotation();
-		btVector3 angleVel = _pRigidBodyPole->getAngularVelocity();
+		btVector3 pos = pRigidBodyCart->getWorldTransform().getOrigin();
+		btVector3 vel = pRigidBodyCart->getLinearVelocity();
+		btQuaternion rot = pRigidBodyPole->getWorldTransform().getRotation();
+		btVector3 angleVel = pRigidBodyPole->getAngularVelocity();
 
 		pge::Quaternion rotC = cons(rot);
 		pge::Vec3f rotE = rotC.getEulerAngles();
@@ -235,7 +235,7 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		// First add reward
 		int index = 0;
 
-		*reinterpret_cast<float*>(&buffer[index]) = _reward;
+		*reinterpret_cast<float*>(&buffer[index]) = reward;
 
 		index += sizeof(float);
 
@@ -246,37 +246,37 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 		}
 
 		// Reset flag
-		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(_doneLastFrame);
+		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(doneLastFrame);
 
-		_doneLastFrame = false;
+		doneLastFrame = false;
 
 		index += sizeof(int);
 
-		// Submit number of batches of _maxBatchSize
-		int numBatches = _capBytes->size() / _maxBatchSize + ((_capBytes->size() % _maxBatchSize) == 0 ? 0 : 1);
+		// Submit number of batches of maxBatchSize
+		int numBatches = capBytes->size() / maxBatchSize + ((capBytes->size() % maxBatchSize) == 0 ? 0 : 1);
 
 		// No batches if not capturing
-		if (!_capture)
+		if (!capture)
 			numBatches = 0;
 
 		*reinterpret_cast<int*>(&buffer[index]) = numBatches;
 
 		index += sizeof(int);
 
-		_socket->send(buffer.data(), index);
+		socket->send(buffer.data(), index);
 
-		if (_capture) {
-			std::vector<char> reorganized(_capBytes->size());
+		if (capture) {
+			std::vector<char> reorganized(capBytes->size());
 
 			int reorgIndex = 0;
 
-			for (int y = 0; y < getRenderScene()->_gBuffer.getHeight(); y++)
-				for (int x = 0; x < getRenderScene()->_gBuffer.getWidth(); x++) {
-					int start = 3 * (x + (getRenderScene()->_gBuffer.getHeight() - 1 - y) * getRenderScene()->_gBuffer.getWidth());
+			for (int y = 0; y < getRenderScene()->gBuffer.getHeight(); y++)
+				for (int x = 0; x < getRenderScene()->gBuffer.getWidth(); x++) {
+					int start = 3 * (x + (getRenderScene()->gBuffer.getHeight() - 1 - y) * getRenderScene()->gBuffer.getWidth());
 
-					reorganized[reorgIndex++] = (*_capBytes)[start + 0];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 1];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 2];
+					reorganized[reorgIndex++] = (*capBytes)[start + 0];
+					reorganized[reorgIndex++] = (*capBytes)[start + 1];
+					reorganized[reorgIndex++] = (*capBytes)[start + 2];
 				}
 
 			int total = 0;
@@ -285,41 +285,41 @@ void SceneObjectCartPole::synchronousUpdate(float dt) {
 				// Submit batch
 				size_t count = 0;
 
-				for (int j = 0; j < _maxBatchSize && total < _capBytes->size(); j++) {
+				for (int j = 0; j < maxBatchSize && total < capBytes->size(); j++) {
 					buffer[j] = reorganized[total++];
 
 					count++;
 				}
 
-				_socket->send(buffer.data(), count);
+				socket->send(buffer.data(), count);
 			}
 		}
 	}
 	else
-		_ticks++;
+		ticks++;
 }
 
 void SceneObjectCartPole::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
+	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
 	{
 		// Render cart
 		pge::Matrix4x4f transform;
 
-		_pRigidBodyCart->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
+		pRigidBodyCart->getWorldTransform().getOpenGLMatrix(&transform.elements[0]);
 
-		_pCartModel->render(pBatcher, transform);
+		pCartModel->render(pBatcher, transform);
 	}
 
 	{
 		// Render pole
 		pge::Matrix4x4f transform;
 
-		_pRigidBodyPole->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
+		pRigidBodyPole->getWorldTransform().getOpenGLMatrix(&transform.elements[0]);
 
 		transform *= pge::Matrix4x4f::translateMatrix(pge::Vec3f(0.0f, -0.5f, 0.0f));
 
-		_pPoleModel->render(pBatcher, transform);
+		pPoleModel->render(pBatcher, transform);
 	}
 }
 
@@ -327,26 +327,26 @@ void SceneObjectCartPole::postRender() {
 	// Get data from effect buffer
 	glReadBuffer(GL_FRONT);
 
-	glReadPixels(0, 0, getRenderScene()->_gBuffer.getWidth(), getRenderScene()->_gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, _capBytes->data());
+	glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
 }
 
 void SceneObjectCartPole::onDestroy() {
-	if (_socket != nullptr)
-		_socket->disconnect();
+	if (socket != nullptr)
+		socket->disconnect();
 
-	if (_physicsWorld.isAlive()) {
-		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	if (physicsWorld.isAlive()) {
+		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get());
 
-		if (_pConstraint != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeConstraint(_pConstraint.get());
+		if (pConstraint != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeConstraint(pConstraint.get());
 
-		if (_pRigidBodyFloor != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyFloor.get());
+		if (pRigidBodyFloor != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyFloor.get());
 
-		if (_pRigidBodyCart != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyCart.get());
+		if (pRigidBodyCart != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyCart.get());
 
-		if (_pRigidBodyPole != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyPole.get());
+		if (pRigidBodyPole != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyPole.get());
 	}
 }

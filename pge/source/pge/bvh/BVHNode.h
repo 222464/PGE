@@ -1,31 +1,31 @@
 #pragma once
 
-#include <pge/geometry/FormTriangle.h>
-#include <pge/system/Uncopyable.h>
+#include "../geometry/FormTriangle.h"
+#include "../system/Uncopyable.h"
 #include <memory>
 
 namespace pge {
 	class BVHNode : public Uncopyable {
 	public:
 		struct CoordAndIsMin {
-			float _coord;
-			bool _isMin;
+			float coord;
+			bool isMin;
 
 			bool operator<(const CoordAndIsMin &other) const {
-				return _coord < other._coord;
+				return coord < other.coord;
 			}
 		};
 	private:
-		class BVHTree* _pTree;
-		BVHNode* _pParent;
+		class BVHTree* pTree;
+		BVHNode* pParent;
 
-		AABB3D _aabb;
+		AABB3D aabb;
 
-		std::shared_ptr<BVHNode> _pLeft, _pRight;
+		std::shared_ptr<BVHNode> pLeft, pRight;
 
-		unsigned int _numOccupantsBelow;
+		unsigned int numOccupantsBelow;
 
-		std::vector<FormTriangle> _occupants;
+		std::vector<FormTriangle> occupants;
 
 		float getCostSAH(const Vec3f &splitPos, int axis);
 
@@ -33,10 +33,10 @@ namespace pge {
 		bool findSplitPosSAH(float &pos, int &axis, size_t &splitIndex);
 
 	public:
-		static const float _traverseCost;
-		static const float _intersectCost;
+		static const float traverseCost;
+		static const float intersectCost;
 
-		bool _collapseMarker;
+		bool collapseMarker;
 
 		BVHNode(class BVHTree* pTree, BVHNode* pParent);
 
@@ -44,19 +44,19 @@ namespace pge {
 		void split(int numSplitsAfterNoTriangleReduction);
 
 		const AABB3D &getAABB() const {
-			return _aabb;
+			return aabb;
 		}
 
 		const BVHNode* getLeft() const {
-			return _pLeft.get();
+			return pLeft.get();
 		}
 
 		const BVHNode* getRight() const {
-			return _pRight.get();
+			return pRight.get();
 		}
 
 		const std::vector<FormTriangle> &getTriangles() const {
-			return _occupants;
+			return occupants;
 		}
 
 		friend class BVHTree;

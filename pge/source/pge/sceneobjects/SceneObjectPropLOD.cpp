@@ -1,8 +1,8 @@
-#include <pge/sceneobjects/SceneObjectPropLOD.h>
+#include "SceneObjectPropLOD.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "../rendering/model/SceneObjectStaticModelBatcher.h"
 
-#include <pge/rendering/shader/Shader.h>
+#include "../rendering/shader/Shader.h"
 
 bool SceneObjectPropLOD::create(const std::vector<std::string> &fileNames) {
 	assert(getScene() != nullptr);
@@ -15,33 +15,33 @@ bool SceneObjectPropLOD::create(const std::vector<std::string> &fileNames) {
 
 		pge::StaticModelOBJ* pModelOBJ = static_cast<pge::StaticModelOBJ*>(asset.get());
 
-		pModelOBJ->_model.genMipMaps();
+		pModelOBJ->model.genMipMaps();
 
-		_pModelsOBJ.push_back(pModelOBJ);
+		pModelsOBJ.push_back(pModelOBJ);
 	}
 
-	_transform = pge::Matrix4x4f::identityMatrix();
+	transform = pge::Matrix4x4f::identityMatrix();
 
 	return true;
 }
 
 void SceneObjectPropLOD::calculateAABB() {
-	_aabb = _pModelsOBJ[0]->getAABB().getTransformedAABB(_transform);
+	aabb = pModelsOBJ[0]->getAABB().getTransformedAABB(transform);
 
 	if (getScene() != nullptr)
 		updateAABB();
 }
 
 void SceneObjectPropLOD::onAdd() {
-	_batcherRef = getScene()->getNamed("smb");
+	batcherRef = getScene()->getNamed("smb");
 
-	assert(_batcherRef.isAlive());
+	assert(batcherRef.isAlive());
 }
 
 void SceneObjectPropLOD::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
+	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
-	int lodIndex = std::min(static_cast<int>(_pModelsOBJ.size()) - 1, static_cast<int>(((_transform * pge::Vec3f(0.0f, 0.0f, 0.0f)) - getRenderScene()->_logicCamera._position).magnitude() / _lodSwitchDistance));
+	int lodIndex = std::min(static_cast<int>(pModelsOBJ.size()) - 1, static_cast<int>(((transform * pge::Vec3f(0.0f, 0.0f, 0.0f)) - getRenderScene()->logicCamera.position).magnitude() / lodSwitchDistance));
 
-	_pModelsOBJ[lodIndex]->render(pBatcher, _transform);
+	pModelsOBJ[lodIndex]->render(pBatcher, transform);
 }

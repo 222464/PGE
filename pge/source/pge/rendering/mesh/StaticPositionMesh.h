@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec2f.h>
+#include "../../constructs/Vec3f.h"
+#include "../../constructs/Vec2f.h"
 
-#include <pge/rendering/SFMLOGL.h>
-#include <pge/rendering/bufferobjects/VBO.h>
+#include "../SFMLOGL.h"
+#include "../bufferobjects/VBO.h"
 
 #define PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
@@ -13,17 +13,17 @@ namespace pge {
 
 	class StaticPositionMesh {
 	private:
-		VBO _positionBuffer;
-		VBO _indexBuffer;
+		VBO positionBuffer;
+		VBO indexBuffer;
 
 	public:
-		std::vector<Vec3f> _vertices;
-		std::vector<staticPositionMeshIndexType> _indices;
+		std::vector<Vec3f> vertices;
+		std::vector<staticPositionMeshIndexType> indices;
 
-		size_t _numIndices;
+		size_t numIndices;
 
 		StaticPositionMesh()
-			: _numIndices(0)
+			: numIndices(0)
 		{}
 
 		void create(bool useBuffer = true);
@@ -31,8 +31,8 @@ namespace pge {
 		void updateBuffers();
 
 		void clearArrays() {
-			_vertices.clear();
-			_indices.clear();
+			vertices.clear();
+			indices.clear();
 		}
 
 		void renderFromBuffers();
@@ -49,7 +49,7 @@ namespace pge {
 		}
 
 		bool hasBuffer() const {
-			return _positionBuffer.created();
+			return positionBuffer.created();
 		}
 	};
 }

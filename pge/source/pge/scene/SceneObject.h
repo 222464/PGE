@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../rendering/SFMLOGL.h"
 
-#include <pge/scene/SceneObjectRef.h>
+#include "SceneObjectRef.h"
 
-#include <pge/constructs/AABB3D.h>
+#include "../constructs/AABB3D.h"
 
 #include <unordered_set>
 #include <thread>
@@ -14,37 +14,37 @@
 namespace pge {
 	class SceneObject {
 	private:
-		class Scene* _pScene;
+		class Scene* pScene;
 
-		size_t _indexPlusOne;
+		size_t indexPlusOne;
 
-		std::unordered_set<SceneObjectRef*> _pReferences;
+		std::unordered_set<SceneObjectRef*> pReferences;
 
-		SceneObjectRef _this;
+		SceneObjectRef thisRef;
 
-		class OctreeNode* _pOctreeNode;
-		class Octree* _pOctree;
+		class OctreeNode* pOctreeNode;
+		class Octree* pOctree;
 
-		bool _needsTreeUpdate;
+		bool needsTreeUpdate;
 
-		std::shared_ptr<std::recursive_mutex> _mutex;
+		std::shared_ptr<std::recursive_mutex> mutex;
 
 		void treeUpdate();
 
 	protected:
-		AABB3D _aabb;
+		AABB3D aabb;
 
-		bool _syncable;
+		bool syncable;
 
-		bool _shouldDestroy;
+		bool shouldDestroyFlag;
 
 	public:
-		unsigned short _logicMask;
-		unsigned short _renderMask;
+		unsigned short logicMask;
+		unsigned short renderMask;
 
-		float _layer;
+		float layer;
 
-		std::string _tag;
+		std::string tag;
 
 		SceneObject();
 		virtual ~SceneObject() {
@@ -66,33 +66,33 @@ namespace pge {
 		virtual void postRender() {}
 
 		class Scene* getScene() const {
-			return _pScene;
+			return pScene;
 		}
 
 		class RenderScene* getRenderScene() const;
 
 		size_t getIndexPlusOne() const {
-			return _indexPlusOne;
+			return indexPlusOne;
 		}
 
 		void destroy() {
-			_shouldDestroy = true;
+			shouldDestroyFlag = true;
 		}
 
 		bool shouldDestroy() const {
-			return _shouldDestroy;
+			return shouldDestroyFlag;
 		}
 
 		const AABB3D &getAABB() const {
-			return _aabb;
+			return aabb;
 		}
 
 		Octree* getTree() const {
-			return _pOctree;
+			return pOctree;
 		}
 
 		const SceneObjectRef &getThis() const {
-			return _this;
+			return thisRef;
 		}
 
 		virtual SceneObject* copyFactory() = 0;
@@ -100,7 +100,7 @@ namespace pge {
 		void removeReferences();
 
 		void updateAABB() {
-			_needsTreeUpdate = true;
+			needsTreeUpdate = true;
 		}
 
 		friend class State;

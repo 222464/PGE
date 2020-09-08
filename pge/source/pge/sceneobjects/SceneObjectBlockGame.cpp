@@ -1,6 +1,6 @@
-#include <pge/sceneobjects/SceneObjectBlockGame.h>
+#include "SceneObjectBlockGame.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "../rendering/model/SceneObjectStaticModelBatcher.h"
 
 #include <iostream>
 #include <sstream>
@@ -8,8 +8,8 @@
 bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	assert(getScene() != nullptr);
 
-	_size = size;
-	_numStartBlocks = numStartBlocks;
+	this->size = size;
+	this->numStartBlocks = numStartBlocks;
 
 	// Rendering
 	std::shared_ptr<pge::Asset> asset;
@@ -17,65 +17,65 @@ bool SceneObjectBlockGame::create(int size, int numStartBlocks) {
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/block.obj", asset))
 		return false;
 
-	_pBlockModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pBlockModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/bot.obj", asset))
 		return false;
 
-	_pAgentModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pAgentModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	reset();
 
-	_capture = false;
+	capture = false;
 
-	_capBytes = std::make_shared<std::vector<char>>(getRenderScene()->_gBuffer.getWidth() * getRenderScene()->_gBuffer.getHeight() * 3, 0);
+	capBytes = std::make_shared<std::vector<char>>(getRenderScene()->gBuffer.getWidth() * getRenderScene()->gBuffer.getHeight() * 3, 0);
 
-	_show = getRenderScene()->_renderingEnabled;
+	show = getRenderScene()->renderingEnabled;
 
-	_socket = std::make_shared<sf::TcpSocket>();
+	socket = std::make_shared<sf::TcpSocket>();
 
-	_socket->connect(sf::IpAddress::LocalHost, _port, sf::seconds(5.0f));
+	socket->connect(sf::IpAddress::LocalHost, port, sf::seconds(5.0f));
 
 	return true;
 }
 
 void SceneObjectBlockGame::onAdd() {
-	_batcherRef = getScene()->getNamed("smb");
+	batcherRef = getScene()->getNamed("smb");
 
-	assert(_batcherRef.isAlive());
+	assert(batcherRef.isAlive());
 }
 
 void SceneObjectBlockGame::reset() {
 	// Generate a random map
-	_rng.seed(_gameSeed);
+	rng.seed(gameSeed);
 
-	_blocks.clear();
-	_blocks.assign(_size * _size, 0);
+	blocks.clear();
+	blocks.assign(size * size, 0);
 
-	std::uniform_int_distribution<int> blockDist(0, _blocks.size() - 1);
+	std::uniform_int_distribution<int> blockDist(0, blocks.size() - 1);
 
-	for (int i = 0; i < _numStartBlocks; i++) {
-		int randSpot = blockDist(_rng);
+	for (int i = 0; i < numStartBlocks; i++) {
+		int randSpot = blockDist(rng);
 
-		_blocks[randSpot]++;
+		blocks[randSpot]++;
 	}
 
-	_agentPosition = blockDist(_rng);
+	agentPosition = blockDist(rng);
 
-	_action = 0;
-	_ticksPerAction = 5;
-	_ticks = 0;
-	_reward = 0.0f;
+	action = 0;
+	ticksPerAction = 5;
+	ticks = 0;
+	reward = 0.0f;
 }
 
 void SceneObjectBlockGame::act() {
-	int agentX = _agentPosition % _size;
-	int agentY = _agentPosition / _size;
+	int agentX = agentPosition % size;
+	int agentY = agentPosition / size;
 
 	int oldPosX = agentX;
 	int oldPosY = agentY;
 
-	switch (_action) {
+	switch (action) {
 	// Moves
 	case 0:
 		agentY++;
@@ -96,14 +96,14 @@ void SceneObjectBlockGame::act() {
 	// Pushes
 	case 4:
 		// If is valid push direction
-		if (agentY + 2 < _size) {
-			int &pushHeight = _blocks[(agentX) + (agentY + 1) * _size];
-			int &targetHeight = _blocks[(agentX) + (agentY + 2) * _size];
+		if (agentY + 2 < size) {
+			int &pushHeight = blocks[(agentX) + (agentY + 1) * size];
+			int &targetHeight = blocks[(agentX) + (agentY + 2) * size];
 
 			// If a block exists
 			if (pushHeight > 0) {
 				// If on same level as agent
-				if (_blocks[_agentPosition] - 1 == pushHeight) {
+				if (blocks[agentPosition] - 1 == pushHeight) {
 					// If not too high
 					if (targetHeight <= pushHeight + 1) {
 						// Push over
@@ -119,13 +119,13 @@ void SceneObjectBlockGame::act() {
 	case 5:
 		// If is valid push direction
 		if (agentY - 2 >= 0) {
-			int &pushHeight = _blocks[(agentX)+(agentY - 1) * _size];
-			int &targetHeight = _blocks[(agentX)+(agentY - 2) * _size];
+			int &pushHeight = blocks[(agentX)+(agentY - 1) * size];
+			int &targetHeight = blocks[(agentX)+(agentY - 2) * size];
 
 			// If a block exists
 			if (pushHeight > 0) {
 				// If on same level as agent
-				if (_blocks[_agentPosition] - 1 == pushHeight) {
+				if (blocks[agentPosition] - 1 == pushHeight) {
 					// If not too high
 					if (targetHeight <= pushHeight + 1) {
 						// Push over
@@ -140,14 +140,14 @@ void SceneObjectBlockGame::act() {
 
 	case 6:
 		// If is valid push direction
-		if (agentX + 2 < _size) {
-			int &pushHeight = _blocks[(agentX + 1)+(agentY) * _size];
-			int &targetHeight = _blocks[(agentX + 2)+(agentY) * _size];
+		if (agentX + 2 < size) {
+			int &pushHeight = blocks[(agentX + 1)+(agentY) * size];
+			int &targetHeight = blocks[(agentX + 2)+(agentY) * size];
 
 			// If a block exists
 			if (pushHeight > 0) {
 				// If on same level as agent
-				if (_blocks[_agentPosition] - 1 == pushHeight) {
+				if (blocks[agentPosition] - 1 == pushHeight) {
 					// If not too high
 					if (targetHeight <= pushHeight + 1) {
 						// Push over
@@ -163,13 +163,13 @@ void SceneObjectBlockGame::act() {
 	case 7:
 		// If is valid push direction
 		if (agentX - 2 >= 0) {
-			int &pushHeight = _blocks[(agentX - 1) + (agentY)* _size];
-			int &targetHeight = _blocks[(agentX - 2) + (agentY)* _size];
+			int &pushHeight = blocks[(agentX - 1) + (agentY)* size];
+			int &targetHeight = blocks[(agentX - 2) + (agentY)* size];
 
 			// If a block exists
 			if (pushHeight > 0) {
 				// If on same level as agent
-				if (_blocks[_agentPosition] - 1 == pushHeight) {
+				if (blocks[agentPosition] - 1 == pushHeight) {
 					// If not too high
 					if (targetHeight <= pushHeight + 1) {
 						// Push over
@@ -184,14 +184,14 @@ void SceneObjectBlockGame::act() {
 	}
 
 	// See if new position is valid
-	if (agentX < 0 || agentX >= _size || agentY < 0 || agentY >= _size) {
+	if (agentX < 0 || agentX >= size || agentY < 0 || agentY >= size) {
 		agentX = oldPosX;
 		agentY = oldPosY;
 	}
 
 	// If moved, but new position is too high
 	if (agentX != oldPosX || agentY != oldPosY) {
-		if (_blocks[agentX + agentY * _size] > _blocks[oldPosX + oldPosY * _size] + 1) {
+		if (blocks[agentX + agentY * size] > blocks[oldPosX + oldPosY * size] + 1) {
 			// Reset position
 			agentX = oldPosX;
 			agentY = oldPosY;
@@ -199,16 +199,16 @@ void SceneObjectBlockGame::act() {
 	}
 
 	// Write out new position
-	_agentPosition = agentX + agentY * _size;
+	agentPosition = agentX + agentY * size;
 
-	_reward = _blocks[_agentPosition];
+	reward = blocks[agentPosition];
 }
 
 void SceneObjectBlockGame::synchronousUpdate(float dt) {
-	if (_ticks >= _ticksPerAction || !getRenderScene()->_renderingEnabled) {
-		_ticks = 0;
+	if (ticks >= ticksPerAction || !getRenderScene()->renderingEnabled) {
+		ticks = 0;
 
-		std::array<char, _maxBatchSize> buffer;
+		std::array<char, maxBatchSize> buffer;
 
 		std::array<char, 1 + 4> msg;
 
@@ -216,7 +216,7 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 		size_t totalReceived = 0;
 
 		while (totalReceived < msg.size()) {
-			_socket->receive(buffer.data(), msg.size() - totalReceived, received);
+			socket->receive(buffer.data(), msg.size() - totalReceived, received);
 
 			for (int i = 0; i < received; i++)
 				msg[totalReceived + i] = buffer[i];
@@ -225,39 +225,39 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 		}
 
 		if (msg[0] == 'A') { // Action
-			_action = *reinterpret_cast<int*>(&msg[1]);
+			action = *reinterpret_cast<int*>(&msg[1]);
 		}
 		else if (msg[0] == 'R') { // Reset
 			reset();
 		}
 		else if (msg[0] == 'C') { // Capture + action
-			_action = *reinterpret_cast<int*>(&msg[1]);
+			action = *reinterpret_cast<int*>(&msg[1]);
 
-			_capture = true;
+			capture = true;
 
-			if (!getRenderScene()->_renderingEnabled) {
+			if (!getRenderScene()->renderingEnabled) {
 				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
 				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
 			}
 
-			getRenderScene()->_renderingEnabled = true;
+			getRenderScene()->renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
-			_action = *reinterpret_cast<int*>(&msg[1]);
+			action = *reinterpret_cast<int*>(&msg[1]);
 
-			_capture = false;
+			capture = false;
 
-			if (!_show) {
-				if (getRenderScene()->_renderingEnabled) {
+			if (!show) {
+				if (getRenderScene()->renderingEnabled) {
 					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
 					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
 				}
 
-				getRenderScene()->_renderingEnabled = false;
+				getRenderScene()->renderingEnabled = false;
 			}
 		}
 		else if (buffer[0] == 'X') { // Exit
-			getRenderScene()->_close = true;
+			getRenderScene()->close = true;
 		}
 
 		act();
@@ -269,16 +269,16 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 
 		int obsIndex = 0;
 
-		int agentX = _agentPosition % _size;
-		int agentY = _agentPosition / _size;
+		int agentX = agentPosition % size;
+		int agentY = agentPosition / size;
 
 		for (int dx = -1; dx <= 1; dx++)
 			for (int dy = -1; dy <= 1; dy++) {
 				int tx = agentX + dx;
 				int ty = agentY + dy;
 
-				if (tx >= 0 && ty >= 0 && tx < _size && ty < _size) {
-					obs[obsIndex++] = _blocks[tx + ty * _size];
+				if (tx >= 0 && ty >= 0 && tx < size && ty < size) {
+					obs[obsIndex++] = blocks[tx + ty * size];
 				}
 				else
 					obs[obsIndex++] = -1; // -1 for wall
@@ -287,7 +287,7 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 		// First add reward
 		int index = 0;
 
-		*reinterpret_cast<float*>(&buffer[index]) = _reward;
+		*reinterpret_cast<float*>(&buffer[index]) = reward;
 
 		index += sizeof(float);
 
@@ -297,31 +297,31 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 			index += sizeof(int);
 		}
 
-		// Submit number of batches of _maxBatchSize
-		int numBatches = _capBytes->size() / _maxBatchSize + ((_capBytes->size() % _maxBatchSize) == 0 ? 0 : 1);
+		// Submit number of batches of maxBatchSize
+		int numBatches = capBytes->size() / maxBatchSize + ((capBytes->size() % maxBatchSize) == 0 ? 0 : 1);
 
 		// No batches if not capturing
-		if (!_capture)
+		if (!capture)
 			numBatches = 0;
 
 		*reinterpret_cast<int*>(&buffer[index]) = numBatches;
 
 		index += sizeof(int);
 
-		_socket->send(buffer.data(), index);
+		socket->send(buffer.data(), index);
 
-		if (_capture) {
-			std::vector<char> reorganized(_capBytes->size());
+		if (capture) {
+			std::vector<char> reorganized(capBytes->size());
 
 			int reorgIndex = 0;
 
-			for (int y = 0; y < getRenderScene()->_gBuffer.getHeight(); y++)
-				for (int x = 0; x < getRenderScene()->_gBuffer.getWidth(); x++)	{
-					int start = 3 * (x + (getRenderScene()->_gBuffer.getHeight() - 1 - y) * getRenderScene()->_gBuffer.getWidth());
+			for (int y = 0; y < getRenderScene()->gBuffer.getHeight(); y++)
+				for (int x = 0; x < getRenderScene()->gBuffer.getWidth(); x++)	{
+					int start = 3 * (x + (getRenderScene()->gBuffer.getHeight() - 1 - y) * getRenderScene()->gBuffer.getWidth());
 
-					reorganized[reorgIndex++] = (*_capBytes)[start + 0];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 1];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 2];
+					reorganized[reorgIndex++] = (*capBytes)[start + 0];
+					reorganized[reorgIndex++] = (*capBytes)[start + 1];
+					reorganized[reorgIndex++] = (*capBytes)[start + 2];
 				}
 
 			int total = 0;
@@ -330,49 +330,49 @@ void SceneObjectBlockGame::synchronousUpdate(float dt) {
 				// Submit batch
 				size_t count = 0;
 
-				for (int j = 0; j < _maxBatchSize && total < _capBytes->size(); j++) {
+				for (int j = 0; j < maxBatchSize && total < capBytes->size(); j++) {
 					buffer[j] = reorganized[total++];
 
 					count++;
 				}
 
-				_socket->send(buffer.data(), count);
+				socket->send(buffer.data(), count);
 			}
 		}
 	}
 	else
-		_ticks++;
+		ticks++;
 }
 
 void SceneObjectBlockGame::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
+	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
 	// Render blocks
-	for (int i = 0; i < _blocks.size(); i++) {
-		int x = i % _size;
-		int y = i / _size;
+	for (int i = 0; i < blocks.size(); i++) {
+		int x = i % size;
+		int y = i / size;
 
-		float xf = x - _size * 0.5f;
-		float yf = y - _size * 0.5f;
+		float xf = x - size * 0.5f;
+		float yf = y - size * 0.5f;
 
-		for (int j = 0; j < _blocks[i]; j++) {
+		for (int j = 0; j < blocks[i]; j++) {
 			pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf, j + 0.9f, yf));
 
-			_pBlockModel->render(pBatcher, transform);
+			pBlockModel->render(pBatcher, transform);
 		}
 	}
 
 	// Render agent
 	{
-		int x = _agentPosition % _size;
-		int y = _agentPosition / _size;
+		int x = agentPosition % size;
+		int y = agentPosition / size;
 
-		float xf = x - _size * 0.5f;
-		float yf = y - _size * 0.5f;
+		float xf = x - size * 0.5f;
+		float yf = y - size * 0.5f;
 
-		pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf, _blocks[_agentPosition] + 0.9f, yf));
+		pge::Matrix4x4f transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(xf, blocks[agentPosition] + 0.9f, yf));
 
-		_pAgentModel->render(pBatcher, transform);
+		pAgentModel->render(pBatcher, transform);
 	}
 }
 
@@ -380,10 +380,10 @@ void SceneObjectBlockGame::postRender() {
 	// Get data from effect buffer
 	glReadBuffer(GL_FRONT);
 
-	glReadPixels(0, 0, getRenderScene()->_gBuffer.getWidth(), getRenderScene()->_gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, _capBytes->data());
+	glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
 }
 
 void SceneObjectBlockGame::onDestroy() {
-	if (_socket != nullptr)
-		_socket->disconnect();
+	if (socket != nullptr)
+		socket->disconnect();
 }

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pge/assetmanager/Asset.h>
+#include "../../assetmanager/Asset.h"
 #include <SFML/Audio.hpp>
 
 namespace pge {
 	class SoundBuffer : public Asset {
 	private:
-		sf::SoundBuffer _buffer;
+		sf::SoundBuffer buffer;
 		
 	public:
 		void setBuffer(sf::Sound &sound) {
-			sound.setBuffer(_buffer);
+			sound.setBuffer(buffer);
 		}
 
 		// Inherited from Asset

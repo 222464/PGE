@@ -1,37 +1,37 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/lighting/SceneObjectLighting.h>
+#include "SceneObjectLighting.h"
 
-#include <pge/constructs/Vec3f.h>
+#include "../../constructs/Vec3f.h"
 
-#include <pge/util/Math.h>
+#include "../../util/Math.h"
 
 namespace pge {
 	class SceneObjectSpotLight : public SceneObject {
 	private:
-		SceneObjectRef _lighting;
+		SceneObjectRef lighting;
 
-		Vec3f _position;
-		Vec3f _color;
+		Vec3f position;
+		Vec3f color;
 
-		float _range;
+		float range;
 
-		Vec3f _direction;
-		float _spotAngle;
-		float _spotAngleCos;
-		float _endConeRadius;
-		float _exponent;
+		Vec3f direction;
+		float spotAngle;
+		float spotAngleCos;
+		float endConeRadius;
+		float exponent;
 
-		Matrix4x4f _transform;
+		Matrix4x4f transform;
 
-		std::shared_ptr<VBO> _uniformBuffer;
+		std::shared_ptr<VBO> uniformBuffer;
 
-		bool _needsUniformBufferUpdate;
+		bool needsUniformBufferUpdate;
 
 	public:
-		bool _enabled;
+		bool enabled;
 
 		SceneObjectSpotLight();
 
@@ -48,41 +48,41 @@ namespace pge {
 		void setExponent(float exponent);
 
 		const Vec3f &getPosition() const {
-			return _position;
+			return position;
 		}
 
 		const Vec3f &getColor() const {
-			return _color;
+			return color;
 		}
 
 		float getRange() const {
-			return _range;
+			return range;
 		}
 
 		const Vec3f &getDirection() const {
-			return _direction;
+			return direction;
 		}
 
 		float getSpotAngle() const {
-			return _spotAngle;
+			return spotAngle;
 		}
 
 		float getSpotAngleCos() const {
-			return _spotAngleCos;
+			return spotAngleCos;
 		}
 
 		float getSpotAngleCosFlipInv() const {
-			return 1.0f / (1.0f - _spotAngleCos);
+			return 1.0f / (1.0f - spotAngleCos);
 		}
 
 		float getExponent() const {
-			return _exponent;
+			return exponent;
 		}
 
 		void updateUniformBuffer();
 
 		void setTransform(RenderScene* pRenderScene) {
-			pRenderScene->setTransform(_transform);
+			pRenderScene->setTransform(transform);
 		}
 
 		void updateSpotLightInternals();

@@ -1,63 +1,63 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/shader/Shader.h>
-#include <pge/rendering/shader/UBOShaderInterface.h>
-#include <pge/rendering/model/StaticPositionModel.h>
+#include "../shader/Shader.h"
+#include "../shader/UBOShaderInterface.h"
+#include "../model/StaticPositionModel.h"
 
 namespace pge {
 	class SceneObjectLighting : public SceneObject {
 	private:
-		std::shared_ptr<Shader> _ambientLightShader;
+		std::shared_ptr<Shader> ambientLightShader;
 
-		std::shared_ptr<Shader> _pointLightShader;
-		std::shared_ptr<UBOShaderInterface> _pointLightLightUBOShaderInterface;
+		std::shared_ptr<Shader> pointLightShader;
+		std::shared_ptr<UBOShaderInterface> pointLightLightUBOShaderInterface;
 	
-		std::shared_ptr<Shader> _pointLightShadowedShader;
-		std::shared_ptr<UBOShaderInterface> _pointLightShadowedLightUBOShaderInterface;
+		std::shared_ptr<Shader> pointLightShadowedShader;
+		std::shared_ptr<UBOShaderInterface> pointLightShadowedLightUBOShaderInterface;
 		
-		std::shared_ptr<Shader> _spotLightShader;
-		std::shared_ptr<UBOShaderInterface> _spotLightLightUBOShaderInterface;
+		std::shared_ptr<Shader> spotLightShader;
+		std::shared_ptr<UBOShaderInterface> spotLightLightUBOShaderInterface;
 	
-		std::shared_ptr<Shader> _directionalLightShader;
-		std::shared_ptr<UBOShaderInterface> _directionalLightLightUBOShaderInterface;
-		std::shared_ptr<Shader> _directionalLightShadowedShader;
-		std::shared_ptr<UBOShaderInterface> _directionalLightShadowedLightUBOShaderInterface;
+		std::shared_ptr<Shader> directionalLightShader;
+		std::shared_ptr<UBOShaderInterface> directionalLightLightUBOShaderInterface;
+		std::shared_ptr<Shader> directionalLightShadowedShader;
+		std::shared_ptr<UBOShaderInterface> directionalLightShadowedLightUBOShaderInterface;
 
-		std::shared_ptr<Shader> _emissiveRenderShader;
+		std::shared_ptr<Shader> emissiveRenderShader;
 
-		std::shared_ptr<Shader> _depthRenderShader;
+		std::shared_ptr<Shader> depthRenderShader;
 		
-		std::shared_ptr<StaticPositionModel> _sphereModel;
-		std::shared_ptr<StaticPositionModel> _coneModel;
+		std::shared_ptr<StaticPositionModel> sphereModel;
+		std::shared_ptr<StaticPositionModel> coneModel;
 
-		std::shared_ptr<Texture2D> _noiseMap;
+		std::shared_ptr<Texture2D> noiseMap;
 
-		std::list<SceneObjectRef> _pointLights;
-		std::list<SceneObjectRef> _spotLights;
-		std::list<SceneObjectRef> _directionalLights;
-		std::list<SceneObjectRef> _shadowedPointLights;
-		//std::list<SceneObjectRef> _shadowedSpotLights;
-		std::list<SceneObjectRef> _shadowedDirectionalLights;
+		std::list<SceneObjectRef> pointLights;
+		std::list<SceneObjectRef> spotLights;
+		std::list<SceneObjectRef> directionalLights;
+		std::list<SceneObjectRef> shadowedPointLights;
+		//std::list<SceneObjectRef> shadowedSpotLights;
+		std::list<SceneObjectRef> shadowedDirectionalLights;
 
-		Vec3f _attenuation;
+		Vec3f attenuation;
 
-		bool _needsAttenuationUpdate;
+		bool needsAttenuationUpdate;
 
 	public:
-		float _pointLightRangeScalar;
-		float _spotLightRangeScalar;
+		float pointLightRangeScalar;
+		float spotLightRangeScalar;
 
-		Vec3f _ambientLight;
+		Vec3f ambientLight;
 
 		SceneObjectLighting()
-			: _attenuation(0.5f, 0.001f, 0.0001f), _needsAttenuationUpdate(true),
-			_pointLightRangeScalar(1.3f),
-			_spotLightRangeScalar(1.1f),
-			_ambientLight(0.0f, 0.0f, 0.0f)
+			: attenuation(0.5f, 0.001f, 0.0001f), needsAttenuationUpdate(true),
+			pointLightRangeScalar(1.3f),
+			spotLightRangeScalar(1.1f),
+			ambientLight(0.0f, 0.0f, 0.0f)
 		{
-			_renderMask = 0xffff;
+			renderMask = 0xffff;
 		}
 
 		void create(const std::shared_ptr<Shader> &ambientLightShader,
@@ -82,50 +82,50 @@ namespace pge {
 		void setAttenuation(const Vec3f &attenuation);
 
 		const Vec3f &getAttenuation() const {
-			return _attenuation;
+			return attenuation;
 		}
 
 		// Inherited from SceneObject
 		void postRender();
 
 		std::list<SceneObjectRef>::const_iterator getPointLightBegin() const {
-			return _pointLights.begin();
+			return pointLights.begin();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getPointLightEnd() const {
-			return _pointLights.end();
+			return pointLights.end();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getSpotLightBegin() const {
-			return _spotLights.begin();
+			return spotLights.begin();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getSpotLightEnd() const {
-			return _spotLights.end();
+			return spotLights.end();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getDirectionalLightBegin() const {
-			return _directionalLights.begin();
+			return directionalLights.begin();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getDirectionalLightEnd() const {
-			return _directionalLights.end();
+			return directionalLights.end();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getShadowedPointLightBegin() const {
-			return _shadowedPointLights.begin();
+			return shadowedPointLights.begin();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getShadowedPointLightEnd() const {
-			return _shadowedPointLights.end();
+			return shadowedPointLights.end();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getShadowedDirectionalLightBegin() const {
-			return _shadowedDirectionalLights.begin();
+			return shadowedDirectionalLights.begin();
 		}
 
 		std::list<SceneObjectRef>::const_iterator getShadowedDirectionalLightEnd() const {
-			return _shadowedDirectionalLights.end();
+			return shadowedDirectionalLights.end();
 		}
 
 		SceneObject* copyFactory() {

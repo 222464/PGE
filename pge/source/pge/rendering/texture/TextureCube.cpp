@@ -1,4 +1,4 @@
-#include <pge/rendering/texture/TextureCube.h>
+#include "TextureCube.h"
 
 #include <iostream>
 
@@ -12,8 +12,8 @@ bool TextureCube::createAsset(const std::string &name) {
 
 	std::istringstream fromString(name);
 
-	glGenTextures(1, &_textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
 	for (size_t i = 0; i < 6; i++) {
 		std::string subName;
@@ -25,9 +25,9 @@ bool TextureCube::createAsset(const std::string &name) {
 		if (!img.loadFromFile(subName))
 			return false;
 
-		_size = img.getSize().x;
+		size = img.getSize().x;
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0, GL_RGBA8, _size, _size, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
 	}
 
 	// Default settings

@@ -1,6 +1,6 @@
-#include <pge/util/NoiseGenerator.h>
+#include "NoiseGenerator.h"
 
-#include <pge/util/Math.h>
+#include "Math.h"
 #include <algorithm>
 #include <cmath>
 
@@ -9,7 +9,7 @@
 using namespace pge;
 
 NoiseGenerator::NoiseGenerator()
-: _seed(1), _smoothDist(1)
+: seed(1), smoothDist(1)
 {}
 
 // Constant seed pseudo-random generator based on the one from http://freespace.virgin.net/hugo.elias/models/_perlin.htm
@@ -17,7 +17,7 @@ NoiseGenerator::NoiseGenerator()
 // the same values whenever the parameters are the same. Seeds are done by adding on offset to that value
 float NoiseGenerator::noise(int value) {
 	// Add the seed offset
-	value += _varyingInternalSeed;
+	value += varyingInternalSeed;
 
 	// Random bit shifts to produce a pseudo-random number
 	value = (value << 13) ^ value;
@@ -47,7 +47,7 @@ float NoiseGenerator::interpolateCosine(float val1, float val2, float coeff_inte
 	//assert(coeff_interpolate >= 0.0f && coeff_interpolate <= 1.0f);
 
 	// Use coefficient of interpolation to get angle in range [0, PI]
-	float coeff_angle = coeff_interpolate * _pi;
+	float coeff_angle = coeff_interpolate * pi;
 
 	// Cosine of angle converted to [0, 1] range to serve as the new coefficient of interpolation
 	float clampedCos = (1.0f - cosf(coeff_angle)) * 0.5f;
@@ -62,9 +62,9 @@ float NoiseGenerator::smoothNoise3D(int x, int y, int z) {
 	float sum = 0.0f;
 
 	// Get surrounding noise values, divide their values based on their distance from the center, and add them on
-	for (int deltaX = -_smoothDist; deltaX <= _smoothDist; deltaX++)
-	for (int deltaY = -_smoothDist; deltaY <= _smoothDist; deltaY++)
-	for (int deltaZ = -_smoothDist; deltaZ <= _smoothDist; deltaZ++) {
+	for (int deltaX = -smoothDist; deltaX <= smoothDist; deltaX++)
+	for (int deltaY = -smoothDist; deltaY <= smoothDist; deltaY++)
+	for (int deltaZ = -smoothDist; deltaZ <= smoothDist; deltaZ++) {
 		if (deltaX == 0 && deltaY == 0)
 			sum += noise3D(x, y, z) * 0.25f;
 		else {
@@ -196,7 +196,7 @@ float NoiseGenerator::perlinNoise3D(float x, float y, float z, int octaves, floa
 	// Add octaves
 	for (int oct = 0; oct < octaves; oct++) {
 		// Different internal seed for every octave so it does not repeated
-		_varyingInternalSeed = _seed + oct * 3792;
+		varyingInternalSeed = seed + oct * 3792;
 
 		// The higher the octave, the higher the frequency, and the lower the amplitude
 		// The frequency multiplier is multiplied by the coordinates to increase/decrease the wave frequency
@@ -216,7 +216,7 @@ float NoiseGenerator::smoothedPerlinNoise3D(float x, float y, float z, int octav
 	// Add octaves
 	for (int oct = 0; oct < octaves; oct++) {
 		// Different internal seed for every octave so it does not repeat
-		_varyingInternalSeed = _seed + oct * 3792;
+		varyingInternalSeed = seed + oct * 3792;
 
 		// The higher the octave, the higher the frequency, and the lower the amplitude
 		// The frequency multiplier is multiplied by the coordinates to increase/decrease the wave frequency

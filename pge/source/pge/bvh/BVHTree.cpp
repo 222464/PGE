@@ -1,22 +1,22 @@
-#include <pge/bvh/BVHTree.h>
+#include "BVHTree.h"
 
 #include <assert.h>
 
 using namespace pge;
 
 BVHTree::BVHTree()
-: _pRootNode(nullptr), _maxSplitsAfterNoTriangleReduction(3)
+: pRootNode(nullptr), maxSplitsAfterNoTriangleReduction(3)
 {}
 
 void BVHTree::create(const AABB3D &rootRegion) {
-	_pRootNode.reset(new BVHNode(this, nullptr));
-	_pRootNode->_aabb = rootRegion;
+	pRootNode.reset(new BVHNode(this, nullptr));
+	pRootNode->aabb = rootRegion;
 }
 
 void BVHTree::add(FormTriangle &triangle) {
-	assert(_pRootNode != nullptr);
+	assert(pRootNode != nullptr);
 
-	_pRootNode->add(triangle, triangle.getAABB());
+	pRootNode->add(triangle, triangle.getAABB());
 }
 
 bool BVHTree::rayTrace(const Vec3f &origin, const Vec3f &direction,

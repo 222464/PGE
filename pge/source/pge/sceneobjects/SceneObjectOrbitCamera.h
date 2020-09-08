@@ -1,22 +1,22 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../scene/Scene.h"
 
-#include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
+#include "input/SceneObjectBufferedInput.h"
 
 class SceneObjectOrbitCamera : public pge::SceneObject {
 private:
-	pge::SceneObjectRef _input;
+	pge::SceneObjectRef input;
 
 public:
-	pge::Vec3f _focusPoint;
+	pge::Vec3f focusPoint;
 
-	float _distance;
-	float _tilt;
+	float distance;
+	float tilt;
 
-	float _angle;
+	float angle;
 
-	float _angularVelocity;
+	float angularVelocity;
 
 	SceneObjectOrbitCamera();
 

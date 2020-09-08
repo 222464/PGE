@@ -6,40 +6,40 @@ namespace pge {
 	template<class T>
 	class SoftwareImage2D {
 	private:
-		std::vector<T> _data;
+		std::vector<T> data;
 
-		int _width, _height;
+		int width, height;
 
 	public:
 		void reset(int width, int height, T defaultValue = T());
 
 		T getPixel(int x, int y) const {
-			return _data[x + y * _width];
+			return data[x + y * width];
 		}
 
 		void setPixel(int x, int y, const T &value) {
-			_data[x + y * _width] = value;
+			data[x + y * width] = value;
 		}
 
 		T* getData() {
-			return &_data[0];
+			return &data[0];
 		}
 
 		int getWidth() const {
-			return _width;
+			return width;
 		}
 
 		int getHeight() const {
-			return _height;
+			return height;
 		}
 	};
 
 	template<class T>
 	void SoftwareImage2D<T>::reset(int width, int height, T defaultValue) {
-		_width = width;
-		_height = height;
+		this->width = width;
+		this->height = height;
 
-		_data.clear();
-		_data.assign(_width * _height, defaultValue);
+		data.clear();
+		data.assign(width * height, defaultValue);
 	}
 }

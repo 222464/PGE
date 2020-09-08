@@ -1,4 +1,4 @@
-#include <pge/rendering/texture/Texture2D.h>
+#include "Texture2D.h"
 
 #include <iostream>
 #include <sstream>
@@ -14,11 +14,11 @@ bool Texture2D::createAsset(const std::string &name) {
 
 	is >> fileName;
 
-	_image.reset(new sf::Image());
+	image.reset(new sf::Image());
 
-	_image->loadFromFile(fileName);
+	image->loadFromFile(fileName);
 
-	_texture.loadFromImage(*_image);
+	texture.loadFromImage(*image);
 
 	if (is.eof() || !is.good())
 		discardSoftwareImage(); 
@@ -35,7 +35,7 @@ bool Texture2D::createAsset(const std::string &name) {
 
 	GLint textureID;
 	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureID);
-	_textureID = static_cast<GLuint>(textureID);
+	textureID = static_cast<GLuint>(textureID);
 
 	// Default settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

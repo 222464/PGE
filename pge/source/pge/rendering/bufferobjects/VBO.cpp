@@ -1,94 +1,94 @@
-#include <pge/rendering/bufferobjects/VBO.h>
+#include "VBO.h"
 
 using namespace pge;
 
-GLuint VBO::_currentArrayBuffer = 0;
-GLuint VBO::_currentElementArrayBuffer = 0;
+GLuint VBO::currentArrayBuffer = 0;
+GLuint VBO::currentElementArrayBuffer = 0;
 
 void VBO::destroy() {
-	assert(_ID != 0);
+	assert(ID != 0);
 
-	switch (_usage) {
+	switch (usage) {
 	case GL_ARRAY_BUFFER:
-		if (_currentArrayBuffer == _ID) {
-			_currentArrayBuffer = 0;
-			glBindBuffer(_usage, 0);
+		if (currentArrayBuffer == ID) {
+			currentArrayBuffer = 0;
+			glBindBuffer(usage, 0);
 		}
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		if (_currentElementArrayBuffer == _ID) {
-			_currentElementArrayBuffer = 0;
-			glBindBuffer(_usage, 0);
+		if (currentElementArrayBuffer == ID) {
+			currentElementArrayBuffer = 0;
+			glBindBuffer(usage, 0);
 		}
 
 		break;
 	}
 
-	glDeleteBuffers(1, &_ID);
+	glDeleteBuffers(1, &ID);
 
-	_ID = 0;
+	ID = 0;
 }
 
 void VBO::bind(GLuint usage) {
-	_usage = usage;
+	this->usage = usage;
 
-	/*switch (_usage) {
+	/*switch (usage) {
 	case GL_ARRAY_BUFFER:
-		if (_currentArrayBuffer != _ID) {
-			_currentArrayBuffer = _ID;
-			glBindBuffer(_usage, _ID);
+		if (currentArrayBuffer != ID) {
+			currentArrayBuffer = ID;
+			glBindBuffer(usage, ID);
 		}
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		if (_currentElementArrayBuffer != _ID) {
-			_currentElementArrayBuffer = _ID;
-			glBindBuffer(_usage, _ID);
+		if (currentElementArrayBuffer != ID) {
+			currentElementArrayBuffer = ID;
+			glBindBuffer(usage, ID);
 		}
 
 		break;
 
 	default:
-		glBindBuffer(_usage, _ID);
+		glBindBuffer(usage, ID);
 
 		break;
 	}*/
 
-	glBindBuffer(_usage, _ID);
+	glBindBuffer(usage, ID);
 }
 
 void VBO::forceBind(GLuint usage) {
-	_usage = usage;
+	this->usage = usage;
 
-	switch (_usage) {
+	switch (usage) {
 	case GL_ARRAY_BUFFER:
-		_currentArrayBuffer = _ID;
+		currentArrayBuffer = ID;
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		_currentElementArrayBuffer = _ID;
+		currentElementArrayBuffer = ID;
 
 		break;
 	}
 
-	glBindBuffer(_usage, _ID);
+	glBindBuffer(usage, ID);
 }
 
 void VBO::unbind() {
-	glBindBuffer(_usage, 0);
+	glBindBuffer(usage, 0);
 
-	switch (_usage) {
+	switch (usage) {
 	case GL_ARRAY_BUFFER:
-		_currentArrayBuffer = 0;
+		currentArrayBuffer = 0;
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		_currentElementArrayBuffer = 0;
+		currentElementArrayBuffer = 0;
 
 		break;
 	}
@@ -99,12 +99,12 @@ void VBO::unbind(GLuint usage) {
 
 	switch (usage) {
 	case GL_ARRAY_BUFFER:
-		_currentArrayBuffer = 0;
+		currentArrayBuffer = 0;
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		_currentElementArrayBuffer = 0;
+		currentElementArrayBuffer = 0;
 
 		break;
 	}

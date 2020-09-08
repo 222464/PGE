@@ -1,30 +1,30 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/imageeffects/SceneObjectEffectBuffer.h>
+#include "../../scene/RenderScene.h"
+#include "SceneObjectEffectBuffer.h"
 
 namespace pge {
 	class SceneObjectLightScattering : public SceneObject {
 	private:
-		pge::SceneObjectRef _effectBuffer;
+		pge::SceneObjectRef effectBuffer;
 
-		std::shared_ptr<Shader> _blurShaderHorizontal;
-		std::shared_ptr<Shader> _blurShaderVertical;
+		std::shared_ptr<Shader> blurShaderHorizontal;
+		std::shared_ptr<Shader> blurShaderVertical;
 
-		std::shared_ptr<Shader> _lightScatteringShader;
+		std::shared_ptr<Shader> lightScatteringShader;
 
-		std::shared_ptr<Shader> _renderImageShader;
+		std::shared_ptr<Shader> renderImageShader;
 
 	public:
-		Vec3f _lightSourcePosition;
-		Vec3f _lightSourceColor;
+		Vec3f lightSourcePosition;
+		Vec3f lightSourceColor;
 
-		size_t _numBlurPasses;
-		float _blurRadius;
+		size_t numBlurPasses;
+		float blurRadius;
 
 		SceneObjectLightScattering()
-			: _lightSourcePosition(0.0f, 0.0f, 0.0f), _lightSourceColor(1.0f, 1.0f, 1.0f),
-			_numBlurPasses(1), _blurRadius(0.00493f)
+			: lightSourcePosition(0.0f, 0.0f, 0.0f), lightSourceColor(1.0f, 1.0f, 1.0f),
+			numBlurPasses(1), blurRadius(0.00493f)
 		{}
 
 		void create(const std::shared_ptr<Shader> &blurShaderHorizontal,

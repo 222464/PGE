@@ -1,18 +1,18 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
+#include "Vec3f.h"
 
 namespace pge {
 	class Planef {
 	public:
-		Vec3f _point;
-		Vec3f _normal;
+		Vec3f point;
+		Vec3f normal;
 
 		Planef()
 		{}
 
 		Planef(const Vec3f &point, const Vec3f &normal)
-			: _point(point), _normal(normal)
+			: point(point), normal(normal)
 		{}
 
 		Planef(const Vec3f &p1, const Vec3f &p2, const Vec3f &p3) {

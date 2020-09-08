@@ -1,6 +1,6 @@
-#include <pge/rendering/model/StaticPositionModel.h>
+#include "StaticPositionModel.h"
 
-#include <pge/util/Functions.h>
+#include "../../util/Functions.h"
 
 #include <fstream>
 #include <sstream>
@@ -8,7 +8,7 @@
 using namespace pge;
 
 void StaticPositionModel::render() {
-	for (std::shared_ptr<StaticPositionMesh> &mesh : _meshes)
+	for (std::shared_ptr<StaticPositionMesh> &mesh : meshes)
 		mesh->render();
 }
 
@@ -30,8 +30,8 @@ bool StaticPositionModel::loadFromOBJ(const std::string &fileName, AABB3D &aabb,
 	std::unordered_map<staticPositionMeshIndexType, size_t> indexToVertex;
 
 	// Initial extremes
-	aabb._lowerBound = Vec3f(999999.0f, 999999.0f, 999999.0f);
-	aabb._upperBound = Vec3f(-999999.0f, -999999.0f, -999999.0f);
+	aabb.lowerBound = Vec3f(999999.0f, 999999.0f, 999999.0f);
+	aabb.upperBound = Vec3f(-999999.0f, -999999.0f, -999999.0f);
 
 	std::unordered_map<std::string, size_t> matReferences;
 
@@ -56,8 +56,8 @@ bool StaticPositionModel::loadFromOBJ(const std::string &fileName, AABB3D &aabb,
 			aabb.expand(Vec3f(x, y, z));
 		}
 		else if (header == "f") {
-			if (_meshes.empty())
-				_meshes.push_back(std::shared_ptr<StaticPositionMesh>(new StaticPositionMesh()));
+			if (meshes.empty())
+				meshes.push_back(std::shared_ptr<StaticPositionMesh>(new StaticPositionMesh()));
 
 			// Add a face
 			std::array<staticPositionMeshIndexType, 3> v;
@@ -77,23 +77,23 @@ bool StaticPositionModel::loadFromOBJ(const std::string &fileName, AABB3D &aabb,
 					// File indicies start at 1, so convert
 					size_t vertIndex = v[i] - 1;
 
-					_meshes.back()->_vertices.push_back(filePositions[vertIndex]);
+					meshes.back()->vertices.push_back(filePositions[vertIndex]);
 
 					// Index of vertex in vertex component array
-					size_t realIndex = _meshes.back()->_vertices.size() - 1;
+					size_t realIndex = meshes.back()->vertices.size() - 1;
 
 					// Add attribute set index to the map
 					indexToVertex[v[i]] = realIndex;
 
-					_meshes.back()->_indices.push_back(static_cast<staticPositionMeshIndexType>(realIndex));
+					meshes.back()->indices.push_back(static_cast<staticPositionMeshIndexType>(realIndex));
 				}
 				else
-					_meshes.back()->_indices.push_back(static_cast<staticPositionMeshIndexType>(it->second));
+					meshes.back()->indices.push_back(static_cast<staticPositionMeshIndexType>(it->second));
 			}
 		}
 		else if (header == "usemtl")
 			// Add new mesh
-			_meshes.push_back(std::shared_ptr<StaticPositionMesh>(new StaticPositionMesh()));
+			meshes.push_back(std::shared_ptr<StaticPositionMesh>(new StaticPositionMesh()));
 	}
 
 	fromFile.close();
@@ -101,7 +101,7 @@ bool StaticPositionModel::loadFromOBJ(const std::string &fileName, AABB3D &aabb,
 	aabb.calculateHalfDims();
 	aabb.calculateCenter();
 
-	for (std::shared_ptr<StaticPositionMesh> &meshAndMaterial : _meshes) {
+	for (std::shared_ptr<StaticPositionMesh> &meshAndMaterial : meshes) {
 		meshAndMaterial->create(useBuffers);
 
 		if (useBuffers)

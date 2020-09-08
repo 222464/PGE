@@ -1,30 +1,30 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
+#include "Vec3f.h"
 
-#include <pge/constructs/Matrix4x4f.h>
+#include "Matrix4x4f.h"
 
 namespace pge {
 	class AABB3D {
 	private:
-		Vec3f _center;
-		Vec3f _halfDims;
+		Vec3f center;
+		Vec3f halfDims;
 
 	public:
-		Vec3f _lowerBound;
-		Vec3f _upperBound;
+		Vec3f lowerBound;
+		Vec3f upperBound;
 
 		void calculateHalfDims() {
-			_halfDims = (_upperBound - _lowerBound) * 0.5f;
+			halfDims = (upperBound - lowerBound) * 0.5f;
 		}
 
 		void calculateCenter() {
-			_center = _lowerBound + _halfDims;
+			center = lowerBound + halfDims;
 		}
 
 		void calculateBounds() {
-			_lowerBound = _center - _halfDims;
-			_upperBound = _center + _halfDims;
+			lowerBound = center - halfDims;
+			upperBound = center + halfDims;
 		}
 
 		// Constructors
@@ -32,41 +32,41 @@ namespace pge {
 		AABB3D(const Vec3f &lowerBound, const Vec3f &upperBound);
 
 		bool operator==(const AABB3D &other) {
-			return _lowerBound == other._lowerBound && _upperBound == other._upperBound;
+			return lowerBound == other.lowerBound && upperBound == other.upperBound;
 		}
 
 		bool operator!=(const AABB3D &other) {
-			return _lowerBound != other._lowerBound || _upperBound != other._upperBound;
+			return lowerBound != other.lowerBound || upperBound != other.upperBound;
 		}
 
 		// Accessors
 		const Vec3f &getCenter() const {
-			return _center;
+			return center;
 		}
 
 		Vec3f getDims() const {
-			return _halfDims * 2.0f;
+			return halfDims * 2.0f;
 		}
 
 		const Vec3f &getHalfDims() const {
-			return _halfDims;
+			return halfDims;
 		}
 
 		const Vec3f &getLowerBound() const {
-			return _lowerBound;
+			return lowerBound;
 		}
 
 		const Vec3f &getUpperBound() const {
-			return _upperBound;
+			return upperBound;
 		}
 
 		// Modifiers
 		void setLowerBound(const Vec3f &lowerBound) {
-			_lowerBound = lowerBound;
+			this->lowerBound = lowerBound;
 		}
 
 		void setUpperBound(const Vec3f &upperBound) {
-			_upperBound = upperBound;
+			this->upperBound = upperBound;
 		}
 
 		void setCenter(const Vec3f &center);
@@ -79,7 +79,7 @@ namespace pge {
 		void setHalfDims(const Vec3f &halfDims);
 
 		void scale(const Vec3f &scale) {
-			setHalfDims(_halfDims * scale);
+			setHalfDims(halfDims * scale);
 		}
 
 		// Utility

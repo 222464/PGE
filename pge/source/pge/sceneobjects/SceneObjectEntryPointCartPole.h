@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../scene/Scene.h"
 
 class SceneObjectEntryPointCartPole : public pge::SceneObject {
 public:

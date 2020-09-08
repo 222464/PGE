@@ -1,39 +1,39 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/voxel/VoxelChunk.h>
+#include "VoxelChunk.h"
 
-#include <pge/rendering/texture/Texture2DArray.h>
+#include "../texture/Texture2DArray.h"
 
 namespace pge {
 	class VoxelTerrain : public SceneObject {
 	private:
-		std::shared_ptr<std::vector<SceneObjectRef>> _chunks;
+		std::shared_ptr<std::vector<SceneObjectRef>> chunks;
 
-		Point3i _size;
-		Point3i _center;
+		Point3i size;
+		Point3i center;
 
-		std::array<Vec3f, 6> _normals;
-		std::array<Point3i, 6> _positionOffsets;
-		std::array<std::array<Vec3f, 4>, 6> _corners;
+		std::array<Vec3f, 6> normals;
+		std::array<Point3i, 6> positionOffsets;
+		std::array<std::array<Vec3f, 4>, 6> corners;
 
-		std::list<SceneObjectRef> _renderChunks;
+		std::list<SceneObjectRef> renderChunks;
 
-		std::shared_ptr<Shader> _gBufferRenderShader;
+		std::shared_ptr<Shader> gBufferRenderShader;
 
-		std::shared_ptr<Shader> _depthRenderShader;
+		std::shared_ptr<Shader> depthRenderShader;
 
-		std::shared_ptr<Texture2DArray> _diffuse;
-		std::shared_ptr<Texture2DArray> _normal;
+		std::shared_ptr<Texture2DArray> diffuse;
+		std::shared_ptr<Texture2DArray> normal;
 
 	public:
-		voxelType _outsideMatrixVoxel;
-		float _voxelScalar;
-		float _voxelSize;
+		voxelType outsideMatrixVoxel;
+		float voxelScalar;
+		float voxelSize;
 
-		int _numChunkLODs;
-		float _LODSwitchDistance;
+		int numChunkLODs;
+		float LODSwitchDistance;
 
 		VoxelTerrain();
 
@@ -54,11 +54,11 @@ namespace pge {
 		void setChunkMatrixSize(const Point3i &size);
 
 		const Point3i getSize() const {
-			return _size;
+			return size;
 		}
 
 		const Point3i getCenter() const {
-			return _center;
+			return center;
 		}
 
 		SceneObject* copyFactory() {
@@ -66,11 +66,11 @@ namespace pge {
 		}
 
 		const Vec3f &getNormal(size_t index) const {
-			return _normals[index];
+			return normals[index];
 		}
 
 		const Point3i &getPositionOffset(size_t index) const {
-			return _positionOffsets[index];
+			return positionOffsets[index];
 		}
 
 		friend class VoxelChunk;

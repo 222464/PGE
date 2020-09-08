@@ -1,4 +1,4 @@
-#include <pge/system/ThreadPool.h>
+#include "ThreadPool.h"
 
 #include <iostream>
 
@@ -6,108 +6,108 @@ using namespace pge;
 
 void ThreadPool::WorkerThread::run(WorkerThread* pWorker) {
 	while (true) {
-		std::unique_lock<std::mutex> lock(pWorker->_mutex);
+		std::unique_lock<std::mutex> lock(pWorker->mutex);
 
-		pWorker->_conditionVariable.wait(lock, [pWorker] { return static_cast<bool>(pWorker->_proceed); });
+		pWorker->conditionVariable.wait(lock, [pWorker] { return static_cast<bool>(pWorker->proceed); });
 
-		pWorker->_proceed = false;
+		pWorker->proceed = false;
 
-		if (pWorker->_pPool == nullptr)
+		if (pWorker->pPool == nullptr)
 			break;
 		else {
-			if (pWorker->_item != nullptr) {
-				pWorker->_item->run(pWorker->_workerIndex);
-				pWorker->_item->_done = true;
+			if (pWorker->item != nullptr) {
+				pWorker->item->run(pWorker->workerIndex);
+				pWorker->item->done = true;
 			}
 
-			pWorker->_pPool->onWorkerAvailable(pWorker->_workerIndex);
+			pWorker->pPool->onWorkerAvailable(pWorker->workerIndex);
 		}
 
-		pWorker->_conditionVariable.notify_one();
+		pWorker->conditionVariable.notify_one();
 	}
 }
 
 void ThreadPool::onWorkerAvailable(size_t workerIndex) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	if (_itemQueue.empty())
-		_availableThreadIndicies.push_back(workerIndex);
+	if (itemQueue.empty())
+		availableThreadIndicies.push_back(workerIndex);
 	else {
 		// Assign new task
-		_workers[workerIndex]->_item = _itemQueue.front();
-		_itemQueue.pop_front();
-		_workers[workerIndex]->_proceed = true;
+		workers[workerIndex]->item = itemQueue.front();
+		itemQueue.pop_front();
+		workers[workerIndex]->proceed = true;
 	}
 }
 
 void ThreadPool::create(size_t numWorkers) {
-	_workers.resize(numWorkers);
+	workers.resize(numWorkers);
 
 	// Add all threads as available and launch threads
-	for (size_t i = 0; i < _workers.size(); i++) {
-		_workers[i].reset(new WorkerThread());
+	for (size_t i = 0; i < workers.size(); i++) {
+		workers[i].reset(new WorkerThread());
 
-		_availableThreadIndicies.push_back(i);
+		availableThreadIndicies.push_back(i);
 
 		// Block all threads as there are no tasks yet
-		_workers[i]->_pPool = this;
-		_workers[i]->_workerIndex = i;
+		workers[i]->pPool = this;
+		workers[i]->workerIndex = i;
 
-		_workers[i]->start();
+		workers[i]->start();
 	}
 }
 
 void ThreadPool::destroy() {
-	//std::lock_guard<std::mutex> lock(_mutex);
+	//std::lock_guard<std::mutex> lock(mutex);
 
-	_itemQueue.clear();
-	_availableThreadIndicies.clear();
+	itemQueue.clear();
+	availableThreadIndicies.clear();
 
-	for (size_t i = 0; i < _workers.size(); i++) {
+	for (size_t i = 0; i < workers.size(); i++) {
 		{
-			std::lock_guard<std::mutex> lock(_workers[i]->_mutex);
-			_workers[i]->_item = nullptr;
-			_workers[i]->_pPool = nullptr;
-			_workers[i]->_proceed = true;
-			_workers[i]->_conditionVariable.notify_one();
+			std::lock_guard<std::mutex> lock(workers[i]->mutex);
+			workers[i]->item = nullptr;
+			workers[i]->pPool = nullptr;
+			workers[i]->proceed = true;
+			workers[i]->conditionVariable.notify_one();
 		}
 
-		_workers[i]->_thread->join();
+		workers[i]->thread->join();
 	}
 }
 
 void ThreadPool::addItem(const std::shared_ptr<WorkItem> &item) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
 	if (workersAvailable()) {
-		size_t workerIndex = _availableThreadIndicies.front();
+		size_t workerIndex = availableThreadIndicies.front();
 
-		_availableThreadIndicies.pop_front();
+		availableThreadIndicies.pop_front();
 
-		std::lock_guard<std::mutex> lock(_workers[workerIndex]->_mutex);
+		std::lock_guard<std::mutex> lock(workers[workerIndex]->mutex);
 
-		_workers[workerIndex]->_item = item;
-		_workers[workerIndex]->_proceed = true;
-		_workers[workerIndex]->_conditionVariable.notify_one();
+		workers[workerIndex]->item = item;
+		workers[workerIndex]->proceed = true;
+		workers[workerIndex]->conditionVariable.notify_one();
 	}
 	else
-		_itemQueue.push_back(item);
+		itemQueue.push_back(item);
 }
 
 void ThreadPool::wait() {
 	// Try to aquire every mutex until no tasks are left
 	while (true) {
-		for (size_t i = 0; i < _workers.size(); i++) {
-			std::unique_lock<std::mutex> lock(_workers[i]->_mutex);
+		for (size_t i = 0; i < workers.size(); i++) {
+			std::unique_lock<std::mutex> lock(workers[i]->mutex);
 
-			WorkerThread* pWorker = _workers[i].get();
+			WorkerThread* pWorker = workers[i].get();
 
-			_workers[i]->_conditionVariable.wait(lock, [pWorker] { return !pWorker->_proceed; });
+			workers[i]->conditionVariable.wait(lock, [pWorker] { return !pWorker->proceed; });
 		}
 
-		std::lock_guard<std::mutex> lock(_mutex);
+		std::lock_guard<std::mutex> lock(mutex);
 
-		if (_itemQueue.empty())
+		if (itemQueue.empty())
 			break;
 	}
 }

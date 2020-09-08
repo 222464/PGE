@@ -1,43 +1,43 @@
-#include <pge/scene/State.h>
+#include "State.h"
 
 using namespace pge;
 
 void State::startProcessingNextState(ThreadPool &pool, State &next, unsigned short logicMask, float dt) {
 	// Add all non-destroyed objects to the new state and keep track of reference changes
-	_newIndices.resize(_sceneObjects.size());
+	newIndices.resize(sceneObjects.size());
 
-	for (size_t i = 0; i < _sceneObjects.size(); i++)
-		_newIndices[i] = i;
+	for (size_t i = 0; i < sceneObjects.size(); i++)
+		newIndices[i] = i;
 
 	size_t numLess = 0;
 
-	for (size_t i = 0; i < _sceneObjects.size(); i++) {
-		_newIndices[i] -= numLess;
+	for (size_t i = 0; i < sceneObjects.size(); i++) {
+		newIndices[i] -= numLess;
 
-		if (!_sceneObjects[i]->_shouldDestroy) {
-			next._sceneObjects.push_back(std::shared_ptr<SceneObject>(_sceneObjects[i]->copyFactory()));
-			next._sceneObjects.back()->_indexPlusOne = next._sceneObjects.size();
-			next._sceneObjects.back()->_pReferences.clear();
+		if (!sceneObjects[i]->shouldDestroy()) {
+			next.sceneObjects.push_back(std::shared_ptr<SceneObject>(sceneObjects[i]->copyFactory()));
+			next.sceneObjects.back()->indexPlusOne = next.sceneObjects.size();
+			next.sceneObjects.back()->pReferences.clear();
 		}
 		else
 			numLess++;
 	}
 
 	// Update all new scene objects in parallel
-	for (size_t i = 0; i < next._sceneObjects.size(); i++)
-	if ((logicMask & next._sceneObjects[i]->_logicMask) != 0) {
+	for (size_t i = 0; i < next.sceneObjects.size(); i++)
+	if ((logicMask & next.sceneObjects[i]->logicMask) != 0) {
 		std::shared_ptr<SceneObjectWorkItem> workItem(new SceneObjectWorkItem());
 
-		workItem->_pItem = next._sceneObjects[i].get();
-		workItem->_dt = dt;
+		workItem->pItem = next.sceneObjects[i].get();
+		workItem->dt = dt;
 
 		pool.addItem(workItem);
 	}
 
 	// Update all new scene objects in parallel
-	/*for (size_t i = 0; i < next._sceneObjects.size(); i++)
-	if ((logicMask & next._sceneObjects[i]->_logicMask) != 0) {
-		next._sceneObjects[i]->update(dt);
+	/*for (size_t i = 0; i < next.sceneObjects.size(); i++)
+	if ((logicMask & next.sceneObjects[i]->logicMask) != 0) {
+		next.sceneObjects[i]->update(dt);
 	}*/
 }
 
@@ -45,19 +45,19 @@ void State::waitForNextState(ThreadPool &pool, State &next) {
 	pool.wait();
 
 	// Check for more destruction
-	for (size_t i = 0; i < next._sceneObjects.size(); i++)
-	if (next._sceneObjects[i]->getThis() == nullptr || next._sceneObjects[i]->getThis()->_shouldDestroy)
-		next._sceneObjects[i]->destroy();
+	for (size_t i = 0; i < next.sceneObjects.size(); i++)
+	if (next.sceneObjects[i]->getThis() == nullptr || next.sceneObjects[i]->getThis()->shouldDestroy())
+		next.sceneObjects[i]->destroy();
 
 	// Update all references with new indicies
-	for (size_t i = 0; i < _sceneObjects.size(); i++) {
-		for (SceneObjectRef* pRef : _sceneObjects[i]->_pReferences) {
-			assert(pRef->_pSceneObject != nullptr);
-			pRef->_pSceneObject = next._sceneObjects[_newIndices[i]].get();
+	for (size_t i = 0; i < sceneObjects.size(); i++) {
+		for (SceneObjectRef* pRef : sceneObjects[i]->pReferences) {
+			assert(pRef->pSceneObject != nullptr);
+			pRef->pSceneObject = next.sceneObjects[newIndices[i]].get();
 
-			next._sceneObjects[_newIndices[i]]->_pReferences.insert(pRef);
+			next.sceneObjects[newIndices[i]]->pReferences.insert(pRef);
 		}
 
-		_sceneObjects[i]->_pReferences.clear();
+		sceneObjects[i]->pReferences.clear();
 	}
 }

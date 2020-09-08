@@ -1,10 +1,10 @@
-#include <pge/rendering/Camera.h>
+#include "Camera.h"
 
 using namespace pge;
 
 void Camera::extractFrustum() {
-	_frustum.extractFromMatrix(_projectionViewMatrix);
-	_frustum.calculateCorners(_projectionViewInverseMatrix);
+	frustum.extractFromMatrix(projectionViewMatrix);
+	frustum.calculateCorners(projectionViewInverseMatrix);
 }
 
 void Camera::fullUpdate() {

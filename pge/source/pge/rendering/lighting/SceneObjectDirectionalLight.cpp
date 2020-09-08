@@ -1,54 +1,54 @@
-#include <pge/rendering/lighting/SceneObjectDirectionalLight.h>
+#include "SceneObjectDirectionalLight.h"
 
 using namespace pge;
 
 SceneObjectDirectionalLight::SceneObjectDirectionalLight()
-: _color(1.0f, 1.0f, 1.0f),
-_direction(1.0f, 0.0f, 0.0f),
-_needsUniformBufferUpdate(true),
-_enabled(true)
+: color(1.0f, 1.0f, 1.0f),
+direction(1.0f, 0.0f, 0.0f),
+needsUniformBufferUpdate(true),
+enabled(true)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 }
 
 void SceneObjectDirectionalLight::create(SceneObjectLighting* pLighting) {
-	_lighting = pLighting;
+	lighting = pLighting;
 
-	_uniformBuffer.reset(new VBO());
-	_uniformBuffer->create();
+	uniformBuffer.reset(new VBO());
+	uniformBuffer->create();
 
-	pLighting->_directionalLightLightUBOShaderInterface->setUpBuffer(*_uniformBuffer);
+	pLighting->directionalLightLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
 
 	updateUniformBuffer();
 }
 
 void SceneObjectDirectionalLight::setColor(const Vec3f &color) {
-	_color = color;
+	this->color = color;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectDirectionalLight::setDirection(const Vec3f &direction) {
-	_direction = direction;
+	this->direction = direction;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectDirectionalLight::updateUniformBuffer() {
-	_uniformBuffer->bind(GL_UNIFORM_BUFFER);
+	uniformBuffer->bind(GL_UNIFORM_BUFFER);
 
-	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(_lighting.get());
+	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-	pLighting->_directionalLightLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightDirection", getRenderScene()->_renderCamera.getNormalMatrix() * _direction);
+	pLighting->directionalLightLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightDirection", getRenderScene()->renderCamera.getNormalMatrix() * direction);
 
-	if (_needsUniformBufferUpdate) {
-		pLighting->_directionalLightLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", _color);
+	if (needsUniformBufferUpdate) {
+		pLighting->directionalLightLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", color);
 
-		_needsUniformBufferUpdate = false;
+		needsUniformBufferUpdate = false;
 	}
 }
 
 void SceneObjectDirectionalLight::deferredRender() {
-	if (_enabled && !getRenderScene()->_renderingShadows && getRenderScene()->_shaderSwitchesEnabled)
-		static_cast<SceneObjectLighting*>(_lighting.get())->_directionalLights.push_back(*this);
+	if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
+		static_cast<SceneObjectLighting*>(lighting.get())->directionalLights.push_back(*this);
 }

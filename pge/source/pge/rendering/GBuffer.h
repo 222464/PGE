@@ -1,35 +1,35 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
-#include <pge/rendering/shader/Shader.h>
-#include <pge/rendering/bufferobjects/TextureRT.h>
+#include "SFMLOGL.h"
+#include "shader/Shader.h"
+#include "bufferobjects/TextureRT.h"
 
-#include <pge/system/Uncopyable.h>
+#include "../system/Uncopyable.h"
 
 namespace pge {
 	class GBuffer : public Uncopyable {
 	private:
-		unsigned int _width, _height;
+		unsigned int width, height;
 
 		// Array contains textures for the different buffer types
-		static const unsigned int _numBufferTextures = 3;
-		static const unsigned int _numBuffersAndEffect = _numBufferTextures + 1;
-		static const unsigned int _effectTextureAttachment = _numBufferTextures;
+		static const unsigned int numBufferTextures = 3;
+		static const unsigned int numBuffersAndEffect = numBufferTextures + 1;
+		static const unsigned int effectTextureAttachment = numBufferTextures;
 
-		std::array<GLuint, _numBufferTextures> _drawBuffers;
-		std::array<GLuint, _numBufferTextures> _gTextureIDs;
+		std::array<GLuint, numBufferTextures> drawBuffers;
+		std::array<GLuint, numBufferTextures> gTextureIDs;
 
-		GLuint _fboID;
-		GLuint _depthTextureID;
-		GLuint _effectTextureID;
+		GLuint fboID;
+		GLuint depthTextureID;
+		GLuint effectTextureID;
 
 	public:
 		enum BufferType {
-			_positionAndEmissive = 0, _normalAndShininess, _diffuseAndSpecular
+			positionAndEmissive = 0, normalAndShininess, diffuseAndSpecular
 		};
 
 		GBuffer()
-			: _fboID(0)
+			: fboID(0)
 		{}
 
 		~GBuffer();
@@ -37,7 +37,7 @@ namespace pge {
 		void create(unsigned int width, unsigned int height);
 
 		void setDrawGeom() {
-			glDrawBuffers(_numBufferTextures, &_drawBuffers[0]);
+			glDrawBuffers(numBufferTextures, &drawBuffers[0]);
 		}
 
 		void setDrawBuffer(BufferType type) {
@@ -49,42 +49,42 @@ namespace pge {
 		}
 
 		void setDrawEffect() {
-			glDrawBuffer(GL_COLOR_ATTACHMENT0 + _effectTextureAttachment);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0 + effectTextureAttachment);
 		}
 
 		void setReadEffect() {
-			glReadBuffer(GL_COLOR_ATTACHMENT0 + _effectTextureAttachment);
+			glReadBuffer(GL_COLOR_ATTACHMENT0 + effectTextureAttachment);
 		}
 
 		void copyEffectToMainFramebuffer();
 		void copyEffectToRenderTarget(TextureRT &target);
 
 		GLuint getTextureID(BufferType type) const {
-			return _gTextureIDs[type];
+			return gTextureIDs[type];
 		}
 
 		unsigned int getWidth() const {
-			return _width;
+			return width;
 		}
 
 		unsigned int getHeight() const {
-			return _height;
+			return height;
 		}
 
 		void setViewport() {
-			glViewport(0, 0, _width, _height);
+			glViewport(0, 0, width, height);
 		}
 
 		void bind() {
-			glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 		}
 
 		void bindDraw() {
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboID);
 		}
 
 		void bindRead() {
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboID);
 		}
 
 		static void unbind() {
@@ -100,19 +100,19 @@ namespace pge {
 		}
 
 		GLuint getFBOID() const {
-			return _fboID;
+			return fboID;
 		}
 
 		bool created() const {
-			return _fboID != 0;
+			return fboID != 0;
 		}
 
 		GLuint getEffectTextureID() const {
-			return _effectTextureID;
+			return effectTextureID;
 		}
 
 		GLuint getDepthTextureID() const {
-			return _depthTextureID;
+			return depthTextureID;
 		}
 	};
 }

@@ -1,4 +1,4 @@
-#include <pge/physics/BulletConversions.h>
+#include "BulletConversions.h"
 
 pge::Vec3f cons(const btVector3 &vec) {
 	return pge::Vec3f(vec.getX(), vec.getY(), vec.getZ());

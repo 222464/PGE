@@ -1,7 +1,7 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Quaternion.h>
+#include "../constructs/Vec3f.h"
+#include "../constructs/Quaternion.h"
 
 #include <LinearMath/btVector3.h>
 #include <LinearMath/btQuaternion.h>

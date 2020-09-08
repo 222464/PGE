@@ -2,51 +2,51 @@
 
 #include <SFML/Network.hpp>
 
-#include <pge/scene/RenderScene.h>
+#include "../scene/RenderScene.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
+#include "SceneObjectProp.h"
 
 class SceneObjectBlockGame : public pge::SceneObject {
 private:
 	// Rendering
-	pge::StaticModelOBJ* _pBlockModel;
-	pge::StaticModelOBJ* _pAgentModel;
+	pge::StaticModelOBJ* pBlockModel;
+	pge::StaticModelOBJ* pAgentModel;
 
-	pge::SceneObjectRef _batcherRef;
+	pge::SceneObjectRef batcherRef;
 
-	int _action;
+	int action;
 
-	int _ticksPerAction;
-	int _ticks;
+	int ticksPerAction;
+	int ticks;
 
-	int _size;
-	int _numStartBlocks;
-	int _agentPosition;
+	int size;
+	int numStartBlocks;
+	int agentPosition;
 
-	float _reward;
+	float reward;
 
-	bool _show;
+	bool show;
 
-	std::vector<int> _blocks;
+	std::vector<int> blocks;
 
-	std::mt19937 _rng;
+	std::mt19937 rng;
 
-	bool _capture;
-	std::shared_ptr<std::vector<char>> _capBytes;
+	bool capture;
+	std::shared_ptr<std::vector<char>> capBytes;
 
-	std::shared_ptr<sf::TcpSocket> _socket;
+	std::shared_ptr<sf::TcpSocket> socket;
 
 	void act();
 
 public:
-	static const unsigned short _port = 54003;
+	static const unsigned short port = 54003;
 
-	static const unsigned int _maxBatchSize = 16384;
+	static const unsigned int maxBatchSize = 16384;
 
-	static const unsigned int _gameSeed = 1234;
+	static const unsigned int gameSeed = 1234;
 
 	SceneObjectBlockGame() {
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create(int size, int numStartBlocks);

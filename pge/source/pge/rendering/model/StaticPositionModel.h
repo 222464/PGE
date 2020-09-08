@@ -1,14 +1,14 @@
 #pragma once
 
-#include <pge/rendering/mesh/StaticPositionMesh.h>
-#include <pge/rendering/material/Material.h>
+#include "../mesh/StaticPositionMesh.h"
+#include "../material/Material.h"
 
-#include <pge/scene/RenderScene.h>
+#include "../../scene/RenderScene.h"
 
 namespace pge {
 	class StaticPositionModel {
 	public:
-		std::vector<std::shared_ptr<StaticPositionMesh>> _meshes;
+		std::vector<std::shared_ptr<StaticPositionMesh>> meshes;
 
 		void render();
 

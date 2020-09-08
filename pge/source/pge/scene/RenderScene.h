@@ -1,49 +1,49 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "Scene.h"
 
-#include <pge/rendering/bufferobjects/TextureRT.h>
-#include <pge/rendering/GBuffer.h>
-#include <pge/rendering/shader/Shader.h>
-#include <pge/rendering/shader/UBOShaderInterface.h>
-#include <pge/rendering/texture/Texture2D.h>
-#include <pge/rendering/mesh/StaticPositionMesh.h>
+#include "../rendering/bufferobjects/TextureRT.h"
+#include "../rendering/GBuffer.h"
+#include "../rendering/shader/Shader.h"
+#include "../rendering/shader/UBOShaderInterface.h"
+#include "../rendering/texture/Texture2D.h"
+#include "../rendering/mesh/StaticPositionMesh.h"
 
 namespace pge {
 	class RenderScene : public Scene {
 	public:
 		enum GBufferRenderShaderType {
-			_standard = 0, _normal, _heightNormal
+			standard = 0, normal, heightNormal
 		};
 
 	private:
-		sf::Window* _pWindow;
+		sf::Window* pWindow;
 
-		VBO _sceneUniformBuffer;
+		VBO sceneUniformBuffer;
 
-		std::array<std::shared_ptr<Shader>, 3> _gBufferRenderShaders;
-		std::array<UBOShaderInterface, 3> _gBufferRenderShaderMaterialUBOInterfaces;
+		std::array<std::shared_ptr<Shader>, 3> gBufferRenderShaders;
+		std::array<UBOShaderInterface, 3> gBufferRenderShaderMaterialUBOInterfaces;
 
-		std::shared_ptr<Texture2D> _whiteTexture;
+		std::shared_ptr<Texture2D> whiteTexture;
 
-		StaticPositionMesh _normalizedQuad;
+		StaticPositionMesh normalizedQuad;
 
-		Matrix4x4f _viewModelMatrix;
-		Matrix4x4f _projectionViewModelMatrix;
-		Matrix3x3f _normalMatrix;
+		Matrix4x4f viewModelMatrix;
+		Matrix4x4f projectionViewModelMatrix;
+		Matrix3x3f normalMatrix;
 
 	public:
-		GBuffer _gBuffer;
+		GBuffer gBuffer;
 
-		Vec4f _clearColor;
+		Vec4f clearColor;
 
-		Camera _renderCamera;
+		Camera renderCamera;
 
-		bool _shaderSwitchesEnabled;
+		bool shaderSwitchesEnabled;
 
-		bool _renderingShadows;
+		bool renderingShadows;
 
-		bool _renderingEnabled;
+		bool renderingEnabled;
 
 		RenderScene();
 
@@ -73,35 +73,35 @@ namespace pge {
 		static void createMaterialInterface(UBOShaderInterface &materialInterface, Shader* pShader);
 
 		void renderNormalizedQuad() {
-			_normalizedQuad.render();
+			normalizedQuad.render();
 		}
 
 		sf::Window* getRenderWindow() const {
-			return _pWindow;
+			return pWindow;
 		}
 
 		const std::shared_ptr<Texture2D> &getWhiteTexture() const {
-			return _whiteTexture;
+			return whiteTexture;
 		}
 
 		UBOShaderInterface &getMaterialUBOShaderInterface(GBufferRenderShaderType type) {
-			return _gBufferRenderShaderMaterialUBOInterfaces[type];
+			return gBufferRenderShaderMaterialUBOInterfaces[type];
 		}
 
 		VBO &getSceneUniformBuffer() {
-			return _sceneUniformBuffer;
+			return sceneUniformBuffer;
 		}
 
 		const Matrix4x4f &getCurrentViewModelMatrix() const {
-			return _viewModelMatrix;
+			return viewModelMatrix;
 		}
 
 		const Matrix4x4f &getCurrentProjectionViewModelMatrix() const {
-			return _projectionViewModelMatrix;
+			return projectionViewModelMatrix;
 		}
 
 		const Matrix3x3f &getCurrentNormalMatrix() const {
-			return _normalMatrix;
+			return normalMatrix;
 		}
 	};
 }

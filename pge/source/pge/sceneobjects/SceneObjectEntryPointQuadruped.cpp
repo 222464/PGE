@@ -1,27 +1,27 @@
-#include <pge/sceneobjects/SceneObjectEntryPointQuadruped.h>
+#include "SceneObjectEntryPointQuadruped.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
-#include <pge/sceneobjects/SceneObjectPlayer.h>
-#include <pge/sceneobjects/SceneObjectBox.h>
-#include <pge/sceneobjects/SceneObjectQuadruped.h>
+#include "SceneObjectProp.h"
+#include "SceneObjectPlayer.h"
+#include "SceneObjectBox.h"
+#include "SceneObjectQuadruped.h"
 
-#include <pge/rendering/voxel/VoxelTerrain.h>
-#include <pge/rendering/voxel/TerrainGenerator.h>
-#include <pge/rendering/lighting/SceneObjectDirectionalLightShadowed.h>
-#include <pge/rendering/lighting/SceneObjectPointLightShadowed.h>
+#include "../rendering/voxel/VoxelTerrain.h"
+#include "../rendering/voxel/TerrainGenerator.h"
+#include "../rendering/lighting/SceneObjectDirectionalLightShadowed.h"
+#include "../rendering/lighting/SceneObjectPointLightShadowed.h"
 
-#include <pge/rendering/imageeffects/SceneObjectEffectBuffer.h>
-#include <pge/rendering/imageeffects/SceneObjectSSAO.h>
-#include <pge/rendering/imageeffects/SceneObjectLightScattering.h>
-#include <pge/rendering/imageeffects/SceneObjectDepthOfField.h>
-#include <pge/rendering/imageeffects/SceneObjectSSR.h>
-#include <pge/rendering/imageeffects/SceneObjectFXAA.h>
-#include <pge/rendering/imageeffects/SceneObjectFog.h>
+#include "../rendering/imageeffects/SceneObjectEffectBuffer.h"
+#include "../rendering/imageeffects/SceneObjectSSAO.h"
+#include "../rendering/imageeffects/SceneObjectLightScattering.h"
+#include "../rendering/imageeffects/SceneObjectDepthOfField.h"
+#include "../rendering/imageeffects/SceneObjectSSR.h"
+#include "../rendering/imageeffects/SceneObjectFXAA.h"
+#include "../rendering/imageeffects/SceneObjectFog.h"
 
-#include <pge/sceneobjects/SceneObjectFloatingCamera.h>
-#include <pge/sceneobjects/SceneObjectOrbitCamera.h>
+#include "SceneObjectFloatingCamera.h"
+#include "SceneObjectOrbitCamera.h"
 
-#include <pge/system/SoftwareImage2D.h>
+#include "../system/SoftwareImage2D.h"
 
 void SceneObjectEntryPointQuadruped::onAdd() {
 	// Physics
@@ -34,7 +34,7 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	pge::SceneObjectLighting* pLighting = static_cast<pge::SceneObjectLighting*>(lighting.get());
 
-	pLighting->_ambientLight = pge::Vec3f(0.01f, 0.01f, 0.01f);
+	pLighting->ambientLight = pge::Vec3f(0.01f, 0.01f, 0.01f);
 
 	/*std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> light(new pge::SceneObjectDirectionalLightShadowed());
 
@@ -52,13 +52,13 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	getRenderScene()->addNamed(gui, "gui", false);
 
-	gui->_layer = 2.0f;*/
+	gui->layer = 2.0f;*/
 
 	// Control
 
 	std::shared_ptr<SceneObjectOrbitCamera> camera(new SceneObjectOrbitCamera());
 
-	camera->_distance = 7.0f;
+	camera->distance = 7.0f;
 
 	getRenderScene()->addNamed(camera, "orbcam", false);
 
@@ -66,7 +66,7 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	/*std::shared_ptr<pge::Map3DWS> map(new pge::Map3DWS());
 
-	map->_settings._pScene = getScene();
+	map->settings.pScene = getScene();
 
 	map->createAsset("resources/maps/horrorMap.3dw");
 
@@ -86,7 +86,7 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	quadruped->create();
 
-	quadruped->_layer = 100.0f;
+	quadruped->layer = 100.0f;
 
 	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 
@@ -94,7 +94,7 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	sky->create("resources/models/skybox1.obj");
 
-	sky->_transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
+	sky->transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
 
 	sky->calculateAABB();
 
@@ -177,10 +177,10 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	ssao->create(blurShaderHorizontal, blurShaderVertical, ssaoShader, renderImageShader, noiseMap);
 
-	ssao->_ssaoRadius = 0.1f;
-	ssao->_ssaoStrength = 1.0f;
-	ssao->_blurRadius = 0.002f;
-	ssao->_numBlurPasses = 1;*/
+	ssao->ssaoRadius = 0.1f;
+	ssao->ssaoStrength = 1.0f;
+	ssao->blurRadius = 0.002f;
+	ssao->numBlurPasses = 1;*/
 
 	// SSR
 
@@ -205,7 +205,7 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	ssr->create(blurShaderHorizontalEdgeAware, blurShaderVerticalEdgeAware, ssrShader, renderImageShader, cubeMap, noiseMap);
 
-	ssr->_layer = 1.0f;
+	ssr->layer = 1.0f;
 
 	// Light Scattering
 
@@ -219,10 +219,10 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	lightScattering->create(blurShaderHorizontal, blurShaderVertical, lightScatteringShader, renderImageShader);
 
-	lightScattering->_layer = 1.5f;
+	lightScattering->layer = 1.5f;
 
-	lightScattering->_lightSourcePosition = -light->getDirection() * 200.0f;
-	lightScattering->_lightSourceColor = pge::Vec3f(1.0f, 0.9f, 0.8f) * 0.5f;*/
+	lightScattering->lightSourcePosition = -light->getDirection() * 200.0f;
+	lightScattering->lightSourceColor = pge::Vec3f(1.0f, 0.9f, 0.8f) * 0.5f;*/
 
 	// Depth of field
 
@@ -240,12 +240,12 @@ void SceneObjectEntryPointQuadruped::onAdd() {
 
 	depthOfField->create(depthOfFieldBlurShaderHorizontal, depthOfFieldBlurShaderVertical, renderImageShader);
 
-	depthOfField->_layer = 1.5f;
+	depthOfField->layer = 1.5f;
 
-	depthOfField->_focalDistance = 9.0f;
-	depthOfField->_focalRange = 0.4f;
-	depthOfField->_blurRadius = 0.002f;
-	depthOfField->_numBlurPasses = 1;*/
+	depthOfField->focalDistance = 9.0f;
+	depthOfField->focalRange = 0.4f;
+	depthOfField->blurRadius = 0.002f;
+	depthOfField->numBlurPasses = 1;*/
 
 	// FXAA
 

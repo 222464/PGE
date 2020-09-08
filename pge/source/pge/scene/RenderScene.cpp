@@ -1,12 +1,12 @@
-#include <pge/scene/RenderScene.h>
+#include "RenderScene.h"
 
-#include <pge/rendering/material/Material.h>
+#include "../rendering/material/Material.h"
 
 using namespace pge;
 
 RenderScene::RenderScene()
-: _shaderSwitchesEnabled(true), _renderingShadows(false), _clearColor(0.0f, 0.0f, 0.0f, 0.0f),
-_renderingEnabled(true)
+: shaderSwitchesEnabled(true), renderingShadows(false), clearColor(0.0f, 0.0f, 0.0f, 0.0f),
+renderingEnabled(true)
 {}
 
 void RenderScene::createRenderScene(size_t numWorkers, const AABB3D &rootRegion, sf::Window* pWindow,
@@ -15,121 +15,121 @@ void RenderScene::createRenderScene(size_t numWorkers, const AABB3D &rootRegion,
 	const std::shared_ptr<Shader> &gBufferRenderHeightNormal,
 	const std::shared_ptr<Texture2D> &whiteTexture)
 {
-	assert(_threadPool.getNumWorkers() == 0);
+	assert(threadPool.getNumWorkers() == 0);
 
-	_threadPool.create(numWorkers);
+	threadPool.create(numWorkers);
 
-	_octree.create(rootRegion);
+	octree.create(rootRegion);
 
-	_pWindow = pWindow;
+	this->pWindow = pWindow;
 
-	_gBuffer.create(_pWindow->getSize().x, _pWindow->getSize().y);
+	gBuffer.create(pWindow->getSize().x, pWindow->getSize().y);
 
-	_currentState.reset(new State());
+	currentState.reset(new State());
 
-	_sceneUniformBuffer.create();
+	sceneUniformBuffer.create();
 
-	_gBufferRenderShaders[_standard] = gBufferRender;
-	_gBufferRenderShaders[_normal] = gBufferRenderNormal;
-	_gBufferRenderShaders[_heightNormal] = gBufferRenderHeightNormal;
+	gBufferRenderShaders[standard] = gBufferRender;
+	gBufferRenderShaders[normal] = gBufferRenderNormal;
+	gBufferRenderShaders[heightNormal] = gBufferRenderHeightNormal;
 
-	_whiteTexture = whiteTexture;
+	this->whiteTexture = whiteTexture;
 
-	createMaterialInterface(_gBufferRenderShaderMaterialUBOInterfaces[_standard], _gBufferRenderShaders[_standard].get());
-	createMaterialInterface(_gBufferRenderShaderMaterialUBOInterfaces[_normal], _gBufferRenderShaders[_normal].get());
-	createMaterialInterface(_gBufferRenderShaderMaterialUBOInterfaces[_heightNormal], _gBufferRenderShaders[_heightNormal].get());
+	createMaterialInterface(gBufferRenderShaderMaterialUBOInterfaces[standard], gBufferRenderShaders[standard].get());
+	createMaterialInterface(gBufferRenderShaderMaterialUBOInterfaces[normal], gBufferRenderShaders[normal].get());
+	createMaterialInterface(gBufferRenderShaderMaterialUBOInterfaces[heightNormal], gBufferRenderShaders[heightNormal].get());
 
 	// Set up normalized quad, a shared resource for post render effects
-	_normalizedQuad.create(true);
+	normalizedQuad.create(true);
 
-	_normalizedQuad._vertices.resize(4);
-	_normalizedQuad._vertices[0] = Vec3f(-1.0f, -1.0f, 0.0f);
-	_normalizedQuad._vertices[1] = Vec3f(1.0f, -1.0f, 0.0f);
-	_normalizedQuad._vertices[2] = Vec3f(1.0f, 1.0f, 0.0f);
-	_normalizedQuad._vertices[3] = Vec3f(-1.0f, 1.0f, 0.0f);
+	normalizedQuad.vertices.resize(4);
+	normalizedQuad.vertices[0] = Vec3f(-1.0f, -1.0f, 0.0f);
+	normalizedQuad.vertices[1] = Vec3f(1.0f, -1.0f, 0.0f);
+	normalizedQuad.vertices[2] = Vec3f(1.0f, 1.0f, 0.0f);
+	normalizedQuad.vertices[3] = Vec3f(-1.0f, 1.0f, 0.0f);
 
-	_normalizedQuad._indices.resize(6);
-	_normalizedQuad._indices[0] = 0;
-	_normalizedQuad._indices[1] = 1;
-	_normalizedQuad._indices[2] = 2;
-	_normalizedQuad._indices[3] = 0;
-	_normalizedQuad._indices[4] = 2;
-	_normalizedQuad._indices[5] = 3;
+	normalizedQuad.indices.resize(6);
+	normalizedQuad.indices[0] = 0;
+	normalizedQuad.indices[1] = 1;
+	normalizedQuad.indices[2] = 2;
+	normalizedQuad.indices[3] = 0;
+	normalizedQuad.indices[4] = 2;
+	normalizedQuad.indices[5] = 3;
 
-	_normalizedQuad.updateBuffers();
+	normalizedQuad.updateBuffers();
 }
 
 void RenderScene::renderShadow() {
-	_shaderSwitchesEnabled = false;
-	_renderingShadows = true;
+	shaderSwitchesEnabled = false;
+	renderingShadows = true;
 
-	std::vector<SceneObjectRef> visibleOld = _visible;
+	std::vector<SceneObjectRef> visibleOld = visible;
 
-	findVisible(_renderCamera);
+	findVisible(renderCamera);
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->deferredRender();
 
 	glFlush();
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->batchRender();
 
 	glFlush();
 
-	_visible = visibleOld;
+	visible = visibleOld;
 
-	_shaderSwitchesEnabled = true;
-	_renderingShadows = false;
+	shaderSwitchesEnabled = true;
+	renderingShadows = false;
 }
 
 void RenderScene::render(TextureRT &target) {
 	updateShaderUniforms();
 
-	findVisible(_renderCamera);
+	findVisible(renderCamera);
 
-	for (size_t i = 0; i < _visible.size(); i++)
-		_visible[i]->preRender();
+	for (size_t i = 0; i < visible.size(); i++)
+		visible[i]->preRender();
 
-	_gBuffer.bindDraw();
-	_gBuffer.setViewport();
-	_gBuffer.setDrawGeom();
+	gBuffer.bindDraw();
+	gBuffer.setViewport();
+	gBuffer.setDrawGeom();
 
-	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->deferredRender();
 
 	glFlush();
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->batchRender();
 
 	glFlush();
 
-	_gBuffer.bindRead();
-	_gBuffer.setDrawEffect();
-	_gBuffer.setReadEffect();
+	gBuffer.bindRead();
+	gBuffer.setDrawEffect();
+	gBuffer.setReadEffect();
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glDepthMask(GL_FALSE);
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->postRender();
 
 	glFlush();
 
-	_visible.clear();
+	visible.clear();
 
 	GBuffer::unbind();
 
 	glDepthMask(GL_TRUE);
 
 	// Copy GBuffer to render target
-	_gBuffer.copyEffectToRenderTarget(target);
+	gBuffer.copyEffectToRenderTarget(target);
 
 	PGE_GL_ERROR_CHECK();
 }
@@ -137,111 +137,111 @@ void RenderScene::render(TextureRT &target) {
 void RenderScene::renderToMainFramebuffer() {
 	updateShaderUniforms();
 
-	findVisible(_renderCamera);
+	findVisible(renderCamera);
 
-	for (size_t i = 0; i < _visible.size(); i++)
-		_visible[i]->preRender();
+	for (size_t i = 0; i < visible.size(); i++)
+		visible[i]->preRender();
 
-	_gBuffer.bindDraw();
-	_gBuffer.setViewport();
-	_gBuffer.setDrawGeom();
+	gBuffer.bindDraw();
+	gBuffer.setViewport();
+	gBuffer.setDrawGeom();
 
-	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, _clearColor.w);
+	glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->deferredRender();
 
 	glFlush();
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->batchRender();
 
 	glFlush();
 
-	_gBuffer.bindRead();
-	_gBuffer.setDrawEffect();
-	_gBuffer.setReadEffect();
+	gBuffer.bindRead();
+	gBuffer.setDrawEffect();
+	gBuffer.setReadEffect();
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glDepthMask(GL_FALSE);
 
-	for (SceneObjectRef &sceneObjectRef : _visible)
+	for (SceneObjectRef &sceneObjectRef : visible)
 		sceneObjectRef->postRender();
 
 	glFlush();
 
-	_visible.clear();
+	visible.clear();
 
 	GBuffer::unbind();
 
 	glDepthMask(GL_TRUE);
 
 	// Copy GBuffer to render target
-	_gBuffer.copyEffectToMainFramebuffer();
+	gBuffer.copyEffectToMainFramebuffer();
 
 	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::frame(float dt) {
-	for (size_t i = 0; i < _currentState->_sceneObjects.size(); i++)
-	if (!_currentState->_sceneObjects[i]->_shouldDestroy && ((_logicMask &_currentState->_sceneObjects[i]->_logicMask) != 0)) {
-		_currentState->_sceneObjects[i]->preSynchronousUpdate(dt);
+	for (size_t i = 0; i < currentState->sceneObjects.size(); i++)
+	if (!currentState->sceneObjects[i]->shouldDestroy() && ((logicMask &currentState->sceneObjects[i]->logicMask) != 0)) {
+		currentState->sceneObjects[i]->preSynchronousUpdate(dt);
 
-		if (_currentState->_sceneObjects[i]->_shouldDestroy) {
-			_currentState->_sceneObjects[i]->onDestroy();
-			_currentState->_sceneObjects[i]->removeReferences();
+		if (currentState->sceneObjects[i]->shouldDestroy()) {
+			currentState->sceneObjects[i]->onDestroy();
+			currentState->sceneObjects[i]->removeReferences();
 		}
 	}
 	else {
-		_currentState->_sceneObjects[i]->onDestroy();
-		_currentState->_sceneObjects[i]->removeReferences();
+		currentState->sceneObjects[i]->onDestroy();
+		currentState->sceneObjects[i]->removeReferences();
 	}
 
 	// Create new state
-	_nextState.reset(new State());
+	nextState.reset(new State());
 
-	_currentState->startProcessingNextState(_threadPool, *_nextState, _logicMask, dt);
+	currentState->startProcessingNextState(threadPool, *nextState, logicMask, dt);
 
-	if (_renderingEnabled)
+	if (renderingEnabled)
 		renderToMainFramebuffer();
 
-	_currentState->waitForNextState(_threadPool, *_nextState);
+	currentState->waitForNextState(threadPool, *nextState);
 
-	_logicCamera.fullUpdate();
-	_renderCamera = _logicCamera;
+	logicCamera.fullUpdate();
+	renderCamera = logicCamera;
 
-	_currentState.reset(_nextState.release());
-	_nextState = nullptr;
+	currentState.reset(nextState.release());
+	nextState = nullptr;
 
-	for (size_t i = 0; i < _currentState->_sceneObjects.size(); i++)
-	if (!_currentState->_sceneObjects[i]->_shouldDestroy && ((_logicMask &_currentState->_sceneObjects[i]->_logicMask) != 0)) {
-		_currentState->_sceneObjects[i]->synchronousUpdate(dt);
+	for (size_t i = 0; i < currentState->sceneObjects.size(); i++)
+	if (!currentState->sceneObjects[i]->shouldDestroy() && ((logicMask &currentState->sceneObjects[i]->logicMask) != 0)) {
+		currentState->sceneObjects[i]->synchronousUpdate(dt);
 
-		if (_currentState->_sceneObjects[i]->_shouldDestroy) {
-			_currentState->_sceneObjects[i]->onDestroy();
-			_currentState->_sceneObjects[i]->removeReferences();
+		if (currentState->sceneObjects[i]->shouldDestroy()) {
+			currentState->sceneObjects[i]->onDestroy();
+			currentState->sceneObjects[i]->removeReferences();
 		}
 	}
 	else {
-		_currentState->_sceneObjects[i]->onDestroy();
-		_currentState->_sceneObjects[i]->removeReferences();
+		currentState->sceneObjects[i]->onDestroy();
+		currentState->sceneObjects[i]->removeReferences();
 	}
 
-	_octree.pruneDeadReferences();
+	octree.pruneDeadReferences();
 
 	// Update all octree occupants if they are flagged for an update
-	for (size_t i = 0; i < _currentState->_sceneObjects.size(); i++)
-	if (_currentState->_sceneObjects[i]->_needsTreeUpdate) {
-		_currentState->_sceneObjects[i]->treeUpdate();
+	for (size_t i = 0; i < currentState->sceneObjects.size(); i++)
+	if (currentState->sceneObjects[i]->needsTreeUpdate) {
+		currentState->sceneObjects[i]->treeUpdate();
 
-		_currentState->_sceneObjects[i]->_needsTreeUpdate = false;
+		currentState->sceneObjects[i]->needsTreeUpdate = false;
 	}
 
 	// Remove name references to objects that have been destroyed
-	for (std::unordered_map<std::string, std::unordered_set<SceneObjectRef, SceneObjectRef>>::iterator itM = _namedObjects.begin(); itM != _namedObjects.end();) {
+	for (std::unordered_map<std::string, std::unordered_set<SceneObjectRef, SceneObjectRef>>::iterator itM = namedObjects.begin(); itM != namedObjects.end();) {
 		for (std::unordered_set<SceneObjectRef, SceneObjectRef>::iterator itS = itM->second.begin(); itS != itM->second.end();) {
 			if (itS->isAlive())
 				itS++;
@@ -250,93 +250,93 @@ void RenderScene::frame(float dt) {
 		}
 
 		if (itM->second.empty())
-			itM = _namedObjects.erase(itM);
+			itM = namedObjects.erase(itM);
 		else
 			itM++;
 	}
 
 	// Add new objects generated in update
-	for (size_t i = 0; i < _objectsToAdd.size(); i++) {
-		_currentState->_sceneObjects.push_back(_objectsToAdd[i]._object);
+	for (size_t i = 0; i < objectsToAdd.size(); i++) {
+		currentState->sceneObjects.push_back(objectsToAdd[i].object);
 
-		_objectsToAdd[i]._object->_indexPlusOne = _currentState->_sceneObjects.size();
+		objectsToAdd[i].object->indexPlusOne = currentState->sceneObjects.size();
 
-		if (_objectsToAdd[i]._octreeManaged)
-			_octree.add(*_objectsToAdd[i]._object);
+		if (objectsToAdd[i].octreeManaged)
+			octree.add(*objectsToAdd[i].object);
 	}
 
-	for (size_t i = 0; i < _namedObjectsToAdd.size(); i++) {
-		_currentState->_sceneObjects.push_back(_namedObjectsToAdd[i]._object);
+	for (size_t i = 0; i < namedObjectsToAdd.size(); i++) {
+		currentState->sceneObjects.push_back(namedObjectsToAdd[i].object);
 
-		_namedObjectsToAdd[i]._object->_indexPlusOne = _currentState->_sceneObjects.size();
+		namedObjectsToAdd[i].object->indexPlusOne = currentState->sceneObjects.size();
 
-		if (_namedObjectsToAdd[i]._octreeManaged)
-			_octree.add(*_namedObjectsToAdd[i]._object);
+		if (namedObjectsToAdd[i].octreeManaged)
+			octree.add(*namedObjectsToAdd[i].object);
 
-		_namedObjects[_namedObjectsToAdd[i]._name].insert(*_namedObjectsToAdd[i]._object);
+		namedObjects[namedObjectsToAdd[i].name].insert(*namedObjectsToAdd[i].object);
 	}
 
-	std::vector<NamedObjectAddData> currentNamedObjectAddData = _namedObjectsToAdd;
-	std::vector<ObjectAddData> currentObjectAddData = _objectsToAdd;
+	std::vector<NamedObjectAddData> currentNamedObjectAddData = namedObjectsToAdd;
+	std::vector<ObjectAddData> currentObjectAddData = objectsToAdd;
 
-	_namedObjectsToAdd.clear();
-	_objectsToAdd.clear();
+	namedObjectsToAdd.clear();
+	objectsToAdd.clear();
 
 	for (size_t i = 0; i < currentObjectAddData.size(); i++)
-		currentObjectAddData[i]._object->onAdd();
+		currentObjectAddData[i].object->onAdd();
 
 	for (size_t i = 0; i < currentNamedObjectAddData.size(); i++)
-		currentNamedObjectAddData[i]._object->onAdd();
+		currentNamedObjectAddData[i].object->onAdd();
 }
 
 void RenderScene::useShader(Shader* pShader) {
-	if (_shaderSwitchesEnabled) {
+	if (shaderSwitchesEnabled) {
 		pShader->bind();
 
-		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", _viewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", viewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", projectionViewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat3("pgeNormal", normalMatrix);
 	}
 
 	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::useShader(GBufferRenderShaderType type) {
-	if (_shaderSwitchesEnabled) {
-		_gBufferRenderShaders[type]->bind();
+	if (shaderSwitchesEnabled) {
+		gBufferRenderShaders[type]->bind();
 
-		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", _viewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", viewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", projectionViewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat3("pgeNormal", normalMatrix);
 	}
 
 	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::useShader(Material &material) {
-	if (_shaderSwitchesEnabled) {
-		_gBufferRenderShaders[material._type]->bind();
+	if (shaderSwitchesEnabled) {
+		gBufferRenderShaders[material.type]->bind();
 
-		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", _viewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", viewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", projectionViewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat3("pgeNormal", normalMatrix);
 
-		material.bindUniformBuffer(_gBufferRenderShaderMaterialUBOInterfaces[material._type]);
+		material.bindUniformBuffer(gBufferRenderShaderMaterialUBOInterfaces[material.type]);
 
 		// Set material textures
-		material.setUniformsTextures(Shader::getCurrentShader(), _whiteTexture.get());
+		material.setUniformsTextures(Shader::getCurrentShader(), whiteTexture.get());
 
 		Shader::getCurrentShader()->bindShaderTextures();
 	}
-	else if (_renderingShadows) {
+	else if (renderingShadows) {
 		assert(Shader::getCurrentShader() != nullptr);
 
-		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", _viewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
-		Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeViewModel", viewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", projectionViewModelMatrix);
+		Shader::getCurrentShader()->setUniformmat3("pgeNormal", normalMatrix);
 
-		if (material._pDiffuseMap != nullptr)
-			Shader::getCurrentShader()->setShaderTexture("pgeDiffuseMap", material._pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
+		if (material.pDiffuseMap != nullptr)
+			Shader::getCurrentShader()->setShaderTexture("pgeDiffuseMap", material.pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
 		else
 			Shader::getCurrentShader()->setShaderTexture("pgeDiffuseMap", getWhiteTexture()->getTextureID(), GL_TEXTURE_2D);
 
@@ -347,34 +347,34 @@ void RenderScene::useShader(Material &material) {
 }
 
 void RenderScene::updateShaderUniforms() {
-	_sceneUniformBuffer.bind(GL_UNIFORM_BUFFER);
+	sceneUniformBuffer.bind(GL_UNIFORM_BUFFER);
 
-	_gBufferRenderShaders[_standard]->bind();
-	_gBufferRenderShaders[_standard]->setUniformmat4("pgeViewModel", _renderCamera._projectionMatrix);
+	gBufferRenderShaders[standard]->bind();
+	gBufferRenderShaders[standard]->setUniformmat4("pgeViewModel", renderCamera.projectionMatrix);
 
-	_gBufferRenderShaders[_normal]->bind();
-	_gBufferRenderShaders[_normal]->setUniformmat4("pgeViewModel", _renderCamera._projectionMatrix);
+	gBufferRenderShaders[normal]->bind();
+	gBufferRenderShaders[normal]->setUniformmat4("pgeViewModel", renderCamera.projectionMatrix);
 
-	_gBufferRenderShaders[_heightNormal]->bind();
-	_gBufferRenderShaders[_heightNormal]->setUniformmat4("pgeViewModel", _renderCamera._projectionMatrix);
+	gBufferRenderShaders[heightNormal]->bind();
+	gBufferRenderShaders[heightNormal]->setUniformmat4("pgeViewModel", renderCamera.projectionMatrix);
 
 	PGE_GL_ERROR_CHECK();
 }
 
 void RenderScene::setTransform(const Matrix4x4f &transform) {
-	_viewModelMatrix = _renderCamera.getViewMatrix() * transform;
+	viewModelMatrix = renderCamera.getViewMatrix() * transform;
 
 	Matrix3x3f upperLeftSubmatrixInverse;
 
-	_viewModelMatrix.getUpperLeftMatrix3x3f().inverse(upperLeftSubmatrixInverse);
+	viewModelMatrix.getUpperLeftMatrix3x3f().inverse(upperLeftSubmatrixInverse);
 
-	_normalMatrix = upperLeftSubmatrixInverse.transpose();
+	normalMatrix = upperLeftSubmatrixInverse.transpose();
 
-	_projectionViewModelMatrix = _renderCamera.getProjectionViewMatrix() * transform;
+	projectionViewModelMatrix = renderCamera.getProjectionViewMatrix() * transform;
 
-	Shader::getCurrentShader()->setUniformmat4("pgeViewModel", _viewModelMatrix);
-	Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", _projectionViewModelMatrix);
-	Shader::getCurrentShader()->setUniformmat3("pgeNormal", _normalMatrix);
+	Shader::getCurrentShader()->setUniformmat4("pgeViewModel", viewModelMatrix);
+	Shader::getCurrentShader()->setUniformmat4("pgeProjectionViewModel", projectionViewModelMatrix);
+	Shader::getCurrentShader()->setUniformmat3("pgeNormal", normalMatrix);
 
 	PGE_GL_ERROR_CHECK();
 }

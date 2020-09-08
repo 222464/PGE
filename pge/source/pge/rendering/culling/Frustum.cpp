@@ -1,41 +1,41 @@
-#include <pge/rendering/culling/Frustum.h>
+#include "Frustum.h"
 
 #include <assert.h>
 
 using namespace pge;
 
 void Frustum::extractFromMatrix(const Matrix4x4f &camera) {
-	_planes[planeNear].normalizedFromEquationCoeffs(
+	planes[planeNear].normalizedFromEquationCoeffs(
 		camera.get(0, 2) + camera.get(0, 3),
 		camera.get(1, 2) + camera.get(1, 3),
 		camera.get(2, 2) + camera.get(2, 3),
 		camera.get(3, 2) + camera.get(3, 3));
 
-	_planes[planeFar].normalizedFromEquationCoeffs(
+	planes[planeFar].normalizedFromEquationCoeffs(
 		-camera.get(0, 2) + camera.get(0, 3),
 		-camera.get(1, 2) + camera.get(1, 3),
 		-camera.get(2, 2) + camera.get(2, 3),
 		-camera.get(3, 2) + camera.get(3, 3));
 
-	_planes[planeBottom].normalizedFromEquationCoeffs(
+	planes[planeBottom].normalizedFromEquationCoeffs(
 		camera.get(0, 1) + camera.get(0, 3),
 		camera.get(1, 1) + camera.get(1, 3),
 		camera.get(2, 1) + camera.get(2, 3),
 		camera.get(3, 1) + camera.get(3, 3));
 
-	_planes[planeTop].normalizedFromEquationCoeffs(
+	planes[planeTop].normalizedFromEquationCoeffs(
 		-camera.get(0, 1) + camera.get(0, 3),
 		-camera.get(1, 1) + camera.get(1, 3),
 		-camera.get(2, 1) + camera.get(2, 3),
 		-camera.get(3, 1) + camera.get(3, 3));
 
-	_planes[planeLeft].normalizedFromEquationCoeffs(
+	planes[planeLeft].normalizedFromEquationCoeffs(
 		camera.get(0, 0) + camera.get(0, 3),
 		camera.get(1, 0) + camera.get(1, 3),
 		camera.get(2, 0) + camera.get(2, 3),
 		camera.get(3, 0) + camera.get(3, 3));
 
-	_planes[planeRight].normalizedFromEquationCoeffs(
+	planes[planeRight].normalizedFromEquationCoeffs(
 		-camera.get(0, 0) + camera.get(0, 3),
 		-camera.get(1, 0) + camera.get(1, 3),
 		-camera.get(2, 0) + camera.get(2, 3),
@@ -48,11 +48,11 @@ Frustum::ObjectLocation Frustum::testAABB(const AABB3D &aabb) const {
 	// For each plane
 	for(unsigned char p = 0; p < 6; p++) {
 		// If positive vertex is outside
-		if(_planes[p].signedDistanceTo(aabb.getVertexP(Vec3f(_planes[p].a, _planes[p].b, _planes[p].c))) < 0.0f)
+		if(planes[p].signedDistanceTo(aabb.getVertexP(Vec3f(planes[p].a, planes[p].b, planes[p].c))) < 0.0f)
 			return outside;
 
 		// If positive vertex is inside
-		else if(_planes[p].signedDistanceTo(aabb.getVertexN(Vec3f(_planes[p].a, _planes[p].b, _planes[p].c))) < 0.0f)
+		else if(planes[p].signedDistanceTo(aabb.getVertexN(Vec3f(planes[p].a, planes[p].b, planes[p].c))) < 0.0f)
 			location = intersect;
 	}
 
@@ -63,7 +63,7 @@ bool Frustum::testAABBOutside(const AABB3D &aabb) const {
 	// For each plane
 	for(unsigned char p = 0; p < 6; p++) {
 		// If positive vertex is outside
-		if(_planes[p].signedDistanceTo(aabb.getVertexP(Vec3f(_planes[p].a, _planes[p].b, _planes[p].c))) < 0.0f)
+		if(planes[p].signedDistanceTo(aabb.getVertexP(Vec3f(planes[p].a, planes[p].b, planes[p].c))) < 0.0f)
 			return true;
 	}
 
@@ -84,7 +84,7 @@ void Frustum::calculateCorners(const Matrix4x4f &cameraInverse) {
 
 				float wInv = 1.0f / homogenous.w;
 
-				_corners[ci] = Vec3f(homogenous.x * wInv, homogenous.y * wInv, homogenous.z * wInv);
+				corners[ci] = Vec3f(homogenous.x * wInv, homogenous.y * wInv, homogenous.z * wInv);
 
 				ci++;
 			}

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
+#include "../../scene/RenderScene.h"
 
-#include <pge/rendering/model/StaticModel.h>
+#include "../../rendering/model/StaticModel.h"
 
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "../physics/SceneObjectPhysicsWorld.h"
 
 namespace pge {
 	class Map3DWS : public Asset {
@@ -20,166 +20,166 @@ namespace pge {
 		typedef Vec4f Vec4;
 
 		struct MapHeader {
-			Word _mapVersion;
-			Byte _mapFlags;
-			Long _nameCount;
-			Long _nameOffset;
-			Long _objectCount;
-			Long _objectOffset;
+			Word mapVersion;
+			Byte mapFlags;
+			Long nameCount;
+			Long nameOffset;
+			Long objectCount;
+			Long objectOffset;
 		};
 
 		struct MapObjectTableEntry {
-			Name _objectClass;
-			Long _dataSize;
+			Name objectClass;
+			Long dataSize;
 		};
 
 		struct MapMaterial {
-			Byte _flags;
-			Name _groupName;
-			Name _objectName;
+			Byte flags;
+			Name groupName;
+			Name objectName;
 
-			// If _flags & 2
-			Name _extensionName;
+			// If flags & 2
+			Name extensionName;
 		};
 
 		struct MapMeshReference {
-			Byte _flags;
-			Name _groupName;
-			Name _objectName;
-			Byte _limbCount;
+			Byte flags;
+			Name groupName;
+			Name objectName;
+			Byte limbCount;
 		};
 
 		struct MapLightmap {
-			Byte _flags;
-			Byte _resolution;
-			Long _format;
+			Byte flags;
+			Byte resolution;
+			Long format;
 
-			// (2 ^ _resolution) ^ 2 pixels
-			std::vector<Color3> _pixels;
+			// (2 ^ resolution) ^ 2 pixels
+			std::vector<Color3> pixels;
 		};
 
 		struct MapPartialVertex {
-			Byte _vertex;
-			Vec2 _texCoords;
+			Byte vertex;
+			Vec2 texCoords;
 		};
 
 		struct MapPartialVertexLightmapped {
-			Byte _vertex;
-			Vec2 _texCoords;
-			Vec2 _lightmapCoords;
+			Byte vertex;
+			Vec2 texCoords;
+			Vec2 lightmapCoords;
 		};
 
 		struct MapFace {
-			Byte _flags;
-			Vec4 _planeEquation;
-			Vec2 _texturePosition;
-			Vec2 _textureScale;
-			Vec2 _textureRotation;
-			Vec4 _UTextureMappingPlane;
-			Vec4 _VTextureMappingPlane;
-			Float _lumelSize;
-			Long _smoothGroupIndex;
-			Long _materialIndex;
+			Byte flags;
+			Vec4 planeEquation;
+			Vec2 texturePosition;
+			Vec2 textureScale;
+			Vec2 textureRotation;
+			Vec4 UTextureMappingPlane;
+			Vec4 VTextureMappingPlane;
+			Float lumelSize;
+			Long smoothGroupIndex;
+			Long materialIndex;
 
-			// If _flags & 16
-			Long _lightmapIndex;
+			// If flags & 16
+			Long lightmapIndex;
 
-			Byte _indexCount;
+			Byte indexCount;
 
-			// If !(_flags & 16)
-			std::vector<MapPartialVertex> _partialVertices;
+			// If !(flags & 16)
+			std::vector<MapPartialVertex> partialVertices;
 
-			// If _flags & 16
-			std::vector<MapPartialVertexLightmapped> _partialVerticesLightmapped;
+			// If flags & 16
+			std::vector<MapPartialVertexLightmapped> partialVerticesLightmapped;
 		};
 
 		struct MapBrush {
-			Byte _flags;
-			Long _keys;
+			Byte flags;
+			Long keys;
 
-			// _keys number of keys
-			std::unordered_map<Name, Name> _keyValue;
+			// keys number of keys
+			std::unordered_map<Name, Name> keyValue;
 
-			//Long _group;
-			//Long _visGroup;
-			//Color3 _brushColor;
-			Byte _vertexCount;
+			//Long group;
+			//Long visGroup;
+			//Color3 brushColor;
+			Byte vertexCount;
 
-			// _vertexCount number of vertices
-			std::vector<Vec3> _vertexPositions;
+			// vertexCount number of vertices
+			std::vector<Vec3> vertexPositions;
 
-			Byte _faceCount;
+			Byte faceCount;
 
-			// _faceCount number of faces
-			std::vector<MapFace> _faces;
+			// faceCount number of faces
+			std::vector<MapFace> faces;
 		};
 
 		struct MapLimb {
-			Long _materialIndex;
+			Long materialIndex;
 
-			// If _flags & 16 (_flags from MapMesh)
-			//Word _vertexCount;
-			//std::vector<Color3> _vertexColor;
+			// If flags & 16 (flags from MapMesh)
+			//Word vertexCount;
+			//std::vector<Color3> vertexColor;
 		};
 
 		struct MapMesh {
-			Byte _flags;
-			Long _keys;
+			Byte flags;
+			Long keys;
 
-			// _keys number of keys
-			std::unordered_map<Name, Name> _keyValue;
+			// keys number of keys
+			std::unordered_map<Name, Name> keyValue;
 
-			//Long _group;
-			//Long _visGroup;
-			//Color3 _meshColor;
-			Long _meshReferenceIndex;
-			Vec3 _position;
-			Vec3 _rotation;
+			//Long group;
+			//Long visGroup;
+			//Color3 meshColor;
+			Long meshReferenceIndex;
+			Vec3 position;
+			Vec3 rotation;
 
-			// If !(_flags & 1)
-			Vec3 _scale;
+			// If !(flags & 1)
+			Vec3 scale;
 
-			// _limbCount from meshreference number of limbs
-			std::vector<MapLimb> _limbs;
+			// limbCount from meshreference number of limbs
+			std::vector<MapLimb> limbs;
 		};
 
 		struct MapEntity {
-			Byte _flags;
-			Vec3 _position;
-			Long _keys;
+			Byte flags;
+			Vec3 position;
+			Long keys;
 
-			// _keys number of keys
-			std::unordered_map<Name, Name> _keyValue;
+			// keys number of keys
+			std::unordered_map<Name, Name> keyValue;
 
-			//Long _group;
-			//Long _visGroup;
+			//Long group;
+			//Long visGroup;
 
 			// The following is not part of the spec but added for usability
-			std::unordered_map<std::string, std::string> _properties;
+			std::unordered_map<std::string, std::string> properties;
 		};
 
 		struct MapGenerationSettings {
-			Scene* _pScene;
-			bool _usePhysics;
-			bool _useGraphics;
-			std::string _defaultImageFileExtension;
-			float _sizeScalar;
-			SceneObjectRef _giRef;
+			Scene* pScene;
+			bool usePhysics;
+			bool useGraphics;
+			std::string defaultImageFileExtension;
+			float sizeScalar;
+			SceneObjectRef giRef;
 
 			MapGenerationSettings()
-				: _pScene(nullptr),
-				_usePhysics(true),
-				_useGraphics(true),
-				_defaultImageFileExtension(".png"),
-				_sizeScalar(0.025f),
-				_giRef(nullptr)
+				: pScene(nullptr),
+				usePhysics(true),
+				useGraphics(true),
+				defaultImageFileExtension(".png"),
+				sizeScalar(0.025f),
+				giRef(nullptr)
 			{}
 		};
 
-		MapGenerationSettings _settings;
+		MapGenerationSettings settings;
 
-		std::vector<std::string> _nameTable;
-		std::vector<MapEntity> _entities;
+		std::vector<std::string> nameTable;
+		std::vector<MapEntity> entities;
 
 		// Inherited from Asset
 		bool createAsset(const std::string &name);
@@ -192,18 +192,18 @@ namespace pge {
 
 	class Map3DWSChunk : public SceneObject {
 	private:
-		std::shared_ptr<StaticModel> _model;
+		std::shared_ptr<StaticModel> model;
 
-		pge::SceneObjectRef _batcherRef;
+		pge::SceneObjectRef batcherRef;
 
 	public:
-		std::shared_ptr<AssetManager> _textureManager;
+		std::shared_ptr<AssetManager> textureManager;
 
 		Map3DWSChunk()
-			: _textureManager(new AssetManager())
+			: textureManager(new AssetManager())
 		{
-			_renderMask = 0xffff;
-			_textureManager->create(Texture2D::assetFactory);
+			renderMask = 0xffff;
+			textureManager->create(Texture2D::assetFactory);
 		}
 
 		// Inherited from SceneObject
@@ -219,10 +219,10 @@ namespace pge {
 
 	class Map3DWSPhysics : public SceneObject {
 	private:
-		std::shared_ptr<btTriangleMesh> _pTriangleMesh;
-		std::shared_ptr<btBvhTriangleMeshShape> _pMeshShape;
-		std::shared_ptr<btDefaultMotionState> _pMotionState;
-		std::shared_ptr<btRigidBody> _pRigidBody;
+		std::shared_ptr<btTriangleMesh> pTriangleMesh;
+		std::shared_ptr<btBvhTriangleMeshShape> pMeshShape;
+		std::shared_ptr<btDefaultMotionState> pMotionState;
+		std::shared_ptr<btRigidBody> pRigidBody;
 
 	public:
 		// Inherited from SceneObject

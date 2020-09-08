@@ -2,10 +2,10 @@
 
 #include <SFML/Network.hpp>
 
-#include <pge/scene/RenderScene.h>
+#include "../scene/RenderScene.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "SceneObjectProp.h"
+#include "physics/SceneObjectPhysicsWorld.h"
 
 #include <BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
 
@@ -13,87 +13,87 @@ class SceneObjectQuadruped : public pge::SceneObject {
 public:
 	struct Limb {
 		// Body
-		std::shared_ptr<btCollisionShape> _pCollisionShape;
-		std::shared_ptr<btDefaultMotionState> _pMotionState;
-		std::shared_ptr<btRigidBody> _pRigidBody;
+		std::shared_ptr<btCollisionShape> pCollisionShape;
+		std::shared_ptr<btDefaultMotionState> pMotionState;
+		std::shared_ptr<btRigidBody> pRigidBody;
 
 		// Joint
-		std::shared_ptr<btGeneric6DofConstraint> _pConstraint;
+		std::shared_ptr<btGeneric6DofConstraint> pConstraint;
 	};
 
 	struct Leg {
-		Limb _lower;
-		Limb _upper;
+		Limb lower;
+		Limb upper;
 
-		std::shared_ptr<btGhostObject> _pGhostLower;
+		std::shared_ptr<btGhostObject> pGhostLower;
 
 		void create(pge::SceneObjectPhysicsWorld* pPhysicsWorld, btRigidBody* pBodyPart, const btVector3 &rootPos);
 	};
 
 private:
 	// Rendering
-	pge::StaticModelOBJ* _pBodyPartModel;
-	pge::StaticModelOBJ* _pLimbModel;
+	pge::StaticModelOBJ* pBodyPartModel;
+	pge::StaticModelOBJ* pLimbModel;
 
-	pge::SceneObjectRef _batcherRef;
+	pge::SceneObjectRef batcherRef;
 
-	std::array<float, 27> _action;
+	std::array<float, 27> action;
 
-	int _ticksPerAction;
-	int _ticks;
+	int ticksPerAction;
+	int ticks;
 
-	pge::SceneObjectRef _orbCam;
+	pge::SceneObjectRef orbCam;
 
 	// Physics
-	pge::SceneObjectRef _physicsWorld;
+	pge::SceneObjectRef physicsWorld;
 
 	// Floor
-	std::shared_ptr<btCollisionShape> _pCollisionShapeFloor;
-	std::shared_ptr<btDefaultMotionState> _pMotionStateFloor;
-	std::shared_ptr<btRigidBody> _pRigidBodyFloor;
+	std::shared_ptr<btCollisionShape> pCollisionShapeFloor;
+	std::shared_ptr<btDefaultMotionState> pMotionStateFloor;
+	std::shared_ptr<btRigidBody> pRigidBodyFloor;
 
 	// Body forward
-	std::shared_ptr<btCollisionShape> _pCollisionShapeBodyForward;
-	std::shared_ptr<btDefaultMotionState> _pMotionStateBodyForward;
-	std::shared_ptr<btRigidBody> _pRigidBodyForward;
+	std::shared_ptr<btCollisionShape> pCollisionShapeBodyForward;
+	std::shared_ptr<btDefaultMotionState> pMotionStateBodyForward;
+	std::shared_ptr<btRigidBody> pRigidBodyForward;
 
 	// Body backward
-	std::shared_ptr<btCollisionShape> _pCollisionShapeBodyBackward;
-	std::shared_ptr<btDefaultMotionState> _pMotionStateBodyBackward;
-	std::shared_ptr<btRigidBody> _pRigidBodyBackward;
+	std::shared_ptr<btCollisionShape> pCollisionShapeBodyBackward;
+	std::shared_ptr<btDefaultMotionState> pMotionStateBodyBackward;
+	std::shared_ptr<btRigidBody> pRigidBodyBackward;
 
 	// Joint between forward and backward body parts
-	std::shared_ptr<btGeneric6DofConstraint> _pConstraintForwardBackward;
+	std::shared_ptr<btGeneric6DofConstraint> pConstraintForwardBackward;
 
 	// Limbs
-	std::array<Leg, 4> _legs;
+	std::array<Leg, 4> legs;
 
-	float _reward;
+	float reward;
 
-	float _prevDist;
+	float prevDist;
 
-	bool _show;
+	bool show;
 
-	bool _doneLastFrame;
+	bool doneLastFrame;
 
-	std::mt19937 _rng;
+	std::mt19937 rng;
 
-	bool _capture;
-	std::shared_ptr<std::vector<char>> _capBytes;
+	bool capture;
+	std::shared_ptr<std::vector<char>> capBytes;
 
-	std::shared_ptr<sf::TcpSocket> _socket;
+	std::shared_ptr<sf::TcpSocket> socket;
 
 	void act(float dt);
 
 public:
-	static const unsigned short _port = 54003;
+	static const unsigned short port = 54003;
 
-	static const unsigned int _maxBatchSize = 16384;
+	static const unsigned int maxBatchSize = 16384;
 
-	static const unsigned int _gameSeed = 1234;
+	static const unsigned int gameSeed = 1234;
 
 	SceneObjectQuadruped() {
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create();
@@ -106,7 +106,7 @@ public:
 	void postRender();
 
 	pge::Vec3f getPosition() const {
-		return cons(_pRigidBodyForward->getWorldTransform().getOrigin());
+		return cons(pRigidBodyForward->getWorldTransform().getOrigin());
 	}
 
 	void reset();

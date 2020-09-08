@@ -1,18 +1,18 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
-#include <pge/assetmanager/Asset.h>
+#include "../../assetmanager/Asset.h"
 
 #include <string>
 
 namespace pge {
 	class Texture2DArray : public Asset {
 	private:
-		GLuint _textureID;
+		GLuint textureID;
 
-		sf::Vector2u _size;
-		unsigned int _layers;
+		sf::Vector2u size;
+		unsigned int layers;
 
 	public:
 		// Inherited from the Asset
@@ -21,23 +21,23 @@ namespace pge {
 		void genMipMaps();
 
 		void bind() const {
-			glBindTexture(GL_TEXTURE_2D_ARRAY, _textureID);
+			glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
 		}
 
 		unsigned int getWidth() const {
-			return _size.x;
+			return size.x;
 		}
 
 		unsigned int getHeight() const {
-			return _size.y;
+			return size.y;
 		}
 
 		size_t getLayers() const {
-			return _layers;
+			return layers;
 		}
 
 		GLuint getTextureID() const {
-			return _textureID;
+			return textureID;
 		}
 
 		// Asset factory

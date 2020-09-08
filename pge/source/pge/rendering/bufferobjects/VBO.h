@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
 #include <array>
 
@@ -9,27 +9,27 @@
 namespace pge {
 	class VBO {
 	private:
-		GLuint _ID;
+		GLuint ID;
 
-		GLuint _usage;
+		GLuint usage;
 
-		static GLuint _currentArrayBuffer;
-		static GLuint _currentElementArrayBuffer;
+		static GLuint currentArrayBuffer;
+		static GLuint currentElementArrayBuffer;
 	
 	public:
 		VBO()
-			: _ID(0)
+			: ID(0)
 		{}
 
 		~VBO() {
-			if (_ID != 0)
-				glDeleteBuffers(1, &_ID);
+			if (ID != 0)
+				glDeleteBuffers(1, &ID);
 		}
 
 		void create() {
-			assert(_ID == 0);
+			assert(ID == 0);
 
-			glGenBuffers(1, &_ID);
+			glGenBuffers(1, &ID);
 		}
 
 		void destroy();
@@ -42,23 +42,23 @@ namespace pge {
 		static void unbind(GLuint usage);
 
 		static GLuint getCurrentArrayBuffer() {
-			return _currentArrayBuffer;
+			return currentArrayBuffer;
 		}
 
 		static GLuint getCurrentElementArrayBuffer() {
-			return _currentElementArrayBuffer;
+			return currentElementArrayBuffer;
 		}
 
 		bool created() const {
-			return _ID != 0;
+			return ID != 0;
 		}
 
 		GLuint getID() const {
-			return _ID;
+			return ID;
 		}
 
 		GLuint getUsage() const {
-			return _usage;
+			return usage;
 		}
 	};
 }

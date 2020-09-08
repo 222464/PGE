@@ -1,30 +1,30 @@
 #pragma once
 
-#include <pge/constructs/Vec2f.h>
-#include <pge/constructs/Matrix4x4f.h>
+#include "Vec2f.h"
+#include "Matrix4x4f.h"
 
 namespace pge {
 	class AABB2D
 	{
 	private:
-		Vec2f _center;
-		Vec2f _halfDims;
+		Vec2f center;
+		Vec2f halfDims;
 
 	public:
-		Vec2f _lowerBound;
-		Vec2f _upperBound;
+		Vec2f lowerBound;
+		Vec2f upperBound;
 
 		void calculateHalfDims() {
-			_halfDims = (_upperBound - _lowerBound) * 0.5f;
+			halfDims = (upperBound - lowerBound) * 0.5f;
 		}
 
 		void calculateCenter() {
-			_center = _lowerBound + _halfDims;
+			center = lowerBound + halfDims;
 		}
 
 		void calculateBounds() {
-			_lowerBound = _center - _halfDims;
-			_upperBound = _center + _halfDims;
+			lowerBound = center - halfDims;
+			upperBound = center + halfDims;
 		}
 
 		// Constructor
@@ -32,41 +32,41 @@ namespace pge {
 		AABB2D(const Vec2f &lowerBound, const Vec2f &upperBound);
 
 		bool operator==(const AABB2D &other) {
-			return _lowerBound == other._lowerBound && _upperBound == other._upperBound;
+			return lowerBound == other.lowerBound && upperBound == other.upperBound;
 		}
 
 		bool operator!=(const AABB2D &other) {
-			return _lowerBound != other._lowerBound || _upperBound != other._upperBound;
+			return lowerBound != other.lowerBound || upperBound != other.upperBound;
 		}
 
 		// Accessors
 		const Vec2f &getCenter() const {
-			return _center;
+			return center;
 		}
 
 		Vec2f getDims() const {
-			return _halfDims * 2.0f;
+			return halfDims * 2.0f;
 		}
 
 		const Vec2f &getHalfDims() const {
-			return _halfDims;
+			return halfDims;
 		}
 
 		const Vec2f &getLowerBound() const {
-			return _lowerBound;
+			return lowerBound;
 		}
 
 		const Vec2f &getUpperBound() const {
-			return _upperBound;
+			return upperBound;
 		}
 
 		// Modifiers
 		void setLowerBound(const Vec2f &lowerBound) {
-			_lowerBound = lowerBound;
+			this->lowerBound = lowerBound;
 		}
 
 		void setUpperBound(const Vec2f &upperBound) {
-			_upperBound = upperBound;
+			this->upperBound = upperBound;
 		}
 
 		void setCenter(const Vec2f &center);
@@ -79,7 +79,7 @@ namespace pge {
 		void setHalfDims(const Vec2f &halfDims);
 
 		void scale(const Vec2f &scale) {
-			setHalfDims(_halfDims * scale);
+			setHalfDims(halfDims * scale);
 		}
 
 		// Utility

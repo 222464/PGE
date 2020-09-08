@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
+#include "../../scene/RenderScene.h"
 
 namespace pge {
 	class SceneObjectEffectBuffer : public SceneObject {
 	private:
 	public:
-		std::shared_ptr<pge::TextureRT> _ping;
-		std::shared_ptr<pge::TextureRT> _pong;
+		std::shared_ptr<pge::TextureRT> ping;
+		std::shared_ptr<pge::TextureRT> pong;
 
-		std::shared_ptr<pge::TextureRT> _fullPing;
-		std::shared_ptr<pge::TextureRT> _fullPong;
+		std::shared_ptr<pge::TextureRT> fullPing;
+		std::shared_ptr<pge::TextureRT> fullPong;
 
 		void create(float downsampleRatio);
 

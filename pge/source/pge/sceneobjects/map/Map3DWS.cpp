@@ -1,9 +1,9 @@
-#include <pge/sceneobjects/map/Map3DWS.h>
+#include "Map3DWS.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "../../rendering/model/SceneObjectStaticModelBatcher.h"
 
-#include <pge/rendering/lighting/SceneObjectPointLight.h>
-#include <pge/rendering/lighting/SceneObjectPointLightShadowed.h>
+#include "../../rendering/lighting/SceneObjectPointLight.h"
+#include "../../rendering/lighting/SceneObjectPointLightShadowed.h"
 
 #include <fstream>
 #include <sstream>
@@ -26,25 +26,25 @@ bool Map3DWS::createAsset(const std::string &name) {
 	// Read header
 	MapHeader header;
 
-	fromFile.read(reinterpret_cast<char*>(&header._mapVersion), sizeof(Word));
-	fromFile.read(reinterpret_cast<char*>(&header._mapFlags), sizeof(Byte));
-	fromFile.read(reinterpret_cast<char*>(&header._nameCount), sizeof(Long));
-	fromFile.read(reinterpret_cast<char*>(&header._nameOffset), sizeof(Long));
-	fromFile.read(reinterpret_cast<char*>(&header._objectCount), sizeof(Long));
-	fromFile.read(reinterpret_cast<char*>(&header._objectOffset), sizeof(Long));
+	fromFile.read(reinterpret_cast<char*>(&header.mapVersion), sizeof(Word));
+	fromFile.read(reinterpret_cast<char*>(&header.mapFlags), sizeof(Byte));
+	fromFile.read(reinterpret_cast<char*>(&header.nameCount), sizeof(Long));
+	fromFile.read(reinterpret_cast<char*>(&header.nameOffset), sizeof(Long));
+	fromFile.read(reinterpret_cast<char*>(&header.objectCount), sizeof(Long));
+	fromFile.read(reinterpret_cast<char*>(&header.objectOffset), sizeof(Long));
 
 	//fromFile.read(reinterpret_cast<char*>(&header), sizeof(MapHeader));
 
 	// Read name table
-	fromFile.seekg(header._nameOffset);
+	fromFile.seekg(header.nameOffset);
 
-	_nameTable.clear();
-	_nameTable.reserve(header._nameCount);
+	nameTable.clear();
+	nameTable.reserve(header.nameCount);
 
-	for (Long i = 0; i < header._nameCount; i++) {
+	for (Long i = 0; i < header.nameCount; i++) {
 		std::string name;
 		std::getline(fromFile, name, '\0');
-		_nameTable.push_back(name);
+		nameTable.push_back(name);
 	}
 
 	// ------------------------------------ Load Objects ------------------------------------
@@ -60,76 +60,76 @@ bool Map3DWS::createAsset(const std::string &name) {
 	std::vector<size_t> revisitObjects;
 	std::vector<size_t> revisitLocations;
 
-	objectTable.reserve(header._objectCount);
+	objectTable.reserve(header.objectCount);
 
 	Long offset = 0;
 
-	for (Long oi = 0; oi < header._objectCount; oi++) {
-		fromFile.seekg(header._objectOffset + offset);
+	for (Long oi = 0; oi < header.objectCount; oi++) {
+		fromFile.seekg(header.objectOffset + offset);
 
 		MapObjectTableEntry entry;
 
-		fromFile.read(reinterpret_cast<char*>(&entry._objectClass), sizeof(Name));
-		fromFile.read(reinterpret_cast<char*>(&entry._dataSize), sizeof(Long));
+		fromFile.read(reinterpret_cast<char*>(&entry.objectClass), sizeof(Name));
+		fromFile.read(reinterpret_cast<char*>(&entry.dataSize), sizeof(Long));
 
-		offset += entry._dataSize + sizeof(Name) + sizeof(Long);
+		offset += entry.dataSize + sizeof(Name) + sizeof(Long);
 
 		objectTable.push_back(entry);
 
-		std::string nameEntry = _nameTable[entry._objectClass - 1];
+		std::string nameEntry = nameTable[entry.objectClass - 1];
 
 		if (nameEntry == "material") {
 			// Load material
 			MapMaterial material;
 
-			fromFile.read(reinterpret_cast<char*>(&material._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&material._groupName), sizeof(Name));
-			fromFile.read(reinterpret_cast<char*>(&material._objectName), sizeof(Name));
+			fromFile.read(reinterpret_cast<char*>(&material.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&material.groupName), sizeof(Name));
+			fromFile.read(reinterpret_cast<char*>(&material.objectName), sizeof(Name));
 
-			if (material._flags & 2)
-				fromFile.read(reinterpret_cast<char*>(&material._extensionName), sizeof(Name));
+			if (material.flags & 2)
+				fromFile.read(reinterpret_cast<char*>(&material.extensionName), sizeof(Name));
 			
 			materials.push_back(material);
 		}
 		else if (nameEntry == "meshreference") {
 			MapMeshReference meshReference;
 
-			fromFile.read(reinterpret_cast<char*>(&meshReference._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&meshReference._groupName), sizeof(Name));
-			fromFile.read(reinterpret_cast<char*>(&meshReference._objectName), sizeof(Name));
-			fromFile.read(reinterpret_cast<char*>(&meshReference._limbCount), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&meshReference.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&meshReference.groupName), sizeof(Name));
+			fromFile.read(reinterpret_cast<char*>(&meshReference.objectName), sizeof(Name));
+			fromFile.read(reinterpret_cast<char*>(&meshReference.limbCount), sizeof(Byte));
 
 			meshReferences.push_back(meshReference);
 		}
 		else if (nameEntry == "lightmap") {
 			MapLightmap lightMap;
 
-			fromFile.read(reinterpret_cast<char*>(&lightMap._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&lightMap._resolution), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&lightMap._format), sizeof(Long));
+			fromFile.read(reinterpret_cast<char*>(&lightMap.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&lightMap.resolution), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&lightMap.format), sizeof(Long));
 
-			int fullResolution = std::pow(2, lightMap._resolution);
+			int fullResolution = std::pow(2, lightMap.resolution);
 			fullResolution *= fullResolution; // Square
 
-			lightMap._pixels.resize(fullResolution);
+			lightMap.pixels.resize(fullResolution);
 
 			for (int i = 0; i < fullResolution; i++)
-				fromFile.read(reinterpret_cast<char*>(&lightMap._pixels[i]), sizeof(Color3));
+				fromFile.read(reinterpret_cast<char*>(&lightMap.pixels[i]), sizeof(Color3));
 		}
 		else if (nameEntry == "brush") {
 			MapBrush brush;
 			
-			fromFile.read(reinterpret_cast<char*>(&brush._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&brush._keys), sizeof(Long));
+			fromFile.read(reinterpret_cast<char*>(&brush.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&brush.keys), sizeof(Long));
 
-			for (Long i = 0; i < brush._keys; i++) {
+			for (Long i = 0; i < brush.keys; i++) {
 				Name key;
 				Name value;
 
 				fromFile.read(reinterpret_cast<char*>(&key), sizeof(Name));
 				fromFile.read(reinterpret_cast<char*>(&value), sizeof(Name));
 
-				brush._keyValue[key] = value;
+				brush.keyValue[key] = value;
 			}
 
 			Long longDummy;
@@ -141,82 +141,82 @@ bool Map3DWS::createAsset(const std::string &name) {
 			fromFile.read(reinterpret_cast<char*>(&byteDummy), sizeof(Byte));
 			fromFile.read(reinterpret_cast<char*>(&byteDummy), sizeof(Byte));
 
-			fromFile.read(reinterpret_cast<char*>(&brush._vertexCount), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&brush.vertexCount), sizeof(Byte));
 
-			brush._vertexPositions.resize(brush._vertexCount);
+			brush.vertexPositions.resize(brush.vertexCount);
 
-			for (Byte i = 0; i < brush._vertexCount; i++) {
-				fromFile.read(reinterpret_cast<char*>(&brush._vertexPositions[i].x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&brush._vertexPositions[i].y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&brush._vertexPositions[i].z), sizeof(float));
+			for (Byte i = 0; i < brush.vertexCount; i++) {
+				fromFile.read(reinterpret_cast<char*>(&brush.vertexPositions[i].x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&brush.vertexPositions[i].y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&brush.vertexPositions[i].z), sizeof(float));
 			}
 
-			fromFile.read(reinterpret_cast<char*>(&brush._faceCount), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&brush.faceCount), sizeof(Byte));
 
-			brush._faces.reserve(brush._faceCount);
+			brush.faces.reserve(brush.faceCount);
 
-			for (Byte i = 0; i < brush._faceCount; i++) {
+			for (Byte i = 0; i < brush.faceCount; i++) {
 				MapFace face;
 
-				fromFile.read(reinterpret_cast<char*>(&face._flags), sizeof(Byte));
-				fromFile.read(reinterpret_cast<char*>(&face._planeEquation.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._planeEquation.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._planeEquation.z), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._planeEquation.w), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._texturePosition.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._texturePosition.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._textureScale.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._textureScale.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._textureRotation.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._textureRotation.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._UTextureMappingPlane.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._UTextureMappingPlane.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._UTextureMappingPlane.z), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._UTextureMappingPlane.w), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._VTextureMappingPlane.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._VTextureMappingPlane.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._VTextureMappingPlane.z), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._VTextureMappingPlane.w), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._lumelSize), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&face._smoothGroupIndex), sizeof(Long));
-				fromFile.read(reinterpret_cast<char*>(&face._materialIndex), sizeof(Long));
+				fromFile.read(reinterpret_cast<char*>(&face.flags), sizeof(Byte));
+				fromFile.read(reinterpret_cast<char*>(&face.planeEquation.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.planeEquation.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.planeEquation.z), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.planeEquation.w), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.texturePosition.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.texturePosition.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.textureScale.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.textureScale.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.textureRotation.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.textureRotation.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.UTextureMappingPlane.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.UTextureMappingPlane.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.UTextureMappingPlane.z), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.UTextureMappingPlane.w), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.VTextureMappingPlane.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.VTextureMappingPlane.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.VTextureMappingPlane.z), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.VTextureMappingPlane.w), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.lumelSize), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&face.smoothGroupIndex), sizeof(Long));
+				fromFile.read(reinterpret_cast<char*>(&face.materialIndex), sizeof(Long));
 				
-				if (face._flags & 16) {
-					fromFile.read(reinterpret_cast<char*>(&face._lightmapIndex), sizeof(Long));
+				if (face.flags & 16) {
+					fromFile.read(reinterpret_cast<char*>(&face.lightmapIndex), sizeof(Long));
 
-					fromFile.read(reinterpret_cast<char*>(&face._indexCount), sizeof(Byte));
+					fromFile.read(reinterpret_cast<char*>(&face.indexCount), sizeof(Byte));
 
-					face._partialVerticesLightmapped.resize(face._indexCount);
+					face.partialVerticesLightmapped.resize(face.indexCount);
 
-					for (Byte j = 0; j < face._indexCount; j++) {
+					for (Byte j = 0; j < face.indexCount; j++) {
 						MapPartialVertexLightmapped partialVertex;
 
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._vertex), sizeof(Byte));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._texCoords.x), sizeof(float));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._texCoords.y), sizeof(float));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._lightmapCoords.x), sizeof(float));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._lightmapCoords.y), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.vertex), sizeof(Byte));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.texCoords.x), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.texCoords.y), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.lightmapCoords.x), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.lightmapCoords.y), sizeof(float));
 
-						face._partialVerticesLightmapped[j] = partialVertex;
+						face.partialVerticesLightmapped[j] = partialVertex;
 					}
 				}
 				else {
-					fromFile.read(reinterpret_cast<char*>(&face._indexCount), sizeof(Byte));
+					fromFile.read(reinterpret_cast<char*>(&face.indexCount), sizeof(Byte));
 
-					face._partialVertices.resize(face._indexCount);
+					face.partialVertices.resize(face.indexCount);
 
-					for (Byte j = 0; j < face._indexCount; j++) {
+					for (Byte j = 0; j < face.indexCount; j++) {
 						MapPartialVertex partialVertex;
 
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._vertex), sizeof(Byte));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._texCoords.x), sizeof(float));
-						fromFile.read(reinterpret_cast<char*>(&partialVertex._texCoords.y), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.vertex), sizeof(Byte));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.texCoords.x), sizeof(float));
+						fromFile.read(reinterpret_cast<char*>(&partialVertex.texCoords.y), sizeof(float));
 	
-						face._partialVertices[j] = partialVertex;
+						face.partialVertices[j] = partialVertex;
 					}
 				}
 
-				brush._faces.push_back(face);
+				brush.faces.push_back(face);
 			}
 			
 			brushes.push_back(brush);
@@ -229,22 +229,22 @@ bool Map3DWS::createAsset(const std::string &name) {
 		else if (nameEntry == "entity") {
 			MapEntity entity;
 
-			fromFile.read(reinterpret_cast<char*>(&entity._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&entity._position.x), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&entity._position.y), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&entity._position.z), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&entity._keys), sizeof(Long));
+			fromFile.read(reinterpret_cast<char*>(&entity.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&entity.position.x), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&entity.position.y), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&entity.position.z), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&entity.keys), sizeof(Long));
 
-			for (Long i = 0; i < entity._keys; i++) {
+			for (Long i = 0; i < entity.keys; i++) {
 				Name key;
 				Name value;
 
 				fromFile.read(reinterpret_cast<char*>(&key), sizeof(Name));
 				fromFile.read(reinterpret_cast<char*>(&value), sizeof(Name));
 
-				entity._keyValue[key] = value;
+				entity.keyValue[key] = value;
 
-				entity._properties[_nameTable[key - 1]] = _nameTable[value - 1];
+				entity.properties[nameTable[key - 1]] = nameTable[value - 1];
 			}
 
 			// Read unecessary data away
@@ -253,7 +253,7 @@ bool Map3DWS::createAsset(const std::string &name) {
 			fromFile.read(reinterpret_cast<char*>(&longDummy), sizeof(Long));
 			fromFile.read(reinterpret_cast<char*>(&longDummy), sizeof(Long));
 
-			_entities.push_back(entity);
+			entities.push_back(entity);
 		}
 	}
 
@@ -261,20 +261,20 @@ bool Map3DWS::createAsset(const std::string &name) {
 	for (size_t oi = 0; oi < revisitObjects.size(); oi++) {
 		fromFile.seekg(revisitLocations[oi]);
 
-		if (_nameTable[objectTable[revisitObjects[oi]]._objectClass - 1] == "mesh") {
+		if (nameTable[objectTable[revisitObjects[oi]].objectClass - 1] == "mesh") {
 			MapMesh mesh;
 
-			fromFile.read(reinterpret_cast<char*>(&mesh._flags), sizeof(Byte));
-			fromFile.read(reinterpret_cast<char*>(&mesh._keys), sizeof(Long));
+			fromFile.read(reinterpret_cast<char*>(&mesh.flags), sizeof(Byte));
+			fromFile.read(reinterpret_cast<char*>(&mesh.keys), sizeof(Long));
 
-			for (Long i = 0; i < mesh._keys; i++) {
+			for (Long i = 0; i < mesh.keys; i++) {
 				Name key;
 				Name value;
 
 				fromFile.read(reinterpret_cast<char*>(&key), sizeof(Name));
 				fromFile.read(reinterpret_cast<char*>(&value), sizeof(Name));
 
-				mesh._keyValue[key] = value;
+				mesh.keyValue[key] = value;
 			}
 
 			// Read unecessary data away
@@ -287,30 +287,30 @@ bool Map3DWS::createAsset(const std::string &name) {
 			fromFile.read(reinterpret_cast<char*>(&byteDummy), sizeof(Byte));
 			fromFile.read(reinterpret_cast<char*>(&byteDummy), sizeof(Byte));
 
-			fromFile.read(reinterpret_cast<char*>(&mesh._meshReferenceIndex), sizeof(Long));
-			fromFile.read(reinterpret_cast<char*>(&mesh._position.x), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&mesh._position.y), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&mesh._position.z), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&mesh._rotation.x), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&mesh._rotation.y), sizeof(float));
-			fromFile.read(reinterpret_cast<char*>(&mesh._rotation.z), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.meshReferenceIndex), sizeof(Long));
+			fromFile.read(reinterpret_cast<char*>(&mesh.position.x), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.position.y), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.position.z), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.rotation.x), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.rotation.y), sizeof(float));
+			fromFile.read(reinterpret_cast<char*>(&mesh.rotation.z), sizeof(float));
 
-			if (!(mesh._flags & 1)) {
-				fromFile.read(reinterpret_cast<char*>(&mesh._scale.x), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&mesh._scale.y), sizeof(float));
-				fromFile.read(reinterpret_cast<char*>(&mesh._scale.z), sizeof(float));
+			if (!(mesh.flags & 1)) {
+				fromFile.read(reinterpret_cast<char*>(&mesh.scale.x), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&mesh.scale.y), sizeof(float));
+				fromFile.read(reinterpret_cast<char*>(&mesh.scale.z), sizeof(float));
 			}
 			else
-				mesh._scale = Vec3(1.0f, 1.0f, 1.0f);
+				mesh.scale = Vec3(1.0f, 1.0f, 1.0f);
 
-			mesh._limbs.reserve(meshReferences[mesh._meshReferenceIndex]._limbCount);
+			mesh.limbs.reserve(meshReferences[mesh.meshReferenceIndex].limbCount);
 
-			for (Long i = 0; i < meshReferences[mesh._meshReferenceIndex]._limbCount; i++) {
+			for (Long i = 0; i < meshReferences[mesh.meshReferenceIndex].limbCount; i++) {
 				MapLimb limb;
 
-				fromFile.read(reinterpret_cast<char*>(&limb._materialIndex), sizeof(Long));
+				fromFile.read(reinterpret_cast<char*>(&limb.materialIndex), sizeof(Long));
 
-				if (mesh._flags & 16) {
+				if (mesh.flags & 16) {
 					// Read unecessary data away
 					Word wordDummy;
 
@@ -323,7 +323,7 @@ bool Map3DWS::createAsset(const std::string &name) {
 					}
 				}
 
-				mesh._limbs.push_back(limb);
+				mesh.limbs.push_back(limb);
 			}
 
 			meshes.push_back(mesh);
@@ -334,26 +334,26 @@ bool Map3DWS::createAsset(const std::string &name) {
 
 	// -------------------------------- Generate Map ---------------------------------
 
-	assert(_settings._pScene != nullptr);
+	assert(settings.pScene != nullptr);
 	
-	if (_settings._useGraphics) {
-		RenderScene* pRenderScene = dynamic_cast<RenderScene*>(_settings._pScene);
+	if (settings.useGraphics) {
+		RenderScene* pRenderScene = dynamic_cast<RenderScene*>(settings.pScene);
 
 		assert(pRenderScene != nullptr);
 
 		// Create chunk
 		std::shared_ptr<Map3DWSChunk> chunk(new Map3DWSChunk());
 
-		_settings._pScene->add(chunk, false);
+		settings.pScene->add(chunk, false);
 
 		// Load materials
 		std::unordered_map<std::string, size_t> matNameToIndex;
 
-		chunk->_model.reset(new StaticModel());
+		chunk->model.reset(new StaticModel());
 
 		std::string materialFileName = name.substr(0, name.length() - 3) + "mtl";
 
-		if (!Material::loadFromMTL(materialFileName, chunk->_textureManager.get(), matNameToIndex, chunk->_model->_materials)) {
+		if (!Material::loadFromMTL(materialFileName, chunk->textureManager.get(), matNameToIndex, chunk->model->materials)) {
 #ifdef PGE_DEBUG
 			std::cerr << "Could not open file " << materialFileName << ". Generating the file." << std::endl;
 #endif
@@ -373,8 +373,8 @@ bool Map3DWS::createAsset(const std::string &name) {
 
 			// Generate materials
 			for (size_t i = 0; i < materials.size(); i++) {
-				std::string materialName = _nameTable[materials[i]._objectName - 1];
-				std::string materialExtension = (materials[i]._flags & 2) ? _nameTable[materials[i]._extensionName - 1] : _settings._defaultImageFileExtension;
+				std::string materialName = nameTable[materials[i].objectName - 1];
+				std::string materialExtension = (materials[i].flags & 2) ? nameTable[materials[i].extensionName - 1] : settings.defaultImageFileExtension;
 
 				toFile << "newmtl " << materialName << std::endl;
 				toFile << "Ns 96.0" << std::endl;
@@ -389,7 +389,7 @@ bool Map3DWS::createAsset(const std::string &name) {
 
 			toFile.close();
 
-			if (!Material::loadFromMTL(materialFileName, chunk->_textureManager.get(), matNameToIndex, chunk->_model->_materials)) {
+			if (!Material::loadFromMTL(materialFileName, chunk->textureManager.get(), matNameToIndex, chunk->model->materials)) {
 #ifdef PGE_DEBUG
 				std::cerr << "Could not open generated file" << materialFileName << std::endl;
 #endif
@@ -397,13 +397,13 @@ bool Map3DWS::createAsset(const std::string &name) {
 			}
 		}
 
-		for (size_t i = 0; i < chunk->_model->_materials.size(); i++)
-			chunk->_model->_materials[i].genMipMaps();
+		for (size_t i = 0; i < chunk->model->materials.size(); i++)
+			chunk->model->materials[i].genMipMaps();
 
 		// Create a mesh for each material
 		std::vector<std::shared_ptr<StaticMesh>> materialMeshes;
 
-		materialMeshes.resize(chunk->_model->_materials.size());
+		materialMeshes.resize(chunk->model->materials.size());
 
 		for (size_t i = 0; i < materialMeshes.size(); i++)
 			materialMeshes[i].reset(new StaticMesh());
@@ -411,72 +411,72 @@ bool Map3DWS::createAsset(const std::string &name) {
 		for (size_t bi = 0; bi < brushes.size(); bi++) {
 			MapBrush &b = brushes[bi];
 
-			for (Long fi = 0; fi < b._faceCount; fi++) {
-				MapFace &f = b._faces[fi];
+			for (Long fi = 0; fi < b.faceCount; fi++) {
+				MapFace &f = b.faces[fi];
 
-				size_t materialIndex = matNameToIndex[_nameTable[materials[f._materialIndex - 1]._objectName - 1]];
+				size_t materialIndex = matNameToIndex[nameTable[materials[f.materialIndex - 1].objectName - 1]];
 
-				size_t prevNumVertices = materialMeshes[materialIndex]->_vertices.size();
+				size_t prevNumVertices = materialMeshes[materialIndex]->vertices.size();
 
-				if (!f._partialVerticesLightmapped.empty()) {
+				if (!f.partialVerticesLightmapped.empty()) {
 					// Add to the material mesh
-					for (size_t vi = 0; vi < f._partialVerticesLightmapped.size(); vi++) {
+					for (size_t vi = 0; vi < f.partialVerticesLightmapped.size(); vi++) {
 						StaticMesh::Vertex v;
 
-						v._position = _settings._sizeScalar * b._vertexPositions[f._partialVerticesLightmapped[vi]._vertex];
-						v._texCoord = f._partialVerticesLightmapped[vi]._texCoords;
-						v._normal = Vec3f(1.0f, 0.0f, 0.0f);
+						v.position = settings.sizeScalar * b.vertexPositions[f.partialVerticesLightmapped[vi].vertex];
+						v.texCoord = f.partialVerticesLightmapped[vi].texCoords;
+						v.normal = Vec3f(1.0f, 0.0f, 0.0f);
 
-						materialMeshes[materialIndex]->_vertices.push_back(v);
+						materialMeshes[materialIndex]->vertices.push_back(v);
 					}
 				}
 				else {
 					// Add to the material mesh
-					for (size_t vi = 0; vi < f._partialVertices.size(); vi++) {
+					for (size_t vi = 0; vi < f.partialVertices.size(); vi++) {
 						StaticMesh::Vertex v;
 
-						v._position = _settings._sizeScalar * b._vertexPositions[f._partialVertices[vi]._vertex];
-						v._texCoord = f._partialVertices[vi]._texCoords;
-						v._normal = Vec3f(1.0f, 0.0f, 0.0f);
+						v.position = settings.sizeScalar * b.vertexPositions[f.partialVertices[vi].vertex];
+						v.texCoord = f.partialVertices[vi].texCoords;
+						v.normal = Vec3f(1.0f, 0.0f, 0.0f);
 
-						materialMeshes[materialIndex]->_vertices.push_back(v);
+						materialMeshes[materialIndex]->vertices.push_back(v);
 					}
 				}
 
 				// Add indices (triangle fan shape)
-				Byte indexCount = f._indexCount;
+				Byte indexCount = f.indexCount;
 
 				for (Byte t = indexCount - 2; t > 0; t--) {
 					staticMeshIndexType index0 = prevNumVertices + indexCount - 1;
 					staticMeshIndexType index1 = prevNumVertices + t;
 					staticMeshIndexType index2 = prevNumVertices + t - 1;
 
-					materialMeshes[materialIndex]->_indices.push_back(index0);
-					materialMeshes[materialIndex]->_indices.push_back(index1);
-					materialMeshes[materialIndex]->_indices.push_back(index2);
+					materialMeshes[materialIndex]->indices.push_back(index0);
+					materialMeshes[materialIndex]->indices.push_back(index1);
+					materialMeshes[materialIndex]->indices.push_back(index2);
 
 					// Calculate normals
-					Vec3f normal = (materialMeshes[materialIndex]->_vertices[index1]._position - materialMeshes[materialIndex]->_vertices[index0]._position).cross(materialMeshes[materialIndex]->_vertices[index2]._position - materialMeshes[materialIndex]->_vertices[index0]._position).normalized();
+					Vec3f normal = (materialMeshes[materialIndex]->vertices[index1].position - materialMeshes[materialIndex]->vertices[index0].position).cross(materialMeshes[materialIndex]->vertices[index2].position - materialMeshes[materialIndex]->vertices[index0].position).normalized();
 				
-					materialMeshes[materialIndex]->_vertices[index0]._normal = normal;
-					materialMeshes[materialIndex]->_vertices[index1]._normal = normal;
-					materialMeshes[materialIndex]->_vertices[index2]._normal = normal;
+					materialMeshes[materialIndex]->vertices[index0].normal = normal;
+					materialMeshes[materialIndex]->vertices[index1].normal = normal;
+					materialMeshes[materialIndex]->vertices[index2].normal = normal;
 				}
 			}
 		}
 
 		for (size_t i = 0; i < materialMeshes.size(); i++) {
-			if (materialMeshes[i]->_vertices.empty())
+			if (materialMeshes[i]->vertices.empty())
 				continue;
 
-			chunk->_model->_meshes.push_back(StaticModel::StaticMeshAndMaterialIndex(materialMeshes[i], i));
-			chunk->_model->_meshes.back()._mesh->create(true);
-			chunk->_model->_meshes.back()._mesh->updateBuffers();
+			chunk->model->meshes.push_back(StaticModel::StaticMeshAndMaterialIndex(materialMeshes[i], i));
+			chunk->model->meshes.back().mesh->create(true);
+			chunk->model->meshes.back().mesh->updateBuffers();
 		}
 
-		for (size_t i = 0; i < chunk->_model->_materials.size(); i++) {
-			chunk->_model->_materials[i].createUniformBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::_standard));
-			chunk->_model->_materials[i].setUniformsBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::_standard));
+		for (size_t i = 0; i < chunk->model->materials.size(); i++) {
+			chunk->model->materials[i].createUniformBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::standard));
+			chunk->model->materials[i].setUniformsBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::standard));
 		}
 	}
 
@@ -484,15 +484,15 @@ bool Map3DWS::createAsset(const std::string &name) {
 }
 
 void Map3DWSChunk::onAdd() {
-	_batcherRef = getScene()->getNamed("smb");
+	batcherRef = getScene()->getNamed("smb");
 
-	assert(_batcherRef.isAlive());
+	assert(batcherRef.isAlive());
 }
 
 void Map3DWSChunk::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
+	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
-	_model->render(pBatcher, Matrix4x4f::identityMatrix());
+	model->render(pBatcher, Matrix4x4f::identityMatrix());
 }
 
 void Map3DWSPhysics::onAdd() {
@@ -508,10 +508,10 @@ void pge::addMapLights(const Map3DWS &map, Scene* pScene) {
 
 	const float colorInv = 1.0f / 255.0f;
 
-	for (size_t i = 0; i < map._entities.size(); i++) {
-		const Map3DWS::MapEntity &entity = map._entities[i];
+	for (size_t i = 0; i < map.entities.size(); i++) {
+		const Map3DWS::MapEntity &entity = map.entities[i];
 
-		if (entity._properties.find("classname")->second == "light") {
+		if (entity.properties.find("classname")->second == "light") {
 			// Add a light
 			std::shared_ptr<SceneObjectPointLightShadowed> pointLightShadowed(new SceneObjectPointLightShadowed());
 
@@ -524,7 +524,7 @@ void pge::addMapLights(const Map3DWS &map, Scene* pScene) {
 			float range = 800.0f;
 
 			{
-				std::string intensityS = entity._properties.find("intensity")->second;
+				std::string intensityS = entity.properties.find("intensity")->second;
 
 				std::istringstream reader(intensityS);
 
@@ -534,7 +534,7 @@ void pge::addMapLights(const Map3DWS &map, Scene* pScene) {
 			}
 
 			{
-				std::string rangeS = entity._properties.find("range")->second;
+				std::string rangeS = entity.properties.find("range")->second;
 
 				std::istringstream reader(rangeS);
 
@@ -542,7 +542,7 @@ void pge::addMapLights(const Map3DWS &map, Scene* pScene) {
 			}
 
 			{
-				std::string colorS = entity._properties.find("color")->second;
+				std::string colorS = entity.properties.find("color")->second;
 
 				std::istringstream reader(colorS);
 
@@ -554,8 +554,8 @@ void pge::addMapLights(const Map3DWS &map, Scene* pScene) {
 			}
 
 			pointLightShadowed->setColor(color * intensity * 0.5f);
-			pointLightShadowed->setRange(range * map._settings._sizeScalar); // * map._settings._sizeScalar
-			pointLightShadowed->setPosition(entity._position * map._settings._sizeScalar);
+			pointLightShadowed->setRange(range * map.settings.sizeScalar); // * map.settings.sizeScalar
+			pointLightShadowed->setPosition(entity.position * map.settings.sizeScalar);
 		}
 	}
 }

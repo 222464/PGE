@@ -1,4 +1,4 @@
-#include <pge/util/Functions.h>
+#include "Functions.h"
 
 std::string getRootName(const std::string &name) {
 	int i;

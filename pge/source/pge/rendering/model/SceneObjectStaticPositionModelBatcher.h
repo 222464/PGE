@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/model/StaticPositionModel.h>
+#include "../../scene/RenderScene.h"
+#include "StaticPositionModel.h"
 
 namespace pge {
 	class SceneObjectStaticPositionModelBatcher : public SceneObject {
 	private:
-		std::unordered_map<StaticPositionModel*, std::list<Matrix4x4f>> _modelTransforms;
+		std::unordered_map<StaticPositionModel*, std::list<Matrix4x4f>> modelTransforms;
 
 	public:
 		SceneObjectStaticPositionModelBatcher() {
-			_renderMask = 0xffff;
+			renderMask = 0xffff;
 		}
 
 		// Inherited from SceneObject

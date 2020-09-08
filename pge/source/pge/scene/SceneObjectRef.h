@@ -6,33 +6,33 @@
 namespace pge {
 	class SceneObjectRef {
 	private:
-		class SceneObject* _pSceneObject;
+		class SceneObject* pSceneObject;
 
 	public:
 		SceneObjectRef()
-			: _pSceneObject(nullptr)
+			: pSceneObject(nullptr)
 		{}
 
 		SceneObjectRef(const SceneObjectRef &other)
-			: _pSceneObject(nullptr)
+			: pSceneObject(nullptr)
 		{
 			*this = other;
 		}
 
 		SceneObjectRef(class SceneObject &sceneObject)
-			: _pSceneObject(nullptr)
+			: pSceneObject(nullptr)
 		{
 			*this = sceneObject;
 		}
 
 		SceneObjectRef(SceneObject* pSceneObject)
-			: _pSceneObject(nullptr)
+			: pSceneObject(nullptr)
 		{
 			*this = pSceneObject;
 		}
 
 		SceneObjectRef(std::nullptr_t)
-			: _pSceneObject(nullptr)
+			: pSceneObject(nullptr)
 		{}
 
 		~SceneObjectRef();
@@ -45,34 +45,34 @@ namespace pge {
 		void operator=(const SceneObjectRef &other);
 
 		class SceneObject* operator->() const {
-			return _pSceneObject;
+			return pSceneObject;
 		}
 
 		class SceneObject &operator*() const {
-			return *_pSceneObject;
+			return *pSceneObject;
 		}
 
 		class SceneObject* get() const {
-			return _pSceneObject;
+			return pSceneObject;
 		}
 
 		bool operator==(std::nullptr_t) const {
-			return _pSceneObject == nullptr;
+			return pSceneObject == nullptr;
 		}
 
 		bool operator!=(std::nullptr_t) const {
-			return _pSceneObject != nullptr;
+			return pSceneObject != nullptr;
 		}
 
 		bool isAlive() const {
-			return _pSceneObject != nullptr;
+			return pSceneObject != nullptr;
 		}
 
 		// Custom hash
 		size_t operator()(const SceneObjectRef &reference) const;
 
 		bool operator==(const SceneObjectRef &reference) const {
-			return _pSceneObject == reference._pSceneObject;
+			return pSceneObject == reference.pSceneObject;
 		}
 
 		friend class State;

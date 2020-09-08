@@ -1,8 +1,8 @@
-#include <pge/sceneobjects/SceneObjectTennis.h>
+#include "SceneObjectTennis.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "../rendering/model/SceneObjectStaticModelBatcher.h"
 
-#include <pge/util/Math.h>
+#include "../util/Math.h"
 
 #include <iostream>
 #include <sstream>
@@ -16,79 +16,79 @@ bool SceneObjectTennis::create() {
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/slime3D.obj", asset))
 		return false;
 
-	_pSlimeModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pSlimeModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset("resources/models/tennisBall.obj", asset))
 		return false;
 
-	_pBallModel = static_cast<pge::StaticModelOBJ*>(asset.get());
+	pBallModel = static_cast<pge::StaticModelOBJ*>(asset.get());
 
 	// Get reference to physics world
-	_physicsWorld = getScene()->getNamedCheckQueue("physWrld");
+	physicsWorld = getScene()->getNamedCheckQueue("physWrld");
 
 	reset();
 
-	_capture = false;
+	capture = false;
 
-	_capBytes = std::make_shared<std::vector<char>>(getRenderScene()->_gBuffer.getWidth() * getRenderScene()->_gBuffer.getHeight() * 3, 0);
+	capBytes = std::make_shared<std::vector<char>>(getRenderScene()->gBuffer.getWidth() * getRenderScene()->gBuffer.getHeight() * 3, 0);
 
-	_show = getRenderScene()->_renderingEnabled;
+	show = getRenderScene()->renderingEnabled;
 
-	_socket = std::make_shared<sf::TcpSocket>();
+	socket = std::make_shared<sf::TcpSocket>();
 
-	_socket->connect(sf::IpAddress::LocalHost, _port, sf::seconds(5.0f));
+	socket->connect(sf::IpAddress::LocalHost, port, sf::seconds(5.0f));
 
-	_doneLastFrame = false;
+	doneLastFrame = false;
 
 	return true;
 }
 
 void SceneObjectTennis::onAdd() {
-	_batcherRef = getScene()->getNamed("smb");
+	batcherRef = getScene()->getNamed("smb");
 
-	assert(_batcherRef.isAlive());
+	assert(batcherRef.isAlive());
 }
 
 void SceneObjectTennis::reset() {
 	// Slightly random angle
 	std::uniform_real_distribution<float> pertDist(-0.05f, 0.05f);
 
-	assert(_physicsWorld.isAlive());
+	assert(physicsWorld.isAlive());
 
-	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get());
 
 	// Remove old
-	if (_pRigidBodySlime != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodySlime.get());
+	if (pRigidBodySlime != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodySlime.get());
 
-	if (_pRigidBodyBall != nullptr)
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyBall.get());
+	if (pRigidBodyBall != nullptr)
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyBall.get());
 
 	// Physics
-	_pCollisionShapeSlime.reset(new btSphereShape(0.5f));
-	_pCollisionShapeBall.reset(new btSphereShape(0.1f));
+	pCollisionShapeSlime.reset(new btSphereShape(0.5f));
+	pCollisionShapeBall.reset(new btSphereShape(0.1f));
 
 	btVector3 slimeStart = btVector3(-3.0f, 0.0f, 0.0f);
 
 	std::uniform_real_distribution<float> heightDist(1.2f, 3.0f);
 	std::uniform_real_distribution<float> widthDist(-2.0f, 2.0f);
 	std::uniform_real_distribution<float> velPertDist(-2.5f, 2.5f);
-	btVector3 startVel = btVector3(-5.0f + velPertDist(_rng), velPertDist(_rng), velPertDist(_rng));
-	btVector3 ballStart = btVector3(0.0f, heightDist(_rng), widthDist(_rng));
+	btVector3 startVel = btVector3(-5.0f + velPertDist(rng), velPertDist(rng), velPertDist(rng));
+	btVector3 ballStart = btVector3(0.0f, heightDist(rng), widthDist(rng));
 
-	_pMotionStateSlime.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), slimeStart)));
-	_pMotionStateBall.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), ballStart)));
+	pMotionStateSlime.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), slimeStart)));
+	pMotionStateBall.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f), ballStart)));
 
 	const float slimeMass = 10.0f;
 	const float ballMass = 1.0f;
 
 	btVector3 slimeInertia, ballInertia;
 
-	_pCollisionShapeSlime->calculateLocalInertia(slimeMass, slimeInertia);
-	_pCollisionShapeBall->calculateLocalInertia(ballMass, ballInertia);
+	pCollisionShapeSlime->calculateLocalInertia(slimeMass, slimeInertia);
+	pCollisionShapeBall->calculateLocalInertia(ballMass, ballInertia);
 
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCISlime(slimeMass, _pMotionStateSlime.get(), _pCollisionShapeSlime.get(), slimeInertia);
-	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIBall(ballMass, _pMotionStateBall.get(), _pCollisionShapeBall.get(), ballInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCISlime(slimeMass, pMotionStateSlime.get(), pCollisionShapeSlime.get(), slimeInertia);
+	btRigidBody::btRigidBodyConstructionInfo rigidBodyCIBall(ballMass, pMotionStateBall.get(), pCollisionShapeBall.get(), ballInertia);
 
 	rigidBodyCISlime.m_restitution = 2.0f;
 	rigidBodyCISlime.m_friction = 0.01f;
@@ -96,58 +96,58 @@ void SceneObjectTennis::reset() {
 	rigidBodyCIBall.m_restitution = 1.0f;
 	rigidBodyCIBall.m_friction = 0.01f;
 
-	_pRigidBodySlime.reset(new btRigidBody(rigidBodyCISlime));
-	_pRigidBodyBall.reset(new btRigidBody(rigidBodyCIBall));
+	pRigidBodySlime.reset(new btRigidBody(rigidBodyCISlime));
+	pRigidBodyBall.reset(new btRigidBody(rigidBodyCIBall));
 
-	_pRigidBodyBall->setLinearVelocity(startVel);
+	pRigidBodyBall->setLinearVelocity(startVel);
 
-	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodySlime.get());
-	pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBodyBall.get());
+	pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBodySlime.get());
+	pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBodyBall.get());
 
-	_pRigidBodySlime->setAngularFactor(0.0f); // No rotation
-	_pRigidBodySlime->setLinearFactor(btVector3(1.0f, 0.0f, 1.0f)); // No movement up and down
-	_pRigidBodySlime->setDamping(0.07f, 0.0f);
+	pRigidBodySlime->setAngularFactor(0.0f); // No rotation
+	pRigidBodySlime->setLinearFactor(btVector3(1.0f, 0.0f, 1.0f)); // No movement up and down
+	pRigidBodySlime->setDamping(0.07f, 0.0f);
 
-	_action = pge::Vec2f(0.0f, 0.0f);
-	_ticksPerAction = 0;
-	_ticks = 0;
-	_reward = 0.0f;
+	action = pge::Vec2f(0.0f, 0.0f);
+	ticksPerAction = 0;
+	ticks = 0;
+	reward = 0.0f;
 }
 
 void SceneObjectTennis::act() {
 	const float force = 500.0f;
 	const float maxSpeed = 5.0f;
 
-	float speed = _pRigidBodySlime->getLinearVelocity().length();
+	float speed = pRigidBodySlime->getLinearVelocity().length();
 
-	_pRigidBodySlime->applyCentralForce(btVector3(_action.x, 0.0f, _action.y) * force * (maxSpeed - speed) / maxSpeed);
+	pRigidBodySlime->applyCentralForce(btVector3(action.x, 0.0f, action.y) * force * (maxSpeed - speed) / maxSpeed);
 
-	btVector3 slimePos = _pRigidBodySlime->getWorldTransform().getOrigin();
-	btVector3 ballPos = _pRigidBodyBall->getWorldTransform().getOrigin();
+	btVector3 slimePos = pRigidBodySlime->getWorldTransform().getOrigin();
+	btVector3 ballPos = pRigidBodyBall->getWorldTransform().getOrigin();
 
-	_reward = 0.0f;
+	reward = 0.0f;
 
-	if (ballPos.getX() > 0.0f && _pRigidBodyBall->getLinearVelocity().getX() > 0.0f) {
+	if (ballPos.getX() > 0.0f && pRigidBodyBall->getLinearVelocity().getX() > 0.0f) {
 		reset();
 
-		_reward = 1.0f;
+		reward = 1.0f;
 
-		_doneLastFrame = true;
+		doneLastFrame = true;
 	}
 	else if (ballPos.getY() < 0.0f) {
 		reset();
 
-		_reward = -1.0f;
+		reward = -1.0f;
 
-		_doneLastFrame = true;
+		doneLastFrame = true;
 	}
 }
 
 void SceneObjectTennis::synchronousUpdate(float dt) {
-	if (_ticks >= _ticksPerAction || !getRenderScene()->_renderingEnabled) {
-		_ticks = 0;
+	if (ticks >= ticksPerAction || !getRenderScene()->renderingEnabled) {
+		ticks = 0;
 
-		std::array<char, _maxBatchSize> buffer;
+		std::array<char, maxBatchSize> buffer;
 
 		std::array<char, 1 + 4 + 4> msg;
 
@@ -155,7 +155,7 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 		size_t totalReceived = 0;
 
 		while (totalReceived < msg.size()) {
-			_socket->receive(buffer.data(), msg.size() - totalReceived, received);
+			socket->receive(buffer.data(), msg.size() - totalReceived, received);
 
 			for (int i = 0; i < received; i++)
 				msg[totalReceived + i] = buffer[i];
@@ -164,45 +164,45 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 		}
 
 		if (msg[0] == 'A') { // Action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 		}
 		else if (msg[0] == 'R') { // Reset
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
 			reset();
 		}
 		else if (msg[0] == 'C') { // Capture + action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
-			_capture = true;
+			capture = true;
 
-			if (!getRenderScene()->_renderingEnabled) {
+			if (!getRenderScene()->renderingEnabled) {
 				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
 				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
 			}
 
-			getRenderScene()->_renderingEnabled = true;
+			getRenderScene()->renderingEnabled = true;
 		}
 		else if (msg[0] == 'S') { // Stop capture + action
-			_action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
+			action = pge::Vec2f(*reinterpret_cast<float*>(&msg[1]), *reinterpret_cast<float*>(&msg[5]));
 
-			_capture = false;
+			capture = false;
 
-			if (!_show) {
-				if (getRenderScene()->_renderingEnabled) {
+			if (!show) {
+				if (getRenderScene()->renderingEnabled) {
 					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
 					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
 				}
 
-				getRenderScene()->_renderingEnabled = false;
+				getRenderScene()->renderingEnabled = false;
 			}
 		}
 		else if (msg[0] == 'X') { // Exit
-			getRenderScene()->_close = true;
+			getRenderScene()->close = true;
 		}
 
-		_action.x = std::min(1.0f, std::max(-1.0f, _action.x));
-		_action.y = std::min(1.0f, std::max(-1.0f, _action.y));
+		action.x = std::min(1.0f, std::max(-1.0f, action.x));
+		action.y = std::min(1.0f, std::max(-1.0f, action.y));
 
 		act();
 
@@ -211,10 +211,10 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 		// Observation (8 values)
 		std::vector<float> obs(10);
 
-		btVector3 slimePos = _pRigidBodySlime->getWorldTransform().getOrigin();
-		btVector3 slimeVel = _pRigidBodySlime->getLinearVelocity();
-		btVector3 toBall = _pRigidBodyBall->getWorldTransform().getOrigin() - slimePos;
-		btVector3 ballVel = _pRigidBodyBall->getLinearVelocity();
+		btVector3 slimePos = pRigidBodySlime->getWorldTransform().getOrigin();
+		btVector3 slimeVel = pRigidBodySlime->getLinearVelocity();
+		btVector3 toBall = pRigidBodyBall->getWorldTransform().getOrigin() - slimePos;
+		btVector3 ballVel = pRigidBodyBall->getLinearVelocity();
 
 		obs[0] = slimePos.getX();
 		obs[1] = slimePos.getZ();
@@ -230,7 +230,7 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 		// First add reward
 		int index = 0;
 
-		*reinterpret_cast<float*>(&buffer[index]) = _reward;
+		*reinterpret_cast<float*>(&buffer[index]) = reward;
 
 		index += sizeof(float);
 
@@ -241,37 +241,37 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 		}
 
 		// Reset flag
-		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(_doneLastFrame);
+		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(doneLastFrame);
 
-		_doneLastFrame = false;
+		doneLastFrame = false;
 
 		index += sizeof(int);
 
-		// Submit number of batches of _maxBatchSize
-		int numBatches = _capBytes->size() / _maxBatchSize + ((_capBytes->size() % _maxBatchSize) == 0 ? 0 : 1);
+		// Submit number of batches of maxBatchSize
+		int numBatches = capBytes->size() / maxBatchSize + ((capBytes->size() % maxBatchSize) == 0 ? 0 : 1);
 
 		// No batches if not capturing
-		if (!_capture)
+		if (!capture)
 			numBatches = 0;
 
 		*reinterpret_cast<int*>(&buffer[index]) = numBatches;
 
 		index += sizeof(int);
 
-		_socket->send(buffer.data(), index);
+		socket->send(buffer.data(), index);
 
-		if (_capture) {
-			std::vector<char> reorganized(_capBytes->size());
+		if (capture) {
+			std::vector<char> reorganized(capBytes->size());
 
 			int reorgIndex = 0;
 
-			for (int y = 0; y < getRenderScene()->_gBuffer.getHeight(); y++)
-				for (int x = 0; x < getRenderScene()->_gBuffer.getWidth(); x++) {
-					int start = 3 * (x + (getRenderScene()->_gBuffer.getHeight() - 1 - y) * getRenderScene()->_gBuffer.getWidth());
+			for (int y = 0; y < getRenderScene()->gBuffer.getHeight(); y++)
+				for (int x = 0; x < getRenderScene()->gBuffer.getWidth(); x++) {
+					int start = 3 * (x + (getRenderScene()->gBuffer.getHeight() - 1 - y) * getRenderScene()->gBuffer.getWidth());
 
-					reorganized[reorgIndex++] = (*_capBytes)[start + 0];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 1];
-					reorganized[reorgIndex++] = (*_capBytes)[start + 2];
+					reorganized[reorgIndex++] = (*capBytes)[start + 0];
+					reorganized[reorgIndex++] = (*capBytes)[start + 1];
+					reorganized[reorgIndex++] = (*capBytes)[start + 2];
 				}
 
 			int total = 0;
@@ -280,47 +280,47 @@ void SceneObjectTennis::synchronousUpdate(float dt) {
 				// Submit batch
 				size_t count = 0;
 
-				for (int j = 0; j < _maxBatchSize && total < _capBytes->size(); j++) {
+				for (int j = 0; j < maxBatchSize && total < capBytes->size(); j++) {
 					buffer[j] = reorganized[total++];
 
 					count++;
 				}
 
-				_socket->send(buffer.data(), count);
+				socket->send(buffer.data(), count);
 			}
 		}
 	}
 	else
-		_ticks++;
+		ticks++;
 }
 
 void SceneObjectTennis::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(_batcherRef.get());
+	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
 	{
 		// Render slime
 		pge::Matrix4x4f transform;
 
-		_pRigidBodySlime->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
+		pRigidBodySlime->getWorldTransform().getOpenGLMatrix(&transform.elements[0]);
 
 		float s = 0.5f * 2.0f;
 
 		transform *= pge::Matrix4x4f::scaleMatrix(pge::Vec3f(s, s, s));
 
-		_pSlimeModel->render(pBatcher, transform);
+		pSlimeModel->render(pBatcher, transform);
 	}
 
 	{
 		// Render ball
 		pge::Matrix4x4f transform;
 
-		_pRigidBodyBall->getWorldTransform().getOpenGLMatrix(&transform._elements[0]);
+		pRigidBodyBall->getWorldTransform().getOpenGLMatrix(&transform.elements[0]);
 
 		float s = 0.1f * 2.0f;
 
 		transform *= pge::Matrix4x4f::scaleMatrix(pge::Vec3f(s, s, s));
 
-		_pBallModel->render(pBatcher, transform);
+		pBallModel->render(pBatcher, transform);
 	}
 }
 
@@ -328,20 +328,20 @@ void SceneObjectTennis::postRender() {
 	// Get data from effect buffer
 	glReadBuffer(GL_FRONT);
 
-	glReadPixels(0, 0, getRenderScene()->_gBuffer.getWidth(), getRenderScene()->_gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, _capBytes->data());
+	glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
 }
 
 void SceneObjectTennis::onDestroy() {
-	if (_socket != nullptr)
-		_socket->disconnect();
+	if (socket != nullptr)
+		socket->disconnect();
 
-	if (_physicsWorld.isAlive()) {
-		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(_physicsWorld.get());
+	if (physicsWorld.isAlive()) {
+		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get());
 
-		if (_pRigidBodySlime != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodySlime.get());
+		if (pRigidBodySlime != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodySlime.get());
 
-		if (_pRigidBodyBall != nullptr)
-			pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBodyBall.get());
+		if (pRigidBodyBall != nullptr)
+			pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBodyBall.get());
 	}
 }

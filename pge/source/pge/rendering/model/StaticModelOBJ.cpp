@@ -1,9 +1,9 @@
-#include <pge/rendering/model/StaticModelOBJ.h>
+#include "StaticModelOBJ.h"
 
 using namespace pge;
 
 bool StaticModelOBJ::createAsset(const std::string &fileName) {
-	_textureManager.create(Texture2D::assetFactory);
+	textureManager.create(Texture2D::assetFactory);
 
-	return _model.loadFromOBJ(fileName, _textureManager, _aabb, true, false);
+	return model.loadFromOBJ(fileName, textureManager, aabb, true, false);
 }

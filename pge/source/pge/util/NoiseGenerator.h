@@ -3,11 +3,11 @@
 namespace pge {
 	class NoiseGenerator {
 	private:
-		int _varyingInternalSeed;
+		int varyingInternalSeed;
 
 	public:
-		int _seed;
-		int _smoothDist;
+		int seed;
+		int smoothDist;
 
 		NoiseGenerator();
 

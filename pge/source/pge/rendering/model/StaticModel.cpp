@@ -1,8 +1,8 @@
-#include <pge/rendering/model/StaticModel.h>
+#include "StaticModel.h"
 
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "SceneObjectStaticModelBatcher.h"
 
-#include <pge/util/Functions.h>
+#include "../../util/Functions.h"
 
 #include <fstream>
 #include <sstream>
@@ -10,19 +10,19 @@
 using namespace pge;
 
 void StaticModel::render(RenderScene* pScene) {
-	for (StaticMeshAndMaterialIndex &meshAndMaterial : _meshes) {
-		pScene->useShader(_materials[meshAndMaterial._materialIndex]);
-		meshAndMaterial._mesh->render();
+	for (StaticMeshAndMaterialIndex &meshAndMaterial : meshes) {
+		pScene->useShader(materials[meshAndMaterial.materialIndex]);
+		meshAndMaterial.mesh->render();
 	}
 }
 
 void StaticModel::render(SceneObjectStaticModelBatcher* pBatcher, const Matrix4x4f &transform) {
-	pBatcher->_modelTransforms[this].push_back(transform);
+	pBatcher->modelTransforms[this].push_back(transform);
 }
 
 void StaticModel::genMipMaps() {
-	for (size_t i = 0; i < _materials.size(); i++)
-		_materials[i].genMipMaps();
+	for (size_t i = 0; i < materials.size(); i++)
+		materials[i].genMipMaps();
 }
 
 bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &textureManager, AABB3D &aabb, bool useBuffers, bool clearArrays, RenderScene* pRenderScene) {
@@ -45,8 +45,8 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 	std::unordered_map<StaticMeshIndexSet, size_t, StaticMeshIndexSet> indexToVertex;
 
 	// Initial extremes
-	aabb._lowerBound = Vec3f(999999.0f, 999999.0f, 999999.0f);
-	aabb._upperBound = Vec3f(-999999.0f, -999999.0f, -999999.0f);
+	aabb.lowerBound = Vec3f(999999.0f, 999999.0f, 999999.0f);
+	aabb.upperBound = Vec3f(-999999.0f, -999999.0f, -999999.0f);
 
 	std::unordered_map<std::string, size_t> matReferences;
 
@@ -99,11 +99,11 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 			while (!ss.eof() && ss.good()) {
 				StaticMeshIndexSet is;
 
-				ss >> is._vi;
+				ss >> is.vi;
 				ss.ignore(1, '/');
-				ss >> is._ti;
+				ss >> is.ti;
 				ss.ignore(1, '/');
-				ss >> is._ni;
+				ss >> is.ni;
 
 				v.push_back(is);
 			}
@@ -119,19 +119,19 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 					// Vertex attributes do not exist, create them
 
 					// File indicies start at 1, so convert
-					size_t vertIndex = v[i]._vi - 1;
-					size_t texCoordIndex = v[i]._ti - 1;
-					size_t normalIndex = v[i]._ni - 1;
+					size_t vertIndex = v[i].vi - 1;
+					size_t texCoordIndex = v[i].ti - 1;
+					size_t normalIndex = v[i].ni - 1;
 
 					StaticMesh::Vertex vertex;
-					vertex._position = filePositions[vertIndex];
-					vertex._normal = fileNormals[normalIndex];
-					vertex._texCoord = fileTexCoords[texCoordIndex];
+					vertex.position = filePositions[vertIndex];
+					vertex.normal = fileNormals[normalIndex];
+					vertex.texCoord = fileTexCoords[texCoordIndex];
 
-					_meshes.back()._mesh->_vertices.push_back(vertex);
+					meshes.back().mesh->vertices.push_back(vertex);
 	
 					// Index of vertex in vertex component array
-					size_t realIndex = _meshes.back()._mesh->_vertices.size() - 1;
+					size_t realIndex = meshes.back().mesh->vertices.size() - 1;
 
 					// Add attribute set index to the map
 					indexToVertex[v[i]] = realIndex;
@@ -140,38 +140,38 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 						firstIndex = static_cast<staticMeshIndexType>(realIndex);
 					else if (vC >= 3) {
 						// Triangle fan
-						staticMeshIndexType last = _meshes.back()._mesh->_indices.back();
+						staticMeshIndexType last = meshes.back().mesh->indices.back();
 
-						_meshes.back()._mesh->_indices.push_back(firstIndex);
-						_meshes.back()._mesh->_indices.push_back(last);
+						meshes.back().mesh->indices.push_back(firstIndex);
+						meshes.back().mesh->indices.push_back(last);
 					}
 
 					vC++;
 
-					_meshes.back()._mesh->_indices.push_back(static_cast<staticMeshIndexType>(realIndex));
+					meshes.back().mesh->indices.push_back(static_cast<staticMeshIndexType>(realIndex));
 				}
 				else {
 					if (vC == 0)
 						firstIndex = static_cast<staticMeshIndexType>(it->second);
 					else if (vC >= 3) {
 						// Triangle fan
-						staticMeshIndexType last = _meshes.back()._mesh->_indices.back();
+						staticMeshIndexType last = meshes.back().mesh->indices.back();
 
-						_meshes.back()._mesh->_indices.push_back(firstIndex);
-						_meshes.back()._mesh->_indices.push_back(last);
+						meshes.back().mesh->indices.push_back(firstIndex);
+						meshes.back().mesh->indices.push_back(last);
 					}
 
 					vC++;
 
-					_meshes.back()._mesh->_indices.push_back(static_cast<staticMeshIndexType>(it->second));
+					meshes.back().mesh->indices.push_back(static_cast<staticMeshIndexType>(it->second));
 
 				}
 			}
 		}
 		else if (header == "usemtl") {
 			// Add new mesh
-			_meshes.push_back(StaticMeshAndMaterialIndex());
-			_meshes.back()._mesh.reset(new StaticMesh());
+			meshes.push_back(StaticMeshAndMaterialIndex());
+			meshes.back().mesh.reset(new StaticMesh());
 
 			// Get texture name and load it
 			std::string matName;
@@ -187,7 +187,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 				return false;
 			}
 
-			_meshes.back()._materialIndex = it->second;
+			meshes.back().materialIndex = it->second;
 		}
 		else if (header == "mtllib") {
 			std::string libName;
@@ -197,7 +197,7 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 
 			fullMaterialLibraryName << rootName << libName;
 
-			if (!Material::loadFromMTL(fullMaterialLibraryName.str(), &textureManager, matReferences, _materials)) {
+			if (!Material::loadFromMTL(fullMaterialLibraryName.str(), &textureManager, matReferences, materials)) {
 #ifdef PGE_DEBUG
 				std::cerr << "- in " << fileName << std::endl;
 #endif
@@ -211,20 +211,20 @@ bool StaticModel::loadFromOBJ(const std::string &fileName, AssetManager &texture
 	aabb.calculateHalfDims();
 	aabb.calculateCenter();
 
-	for (StaticMeshAndMaterialIndex &meshAndMaterial : _meshes) {
-		meshAndMaterial._mesh->create(useBuffers);
+	for (StaticMeshAndMaterialIndex &meshAndMaterial : meshes) {
+		meshAndMaterial.mesh->create(useBuffers);
 
 		if (useBuffers)
-			meshAndMaterial._mesh->updateBuffers();
+			meshAndMaterial.mesh->updateBuffers();
 
 		if (clearArrays)
-			meshAndMaterial._mesh->clearArrays();
+			meshAndMaterial.mesh->clearArrays();
 	}
 
 	if (pRenderScene != nullptr) {
-		for (size_t i = 0; i < _materials.size(); i++) {
-			_materials[i].createUniformBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::_standard));
-			_materials[i].setUniformsBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::_standard));
+		for (size_t i = 0; i < materials.size(); i++) {
+			materials[i].createUniformBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::standard));
+			materials[i].setUniformsBuffer(pRenderScene->getMaterialUBOShaderInterface(RenderScene::standard));
 		}
 	}
 

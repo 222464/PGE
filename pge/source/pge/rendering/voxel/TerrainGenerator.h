@@ -1,7 +1,7 @@
 #pragma once
 
-#include <pge/rendering/voxel/VoxelTerrain.h>
-#include <pge/rendering/voxel/VoxelChunk.h>
+#include "VoxelTerrain.h"
+#include "VoxelChunk.h"
 
 namespace pge {
 	void terrainGenerator0(pge::VoxelChunk &chunk, int seed);

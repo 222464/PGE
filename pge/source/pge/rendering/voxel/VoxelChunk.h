@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/mesh/StaticMesh.h>
+#include "../mesh/StaticMesh.h"
 
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "../../sceneobjects/physics/SceneObjectPhysicsWorld.h"
 
 #define PGE_VOXEL_CHUNK_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
 
@@ -14,97 +14,97 @@ namespace pge {
 
 	class VoxelChunk : public SceneObject {
 	public:
-		static const int _chunkSize = 32;
-		static const int _voxelsPerChunk = _chunkSize * _chunkSize * _chunkSize;
+		static const int chunkSize = 32;
+		static const int voxelsPerChunk = chunkSize * chunkSize * chunkSize;
 
 		struct ChunkVertex {
-			Point3i _voxelPosition;
+			Point3i voxelPosition;
 
 			ChunkVertex() {}
 			ChunkVertex(const Point3i &p) {
-				_voxelPosition = p;
+				voxelPosition = p;
 			}
 
 			size_t operator()(const ChunkVertex &set) const {
-				return static_cast<size_t>(_voxelPosition.x ^ _voxelPosition.y ^ _voxelPosition.z);
+				return static_cast<size_t>(voxelPosition.x ^ voxelPosition.y ^ voxelPosition.z);
 			}
 
 			bool operator==(const ChunkVertex &other) const {
-				return _voxelPosition == other._voxelPosition;
+				return voxelPosition == other.voxelPosition;
 			}
 		};
 
 		struct ChunkFace {
-			voxelChunkMeshIndexType _i0, _i1, _i2, _i3, _i4, _i5;
+			voxelChunkMeshIndexType i0, i1, i2, i3, i4, i5;
 
 			ChunkFace() {}
 			ChunkFace(voxelChunkMeshIndexType qi0, voxelChunkMeshIndexType qi1, voxelChunkMeshIndexType qi2, voxelChunkMeshIndexType qi3)
-				: _i0(qi0), _i1(qi1), _i2(qi2), _i3(qi0), _i4(qi2), _i5(qi3)
+				: i0(qi0), i1(qi1), i2(qi2), i3(qi0), i4(qi2), i5(qi3)
 			{}
 
 			void indexQuad(voxelChunkMeshIndexType qi0, voxelChunkMeshIndexType qi1, voxelChunkMeshIndexType qi2, voxelChunkMeshIndexType qi3) {
-				_i0 = qi0;
-				_i1 = qi1;
-				_i2 = qi2;
-				_i3 = qi0;
-				_i4 = qi2;
-				_i5 = qi3;
+				i0 = qi0;
+				i1 = qi1;
+				i2 = qi2;
+				i3 = qi0;
+				i4 = qi2;
+				i5 = qi3;
 			}
 		};
 
 		struct Vertex {
-			Vec3f _position;
-			Vec3f _normal;
+			Vec3f position;
+			Vec3f normal;
 
 			Vertex()
-				: _normal(0.0f, 0.0f, 0.0f)
+				: normal(0.0f, 0.0f, 0.0f)
 			{}
 
 			Vertex(const Vec3f &position)
-				: _position(position), _normal(0.0f, 0.0f, 0.0f)
+				: position(position), normal(0.0f, 0.0f, 0.0f)
 			{}
 
 			Vertex(const Vec3f &position, const Vec3f &normal)
-				: _position(position), _normal(normal)
+				: position(position), normal(normal)
 			{}
 		};
 
 		struct LOD {
-			VBO _vertices;
-			VBO _indices;
+			VBO vertices;
+			VBO indices;
 
-			size_t _numVertices;
-			size_t _numFaceIndices;
-			size_t _numIndices;
+			size_t numVertices;
+			size_t numFaceIndices;
+			size_t numIndices;
 
-			bool _empty;
+			bool empty;
 		};
 		
 		struct SharedData {
-			bool _empty;
+			bool empty;
 
-			std::vector<LOD> _lods;
+			std::vector<LOD> lods;
 
-			std::array<voxelType, _voxelsPerChunk> _matrix;
+			std::array<voxelType, voxelsPerChunk> matrix;
 
 			SharedData()
-				: _empty(false)
+				: empty(false)
 			{}
 		};
 
 	private:
 		// Physics
-		std::shared_ptr<btTriangleMesh> _pTriangleMesh;
-		std::shared_ptr<btBvhTriangleMeshShape> _pMeshShape;
-		std::shared_ptr<btDefaultMotionState> _pMotionState;
-		std::shared_ptr<btRigidBody> _pRigidBody;
+		std::shared_ptr<btTriangleMesh> pTriangleMesh;
+		std::shared_ptr<btBvhTriangleMeshShape> pMeshShape;
+		std::shared_ptr<btDefaultMotionState> pMotionState;
+		std::shared_ptr<btRigidBody> pRigidBody;
 
-		std::shared_ptr<SharedData> _sharedData;
+		std::shared_ptr<SharedData> sharedData;
 
-		SceneObjectRef _voxelTerrain;
-		SceneObjectRef _physicsWorld;
+		SceneObjectRef voxelTerrain;
+		SceneObjectRef physicsWorld;
 
-		Point3i _centerRelativePosition;
+		Point3i centerRelativePosition;
 
 		void addVertex(const Point3i &center, int lod,
 			unsigned char vertIndex, std::unordered_map<ChunkVertex, voxelChunkMeshIndexType, ChunkVertex> &positionToIndex,
@@ -131,19 +131,19 @@ namespace pge {
 		}
 
 		const Point3i &getCenterRelativePosition() const {
-			return _centerRelativePosition;
+			return centerRelativePosition;
 		}
 
 		voxelType getVoxel(const Point3i &position) {
-			assert(_sharedData != nullptr);
+			assert(sharedData != nullptr);
 
-			return _sharedData->_matrix[position.x + position.y * _chunkSize + position.z * _chunkSize * _chunkSize];
+			return sharedData->matrix[position.x + position.y * chunkSize + position.z * chunkSize * chunkSize];
 		}
 
 		void setVoxel(const Point3i &position, voxelType value) {
-			assert(_sharedData != nullptr);
+			assert(sharedData != nullptr);
 
-			_sharedData->_matrix[position.x + position.y * _chunkSize + position.z * _chunkSize * _chunkSize] = value;
+			sharedData->matrix[position.x + position.y * chunkSize + position.z * chunkSize * chunkSize] = value;
 		}
 
 		void updateChunkAABB();

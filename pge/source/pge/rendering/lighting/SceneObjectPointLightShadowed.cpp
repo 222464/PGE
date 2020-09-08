@@ -1,107 +1,107 @@
-#include <pge/rendering/lighting/SceneObjectPointLightShadowed.h>
+#include "SceneObjectPointLightShadowed.h"
 
 using namespace pge;
 
 SceneObjectPointLightShadowed::SceneObjectPointLightShadowed()
-: _position(0.0f, 0.0f, 0.0f),
-_color(1.0f, 1.0f, 1.0f),
-_range(1.0f),
-_shadowMapZNear(0.01f),
-_needsUniformBufferUpdate(true),
-_enabled(true)
+: position(0.0f, 0.0f, 0.0f),
+color(1.0f, 1.0f, 1.0f),
+range(1.0f),
+shadowMapZNear(0.01f),
+needsUniformBufferUpdate(true),
+enabled(true)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 
-	_aabb._lowerBound = Vec3f(-1.0f, -1.0f, -1.0f);
-	_aabb._lowerBound = Vec3f(1.0f, 1.0f, 1.0f);
+	aabb.lowerBound = Vec3f(-1.0f, -1.0f, -1.0f);
+	aabb.lowerBound = Vec3f(1.0f, 1.0f, 1.0f);
 
-	_aabb.calculateHalfDims();
-	_aabb.calculateCenter();
+	aabb.calculateHalfDims();
+	aabb.calculateCenter();
 
-	_updateFaces.fill(true);
+	updateFaces.fill(true);
 
-	_faceObjects.reset(new std::array<std::vector<AABB3D>, 6>());
+	faceObjects.reset(new std::array<std::vector<AABB3D>, 6>());
 }
 
 void SceneObjectPointLightShadowed::create(SceneObjectLighting* pLighting, unsigned int size) {
-	_lighting = pLighting;
+	lighting = pLighting;
 
-	_uniformBuffer.reset(new VBO());
-	_uniformBuffer->create();
+	uniformBuffer.reset(new VBO());
+	uniformBuffer->create();
 
-	pLighting->_pointLightShadowedLightUBOShaderInterface->setUpBuffer(*_uniformBuffer);
+	pLighting->pointLightShadowedLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
 
-	_cubeMap.reset(new CubeMapDepthRT());
-	_cubeMap->create(size, CubeMapDepthRT::_16);
+	cubeMap.reset(new CubeMapDepthRT());
+	cubeMap->create(size, CubeMapDepthRT::_16);
 
 	updateUniformBuffer();
 }
 
 void SceneObjectPointLightShadowed::setPosition(const Vec3f &position) {
-	_position = position;
+	this->position = position;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 
-	_aabb.setCenter(position);
+	aabb.setCenter(position);
 
-	_updateFaces.fill(true);
+	updateFaces.fill(true);
 
 	updateAABB();
 }
 
 void SceneObjectPointLightShadowed::setColor(const Vec3f &color) {
-	_color = color;
+	this->color = color;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectPointLightShadowed::setRange(float range) {
-	_range = range;
+	this->range = range;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 
-	_aabb.setHalfDims(Vec3f(_range, _range, _range));
+	aabb.setHalfDims(Vec3f(range, range, range));
 
-	_updateFaces.fill(true);
+	updateFaces.fill(true);
 
 	updateAABB();
 }
 
 void SceneObjectPointLightShadowed::updateUniformBuffer() {
-	_uniformBuffer->bind(GL_UNIFORM_BUFFER);
+	uniformBuffer->bind(GL_UNIFORM_BUFFER);
 
-	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(_lighting.get());
+	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-	pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformv3f("pgePointLightPosition", getRenderScene()->_renderCamera.getViewMatrix() * _position);
-	pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformmat4("pgeToLightSpace", Matrix4x4f::translateMatrix(-_position) * getRenderScene()->_renderCamera.getViewInverseMatrix());
+	pLighting->pointLightShadowedLightUBOShaderInterface->setUniformv3f("pgePointLightPosition", getRenderScene()->renderCamera.getViewMatrix() * position);
+	pLighting->pointLightShadowedLightUBOShaderInterface->setUniformmat4("pgeToLightSpace", Matrix4x4f::translateMatrix(-position) * getRenderScene()->renderCamera.getViewInverseMatrix());
 
-	if (_needsUniformBufferUpdate) {
-		pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformv3f("pgePointLightColor", _color);
-		pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformf("pgePointLightRange", _range);
-		pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformf("pgePointLightRangeInv", 1.0f / _range);
+	if (needsUniformBufferUpdate) {
+		pLighting->pointLightShadowedLightUBOShaderInterface->setUniformv3f("pgePointLightColor", color);
+		pLighting->pointLightShadowedLightUBOShaderInterface->setUniformf("pgePointLightRange", range);
+		pLighting->pointLightShadowedLightUBOShaderInterface->setUniformf("pgePointLightRangeInv", 1.0f / range);
 
-		float zNear = _shadowMapZNear;
-		float zFar = _range;
+		float zNear = shadowMapZNear;
+		float zFar = range;
 		float nearMinusFar = zNear - zFar;
 		float proj22 = (zNear + zFar) / nearMinusFar;
 		float proj23 = (2.0f * zNear * zFar) / nearMinusFar;
 
-		pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformf("pgeProj22", proj22);
-		pLighting->_pointLightShadowedLightUBOShaderInterface->setUniformf("pgeProj23", proj23);
+		pLighting->pointLightShadowedLightUBOShaderInterface->setUniformf("pgeProj22", proj22);
+		pLighting->pointLightShadowedLightUBOShaderInterface->setUniformf("pgeProj23", proj23);
 
-		_needsUniformBufferUpdate = false;
+		needsUniformBufferUpdate = false;
 	}
 }
 
 void SceneObjectPointLightShadowed::preRender() {
-	if (_enabled) {
+	if (enabled) {
 		// Check which faces need updates
 		std::array<std::vector<AABB3D>, 6> newFaceObjects;
 
 		bool needsUpdate = false;
 
 		for (unsigned char i = 0; i < 6; i++) {
-			Camera c = _cubeMap->getCamera(i, _position, _shadowMapZNear, _range);
+			Camera c = cubeMap->getCamera(i, position, shadowMapZNear, range);
 
 			std::vector<SceneObjectRef> visible;
 
@@ -112,16 +112,16 @@ void SceneObjectPointLightShadowed::preRender() {
 			for (size_t j = 0; j < visible.size(); j++)
 				newFaceObjects[i][j] = visible[j]->getAABB();
 
-			if (newFaceObjects[i].size() != (*_faceObjects)[i].size()) {
-				_updateFaces[i] = true;
+			if (newFaceObjects[i].size() != (*faceObjects)[i].size()) {
+				updateFaces[i] = true;
 
 				needsUpdate = true;
 			}
 			else {
 				for (size_t j = 0; j < visible.size(); j++) {
 					// Check for equality with previous
-					if (newFaceObjects[i][j] != (*_faceObjects)[i][j]) {
-						_updateFaces[i] = true;
+					if (newFaceObjects[i][j] != (*faceObjects)[i][j]) {
+						updateFaces[i] = true;
 
 						needsUpdate = true;
 
@@ -131,35 +131,35 @@ void SceneObjectPointLightShadowed::preRender() {
 			}
 		}
 
-		(*_faceObjects) = newFaceObjects;
+		(*faceObjects) = newFaceObjects;
 
 		// ---------------------------- Render to Shadow Map ----------------------------
 
 		if (needsUpdate) {
-			SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(_lighting.get());
+			SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-			getRenderScene()->useShader(pLighting->_depthRenderShader.get());
+			getRenderScene()->useShader(pLighting->depthRenderShader.get());
 
-			getRenderScene()->_shaderSwitchesEnabled = false;
-			getRenderScene()->_renderingShadows = true;
+			getRenderScene()->shaderSwitchesEnabled = false;
+			getRenderScene()->renderingShadows = true;
 
-			_cubeMap->bind();
-			_cubeMap->setViewport();
+			cubeMap->bind();
+			cubeMap->setViewport();
 
 			glClearDepth(1.0f);
 
 			for (size_t i = 0; i < 6; i++)
-			if (_updateFaces[i]) {
-				_cubeMap->renderFace(getRenderScene(), _position, i, _shadowMapZNear, _range, _range);
+			if (updateFaces[i]) {
+				cubeMap->renderFace(getRenderScene(), position, i, shadowMapZNear, range, range);
 
-				_updateFaces[i] = false;
+				updateFaces[i] = false;
 			}
 
 			Shader::unbind();
 			CubeMapDepthRT::unbind();
 
-			getRenderScene()->_shaderSwitchesEnabled = true;
-			getRenderScene()->_renderingShadows = false;
+			getRenderScene()->shaderSwitchesEnabled = true;
+			getRenderScene()->renderingShadows = false;
 
 			PGE_GL_ERROR_CHECK();
 		}
@@ -167,10 +167,10 @@ void SceneObjectPointLightShadowed::preRender() {
 }
 
 void SceneObjectPointLightShadowed::deferredRender() {
-	if (_enabled && !getRenderScene()->_renderingShadows && getRenderScene()->_shaderSwitchesEnabled)
-		static_cast<SceneObjectLighting*>(_lighting.get())->_shadowedPointLights.push_back(*this);
+	if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
+		static_cast<SceneObjectLighting*>(lighting.get())->shadowedPointLights.push_back(*this);
 }
 
 void SceneObjectPointLightShadowed::setShadowMap(Shader* pShader) {
-	pShader->setShaderTexture("pgeShadowMap", _cubeMap->getDepthTextureID(), GL_TEXTURE_CUBE_MAP);
+	pShader->setShaderTexture("pgeShadowMap", cubeMap->getDepthTextureID(), GL_TEXTURE_CUBE_MAP);
 }

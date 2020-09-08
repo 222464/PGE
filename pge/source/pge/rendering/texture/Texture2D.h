@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
-#include <pge/assetmanager/Asset.h>
+#include "../../assetmanager/Asset.h"
 
 #include <string>
 
@@ -11,11 +11,11 @@
 namespace pge {
 	class Texture2D : public Asset {
 	private:
-		GLuint _textureID;
+		GLuint textureID;
 
-		sf::Texture _texture;
+		sf::Texture texture;
 
-		std::unique_ptr<sf::Image> _image;
+		std::unique_ptr<sf::Image> image;
 
 	public:
 		// Inherited from the Asset
@@ -24,34 +24,34 @@ namespace pge {
 		void genMipMaps();
 
 		void discardSoftwareImage() {
-			_image.reset();
+			image.reset();
 		}
 
 		sf::Image* getImage() {
-			if (_image == nullptr)
-				_image.reset(new sf::Image(_texture.copyToImage()));
+			if (image == nullptr)
+				image.reset(new sf::Image(texture.copyToImage()));
 			
-			return _image.get();
+			return image.get();
 		}
 
 		void bind() const {
-			sf::Texture::bind(&_texture);
+			sf::Texture::bind(&texture);
 		}
 
 		unsigned int getWidth() const {
-			return _texture.getSize().x;
+			return texture.getSize().x;
 		}
 
 		unsigned int getHeight() const {
-			return _texture.getSize().y;
+			return texture.getSize().y;
 		}
 
 		GLuint getTextureID() const {
-			return _textureID;
+			return textureID;
 		}
 
 		const sf::Texture &getTexture() const {
-			return _texture;
+			return texture;
 		}
 
 		// Asset factory

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
-#include <pge/assetmanager/Asset.h>
+#include "../../assetmanager/Asset.h"
 
 #include <array>
 
@@ -11,9 +11,9 @@
 namespace pge {
 	class TextureCube : public Asset {
 	private:
-		GLuint _textureID;
+		GLuint textureID;
 
-		unsigned int _size;
+		unsigned int size;
 
 	public:
 		// Inherited from the Asset
@@ -22,15 +22,15 @@ namespace pge {
 		void genMipMaps();
 
 		void bind() const {
-			glBindTexture(GL_TEXTURE_CUBE_MAP, _textureID);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 		}
 
 		unsigned int getSize() const {
-			return _size;
+			return size;
 		}
 
 		GLuint getTextureID() const {
-			return _textureID;
+			return textureID;
 		}
 
 		// Asset factory

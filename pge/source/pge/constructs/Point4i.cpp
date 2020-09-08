@@ -1,4 +1,4 @@
-#include <pge/constructs/Point4i.h>
+#include "Point4i.h"
 
 using namespace pge;
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../../scene/Scene.h"
 
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 
-#include <pge/physics/BulletConversions.h>
+#include "../../physics/BulletConversions.h"
 
 #include <BulletDynamics/ConstraintSolver/btNNCGConstraintSolver.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
@@ -13,18 +13,18 @@
 namespace pge {
 	class SceneObjectPhysicsWorld : public pge::SceneObject {
 	public:
-		int _steps;
-		int _subSteps;
+		int steps;
+		int subSteps;
 
-		std::shared_ptr<btBroadphaseInterface> _pBroadphase;
-		std::shared_ptr<btDefaultCollisionConfiguration> _pCollisionConfiguration;
-		std::shared_ptr<btCollisionDispatcher> _pDispatcher;
+		std::shared_ptr<btBroadphaseInterface> pBroadphase;
+		std::shared_ptr<btDefaultCollisionConfiguration> pCollisionConfiguration;
+		std::shared_ptr<btCollisionDispatcher> pDispatcher;
 
-		std::shared_ptr<btNNCGConstraintSolver> _pSolver;
+		std::shared_ptr<btNNCGConstraintSolver> pSolver;
 
-		std::shared_ptr<btDiscreteDynamicsWorld> _pDynamicsWorld;
+		std::shared_ptr<btDiscreteDynamicsWorld> pDynamicsWorld;
 
-		std::shared_ptr<btGhostPairCallback> _pGhostPairCallBack;
+		std::shared_ptr<btGhostPairCallback> pGhostPairCallBack;
 
 		SceneObjectPhysicsWorld();
 

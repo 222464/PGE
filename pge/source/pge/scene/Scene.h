@@ -1,74 +1,74 @@
 #pragma once
 
-#include <pge/scene/State.h>
+#include "State.h"
 
-#include <pge/assetmanager/AssetManager.h>
+#include "../assetmanager/AssetManager.h"
 
-#include <pge/rendering/Camera.h>
-#include <pge/rendering/octree/DynamicOctree.h>
+#include "../rendering/Camera.h"
+#include "../rendering/octree/DynamicOctree.h"
 
-#include <pge/system/ThreadPool.h>
+#include "../system/ThreadPool.h"
 
 #include <random>
 
 namespace pge {
 	// For sorting by object layer
 	static bool compare(const SceneObjectRef &sceneObject1, const SceneObjectRef &sceneObject2) {
-		return sceneObject1->_layer < sceneObject2->_layer;
+		return sceneObject1->layer < sceneObject2->layer;
 	}
 
 	class Scene : public Uncopyable {
 	protected:
 		struct ObjectAddData {
-			bool _octreeManaged;
-			std::shared_ptr<SceneObject> _object;
+			bool octreeManaged;
+			std::shared_ptr<SceneObject> object;
 
 			ObjectAddData() {}
 			ObjectAddData(bool octreeManaged, const std::shared_ptr<SceneObject> &object)
-				: _octreeManaged(octreeManaged), _object(object)
+				: octreeManaged(octreeManaged), object(object)
 			{}
 		};
 
 		struct NamedObjectAddData {
-			std::string _name;
-			bool _octreeManaged;
-			std::shared_ptr<SceneObject> _object;
+			std::string name;
+			bool octreeManaged;
+			std::shared_ptr<SceneObject> object;
 
 			NamedObjectAddData() {}
 			NamedObjectAddData(const std::string &name, bool octreeManaged, const std::shared_ptr<SceneObject> &object)
-				: _name(name), _octreeManaged(octreeManaged), _object(object)
+				: name(name), octreeManaged(octreeManaged), object(object)
 			{}
 		};
 
-		std::unique_ptr<State> _currentState;
-		std::unique_ptr<State> _nextState;
+		std::unique_ptr<State> currentState;
+		std::unique_ptr<State> nextState;
 
-		std::vector<ObjectAddData> _objectsToAdd;
-		std::vector<NamedObjectAddData> _namedObjectsToAdd;
+		std::vector<ObjectAddData> objectsToAdd;
+		std::vector<NamedObjectAddData> namedObjectsToAdd;
 	
-		ThreadPool _threadPool;
-		std::vector<std::unique_ptr<void*>> _workerData;
+		ThreadPool threadPool;
+		std::vector<std::unique_ptr<void*>> workerData;
 
-		std::unordered_map<std::string, std::unique_ptr<AssetManager>> _assetManagers;
+		std::unordered_map<std::string, std::unique_ptr<AssetManager>> assetManagers;
 
-		std::unordered_map<std::string, std::unordered_set<SceneObjectRef, SceneObjectRef>> _namedObjects;
+		std::unordered_map<std::string, std::unordered_set<SceneObjectRef, SceneObjectRef>> namedObjects;
 
 	public:
-		unsigned short _logicMask;
-		unsigned short _renderMask;
+		unsigned short logicMask;
+		unsigned short renderMask;
 
-		bool _close;
+		bool close;
 
-		Camera _logicCamera;
+		Camera logicCamera;
 
-		DynamicOctree _octree;
+		DynamicOctree octree;
 
-		std::vector<SceneObjectRef> _visible;
+		std::vector<SceneObjectRef> visible;
 
-		std::mt19937 _randomGenerator;
+		std::mt19937 randomGenerator;
 
 		Scene()
-			: _logicMask(0xffff), _renderMask(0xffff), _close(false)
+			: logicMask(0xffff), renderMask(0xffff), close(false)
 		{}
 
 		virtual ~Scene();
@@ -93,31 +93,31 @@ namespace pge {
 		std::unordered_set<SceneObjectRef, SceneObjectRef> getAllNamedCheckQueue(const std::string &name);
 
 		AssetManager* getAssetManager(const std::string &name) {
-			return _assetManagers[name].get();
+			return assetManagers[name].get();
 		}
 
 		AssetManager* getAssetManager(const std::string &name, Asset* (*assetFactory)());
 
 		SceneObject* getCurrentSceneObject(size_t index) {
-			if (_currentState == nullptr)
+			if (currentState == nullptr)
 				return nullptr;
 
-			return _currentState->_sceneObjects[index].get();
+			return currentState->sceneObjects[index].get();
 		}
 
 		SceneObject* getNextSceneObject(size_t index) {
-			if (_nextState == nullptr)
+			if (nextState == nullptr)
 				return nullptr;
 
-			return _nextState->_sceneObjects[index].get();
+			return nextState->sceneObjects[index].get();
 		}
 
 		size_t getNumWorkers() const {
-			return _threadPool.getNumWorkers();
+			return threadPool.getNumWorkers();
 		}
 
 		std::unique_ptr<void*> &getWorkerData(size_t index) {
-			return _workerData[index];
+			return workerData[index];
 		}
 	};
 }

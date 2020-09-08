@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/rendering/octree/Octree.h>
+#include "Octree.h"
 
 namespace pge {
 	class StaticOctree : public Octree
@@ -8,7 +8,7 @@ namespace pge {
 	public:
 		StaticOctree() {}
 		StaticOctree(const AABB3D &rootRegion) {
-			_pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
+			pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
 		}
 
 		StaticOctree(const StaticOctree &other) {
@@ -20,22 +20,22 @@ namespace pge {
 		}
 
 		void create(const AABB3D &rootRegion) {
-			_pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
+			pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
 		}
 
 		// Inherited from Octree
 		void add(const SceneObjectRef &oc);
 
 		void clear() {
-			_pRootNode.reset();
+			pRootNode.reset();
 		}
 
 		const AABB3D &getRootRegion() const {
-			return _pRootNode->getRegion();
+			return pRootNode->getRegion();
 		}
 
 		bool created() const {
-			return _pRootNode != nullptr;
+			return pRootNode != nullptr;
 		}
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
+#include "Vec3f.h"
 
 namespace pge {
 	class PlaneEquationf {

@@ -1,37 +1,37 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/lighting/SceneObjectLighting.h>
+#include "SceneObjectLighting.h"
 
-#include <pge/rendering/bufferobjects/CubeMapDepthRT.h>
+#include "../bufferobjects/CubeMapDepthRT.h"
 
-#include <pge/constructs/Vec3f.h>
+#include "../../constructs/Vec3f.h"
 
 namespace pge {
 	class SceneObjectPointLightShadowed : public SceneObject {
 	private:
-		SceneObjectRef _lighting;
+		SceneObjectRef lighting;
 
-		Vec3f _position;
-		Vec3f _color;
+		Vec3f position;
+		Vec3f color;
 
-		float _range;
+		float range;
 
-		std::shared_ptr<VBO> _uniformBuffer;
+		std::shared_ptr<VBO> uniformBuffer;
 
-		std::shared_ptr<CubeMapDepthRT> _cubeMap;
+		std::shared_ptr<CubeMapDepthRT> cubeMap;
 
-		std::shared_ptr<std::array<std::vector<AABB3D>, 6>> _faceObjects;
+		std::shared_ptr<std::array<std::vector<AABB3D>, 6>> faceObjects;
 
-		bool _needsUniformBufferUpdate;
+		bool needsUniformBufferUpdate;
 
 	public:
-		bool _enabled;
+		bool enabled;
 		
-		std::array<bool, 6> _updateFaces;
+		std::array<bool, 6> updateFaces;
 
-		float _shadowMapZNear;
+		float shadowMapZNear;
 
 		SceneObjectPointLightShadowed();
 
@@ -46,21 +46,21 @@ namespace pge {
 		void setRange(float range);
 
 		const Vec3f &getPosition() const {
-			return _position;
+			return position;
 		}
 
 		const Vec3f &getColor() const {
-			return _color;
+			return color;
 		}
 
 		float getRange() const {
-			return _range;
+			return range;
 		}
 
 		void updateUniformBuffer();
 
 		void setTransform(RenderScene* pRenderScene) {
-			pRenderScene->setTransform(Matrix4x4f::translateMatrix(_position) * Matrix4x4f::scaleMatrix(Vec3f(_range, _range, _range)));
+			pRenderScene->setTransform(Matrix4x4f::translateMatrix(position) * Matrix4x4f::scaleMatrix(Vec3f(range, range, range)));
 		}
 
 		SceneObject* copyFactory() {

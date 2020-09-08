@@ -1,24 +1,24 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../scene/Scene.h"
 
-#include <pge/constructs/Matrix4x4f.h>
+#include "../constructs/Matrix4x4f.h"
 
-#include <pge/rendering/model/StaticModelOBJ.h>
+#include "../rendering/model/StaticModelOBJ.h"
 
 #include <iostream>
 
 class SceneObjectProp : public pge::SceneObject {
 private:
-	pge::StaticModelOBJ* _pModelOBJ;
+	pge::StaticModelOBJ* pModelOBJ;
 
-	pge::SceneObjectRef _batcherRef;
+	pge::SceneObjectRef batcherRef;
 
 public:
-	pge::Matrix4x4f _transform;
+	pge::Matrix4x4f transform;
 
 	SceneObjectProp() {
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create(const std::string &fileName);
@@ -30,7 +30,7 @@ public:
 	void deferredRender();
 
 	pge::StaticModelOBJ* getModel() {
-		return _pModelOBJ;
+		return pModelOBJ;
 	}
 
 	SceneObject* copyFactory() {

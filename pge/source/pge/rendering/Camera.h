@@ -1,78 +1,78 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
-#include <pge/rendering/culling/Frustum.h>
+#include "SFMLOGL.h"
+#include "culling/Frustum.h"
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Quaternion.h>
-#include <pge/constructs/Matrix4x4f.h>
+#include "../constructs/Vec3f.h"
+#include "../constructs/Quaternion.h"
+#include "../constructs/Matrix4x4f.h"
 
 namespace pge {
 	class Camera {
 	private:
-		Matrix4x4f _viewMatrix;
-		Matrix4x4f _viewInverseMatrix;
-		Matrix4x4f _projectionViewMatrix;
-		Matrix4x4f _projectionViewInverseMatrix;
+		Matrix4x4f viewMatrix;
+		Matrix4x4f viewInverseMatrix;
+		Matrix4x4f projectionViewMatrix;
+		Matrix4x4f projectionViewInverseMatrix;
 
-		Matrix3x3f _normalMatrix;
+		Matrix3x3f normalMatrix;
 
 	public:
-		Frustum _frustum;
+		Frustum frustum;
 
-		Matrix4x4f _projectionMatrix;
+		Matrix4x4f projectionMatrix;
 
-		Vec3f _position;
-		Quaternion _rotation;
+		Vec3f position;
+		Quaternion rotation;
 
 		Camera()
-			: _position(0.0f, 0.0f, 0.0f), _rotation(Quaternion::identityMult())
+			: position(0.0f, 0.0f, 0.0f), rotation(Quaternion::identityMult())
 		{
 			fullUpdate();
 		}
 
 		void updateViewMatrix() {
-			_viewMatrix = _rotation.getMatrix() * Matrix4x4f::translateMatrix(-_position);
+			viewMatrix = rotation.getMatrix() * Matrix4x4f::translateMatrix(-position);
 		}
 
 		void updateViewInverseMatrix() {
-			_viewMatrix.inverse(_viewInverseMatrix);
+			viewMatrix.inverse(viewInverseMatrix);
 		}
 
 		void updateProjectionViewMatrix() {
-			_projectionViewMatrix = _projectionMatrix * _viewMatrix;
+			projectionViewMatrix = projectionMatrix * viewMatrix;
 		}
 
 		void updateProjectionViewInverseMatrix() {
-			_projectionViewMatrix.inverse(_projectionViewInverseMatrix);
+			projectionViewMatrix.inverse(projectionViewInverseMatrix);
 		}
 
 		void updateNormalMatrix() {
 			Matrix3x3f upperLeftSubmatrixInverse;
 
-			_viewMatrix.getUpperLeftMatrix3x3f().inverse(upperLeftSubmatrixInverse);
+			viewMatrix.getUpperLeftMatrix3x3f().inverse(upperLeftSubmatrixInverse);
 
-			_normalMatrix = upperLeftSubmatrixInverse.transpose();
+			normalMatrix = upperLeftSubmatrixInverse.transpose();
 		}
 
 		const Matrix4x4f &getViewMatrix() const {
-			return _viewMatrix;
+			return viewMatrix;
 		}
 
 		const Matrix4x4f &getViewInverseMatrix() const {
-			return _viewInverseMatrix;
+			return viewInverseMatrix;
 		}
 
 		const Matrix4x4f &getProjectionViewMatrix() const {
-			return _projectionViewMatrix;
+			return projectionViewMatrix;
 		}
 
 		const Matrix4x4f &getProjectionViewInverseMatrix() const {
-			return _projectionViewInverseMatrix;
+			return projectionViewInverseMatrix;
 		}
 
 		const Matrix3x3f &getNormalMatrix() const {
-			return _normalMatrix;
+			return normalMatrix;
 		}
 
 		void extractFrustum();

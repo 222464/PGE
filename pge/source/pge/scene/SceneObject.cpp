@@ -1,50 +1,50 @@
-#include <pge/scene/SceneObject.h>
+#include "SceneObject.h"
 
-#include <pge/scene/RenderScene.h>
+#include "RenderScene.h"
 
 using namespace pge;
 
 SceneObject::SceneObject()
-: _aabb(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(1.0f, 1.0f, 1.0f)),
-_pOctreeNode(nullptr), _pOctree(nullptr),
-_pScene(nullptr), _indexPlusOne(0), _layer(0.0f),
-_logicMask(0xffff), _renderMask(0x0000),
-_tag(""), _needsTreeUpdate(false),
-_syncable(false), _shouldDestroy(false),
-_mutex(new std::recursive_mutex())
+: aabb(Vec3f(0.0f, 0.0f, 0.0f), Vec3f(1.0f, 1.0f, 1.0f)),
+pOctreeNode(nullptr), pOctree(nullptr),
+pScene(nullptr), indexPlusOne(0), layer(0.0f),
+logicMask(0xffff), renderMask(0x0000),
+tag(""), needsTreeUpdate(false),
+syncable(false), shouldDestroyFlag(false),
+mutex(new std::recursive_mutex())
 {}
 
 RenderScene* SceneObject::getRenderScene() const {
-	return static_cast<RenderScene*>(_pScene);
+	return static_cast<RenderScene*>(pScene);
 }
 
 void SceneObject::treeUpdate() {
-	if (_pOctree == nullptr)
+	if (pOctree == nullptr)
 		return;
 
-	std::unique_lock<std::recursive_mutex> lock(_pOctree->_mutex);
+	std::unique_lock<std::recursive_mutex> lock(pOctree->mutex);
 
-	if (_pOctreeNode == nullptr) {
+	if (pOctreeNode == nullptr) {
 		// Not in a node, should be outside root then
 
 		// If fits in the root now, add it
-		OctreeNode* pRootNode = _pOctree->_pRootNode.get();
+		OctreeNode* pRootNode = pOctree->pRootNode.get();
 
-		if (pRootNode->_region.contains(_aabb))
+		if (pRootNode->region.contains(aabb))
 			pRootNode->add(SceneObjectRef(this));
 	}
 	else
-		_pOctreeNode->update(SceneObjectRef(this));
+		pOctreeNode->update(SceneObjectRef(this));
 }
 
 void SceneObject::removeReferences() {
-	std::unique_lock<std::recursive_mutex> lock(*_mutex);
+	std::unique_lock<std::recursive_mutex> lock(*mutex);
 
 	// Nullify all references to this. Must copy since the references list will be modified when removing
-	std::unordered_set<SceneObjectRef*> pReferencesCopy = _pReferences;
+	std::unordered_set<SceneObjectRef*> pReferencesCopy = pReferences;
 
 	for (SceneObjectRef* pRef : pReferencesCopy)
 		*pRef = nullptr;
 
-	_pReferences.clear();
+	pReferences.clear();
 }

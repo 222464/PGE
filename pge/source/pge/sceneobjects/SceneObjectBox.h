@@ -1,24 +1,24 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
+#include "../scene/RenderScene.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "SceneObjectProp.h"
+#include "physics/SceneObjectPhysicsWorld.h"
 
 class SceneObjectBox : public pge::SceneObject {
 private:
 	// Rendering
-	pge::StaticModelOBJ* _pModelOBJ;
+	pge::StaticModelOBJ* pModelOBJ;
 
 	// Physics
-	pge::SceneObjectRef _physicsWorld;
+	pge::SceneObjectRef physicsWorld;
 
-	std::shared_ptr<btCollisionShape> _pCollisionShape;
-	std::shared_ptr<btDefaultMotionState> _pMotionState;
-	std::shared_ptr<btRigidBody> _pRigidBody;
+	std::shared_ptr<btCollisionShape> pCollisionShape;
+	std::shared_ptr<btDefaultMotionState> pMotionState;
+	std::shared_ptr<btRigidBody> pRigidBody;
 public:
 	SceneObjectBox() {
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create(const std::string &modelFileName, const pge::Vec3f &startPosition, const pge::Quaternion &startRotation, float mass, float restitution, float friction);
@@ -30,7 +30,7 @@ public:
 	void onDestroy();
 
 	void setPosition(const pge::Vec3f &position) {
-		_pRigidBody->getWorldTransform().setOrigin(bt(position));
+		pRigidBody->getWorldTransform().setOrigin(bt(position));
 	}
 
 	SceneObjectBox* copyFactory() {

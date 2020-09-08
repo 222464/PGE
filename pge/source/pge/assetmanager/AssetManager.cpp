@@ -1,23 +1,23 @@
-#include <pge/assetmanager/AssetManager.h>
+#include "AssetManager.h"
 
 #include <assert.h>
 
 using namespace pge;
 
 bool AssetManager::getAsset(const std::string &name) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	assert(_assetFactory != nullptr);
+	assert(assetFactory != nullptr);
 
-	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = _assets.find(name);
+	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = assets.find(name);
 
-	if(it == _assets.end()) {
-		std::shared_ptr<Asset> asset(_assetFactory());
+	if(it == assets.end()) {
+		std::shared_ptr<Asset> asset(assetFactory());
 		
 		if (!asset->createAsset(name))
 			return false;
 
-		_assets[name] = asset;
+		assets[name] = asset;
 
 		return true;
 	}
@@ -26,19 +26,19 @@ bool AssetManager::getAsset(const std::string &name) {
 }
 
 bool AssetManager::getAsset(const std::string &name, std::shared_ptr<Asset> &asset) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	assert(_assetFactory != nullptr);
+	assert(assetFactory != nullptr);
 
-	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = _assets.find(name);
+	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = assets.find(name);
 
-	if(it == _assets.end()) {
-		asset.reset(_assetFactory());
+	if(it == assets.end()) {
+		asset.reset(assetFactory());
 
 		if (!asset->createAsset(name))
 			return false;
 
-		_assets[name] = asset;
+		assets[name] = asset;
 	}
 	else
 		asset = it->second;
@@ -47,19 +47,19 @@ bool AssetManager::getAsset(const std::string &name, std::shared_ptr<Asset> &ass
 }
 
 bool AssetManager::getAsset(const std::string &name, void* pData) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	assert(_assetFactory != nullptr);
+	assert(assetFactory != nullptr);
 
-	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = _assets.find(name);
+	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = assets.find(name);
 
-	if(it == _assets.end()) {
-		std::shared_ptr<Asset> asset(_assetFactory());
+	if(it == assets.end()) {
+		std::shared_ptr<Asset> asset(assetFactory());
 		
 		if (!asset->createAsset(name, pData))
 			return false;
 
-		_assets[name] = asset;
+		assets[name] = asset;
 
 		return true;
 	}
@@ -68,19 +68,19 @@ bool AssetManager::getAsset(const std::string &name, void* pData) {
 }
 
 bool AssetManager::getAsset(const std::string &name, std::shared_ptr<Asset> &asset, void* pData) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	assert(_assetFactory != nullptr);
+	assert(assetFactory != nullptr);
 
-	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = _assets.find(name);
+	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = assets.find(name);
 
-	if(it == _assets.end()) {
-		asset.reset(_assetFactory());
+	if(it == assets.end()) {
+		asset.reset(assetFactory());
 
 		if (!asset->createAsset(name, pData))
 			return false;
 
-		_assets[name] = asset;
+		assets[name] = asset;
 	}
 	else
 		asset = it->second;
@@ -89,10 +89,10 @@ bool AssetManager::getAsset(const std::string &name, std::shared_ptr<Asset> &ass
 }
 
 void AssetManager::destroyAsset(const std::string &name) {
-	std::lock_guard<std::mutex> lock(_mutex);
+	std::lock_guard<std::mutex> lock(mutex);
 
-	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = _assets.find(name);
+	std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator it = assets.find(name);
 
-	if(it != _assets.end())
-		_assets.erase(it);
+	if(it != assets.end())
+		assets.erase(it);
 }

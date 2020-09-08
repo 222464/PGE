@@ -1,6 +1,6 @@
-#include <pge/rendering/material/Material.h>
+#include "Material.h"
 
-#include <pge/util/Functions.h>
+#include "../../util/Functions.h"
 
 #include <fstream>
 #include <sstream>
@@ -9,113 +9,113 @@
 using namespace pge;
 
 Material::Material()
-: _diffuseColor(1.0f, 1.0f, 1.0f), _specularColor(0.0f), _shininess(60.0f), _emissiveColor(0.0f),
-_heightMapScale(0.0625f),
-_pDiffuseMap(nullptr), _pSpecularMap(nullptr), _pShininessMap(nullptr), _pEmissiveMap(nullptr),
-_pNormalMap(nullptr), _pHeightMap(nullptr),
-_type(RenderScene::_standard),
-_refreshUniformBuffer(true)
+: diffuseColor(1.0f, 1.0f, 1.0f), specularColor(0.0f), shininess(60.0f), emissiveColor(0.0f),
+heightMapScale(0.0625f),
+pDiffuseMap(nullptr), pSpecularMap(nullptr), pShininessMap(nullptr), pEmissiveMap(nullptr),
+pNormalMap(nullptr), pHeightMap(nullptr),
+type(RenderScene::standard),
+refreshUniformBufferFlag(true)
 {}
 
 void Material::createUniformBuffer(const UBOShaderInterface &uboShaderInterface) {
-	_uniformBuffer.create();
-	uboShaderInterface.setUpBuffer(_uniformBuffer);
+	uniformBuffer.create();
+	uboShaderInterface.setUpBuffer(uniformBuffer);
 }
 
 void Material::setUniformsBuffer(UBOShaderInterface &uboShaderInterface) {
-	_uniformBuffer.bind(GL_UNIFORM_BUFFER);
+	uniformBuffer.bind(GL_UNIFORM_BUFFER);
 
-	uboShaderInterface.setUniformv3f("pgeDiffuseColor", _diffuseColor);
-	uboShaderInterface.setUniformf("pgeSpecularColor", _specularColor);
-	uboShaderInterface.setUniformf("pgeShininess", _shininess);
-	uboShaderInterface.setUniformf("pgeEmissiveColor", _emissiveColor);
-	uboShaderInterface.setUniformf("pgeHeightMapScale", _heightMapScale);
+	uboShaderInterface.setUniformv3f("pgeDiffuseColor", diffuseColor);
+	uboShaderInterface.setUniformf("pgeSpecularColor", specularColor);
+	uboShaderInterface.setUniformf("pgeShininess", shininess);
+	uboShaderInterface.setUniformf("pgeEmissiveColor", emissiveColor);
+	uboShaderInterface.setUniformf("pgeHeightMapScale", heightMapScale);
 
 	VBO::unbind(GL_UNIFORM_BUFFER);
 }
 
 void Material::setUniforms(Shader* pShader, Texture2D* pWhiteTexture) {
-	pShader->setUniformv3f("pgeDiffuseColor", _diffuseColor);
-	pShader->setUniformf("pgeSpecularColor", _specularColor);
-	pShader->setUniformf("pgeShininess", _shininess);
-	pShader->setUniformf("pgeEmissiveColor", _emissiveColor);
-	pShader->setUniformf("pgeHeightMapScale", _heightMapScale);
+	pShader->setUniformv3f("pgeDiffuseColor", diffuseColor);
+	pShader->setUniformf("pgeSpecularColor", specularColor);
+	pShader->setUniformf("pgeShininess", shininess);
+	pShader->setUniformf("pgeEmissiveColor", emissiveColor);
+	pShader->setUniformf("pgeHeightMapScale", heightMapScale);
 }
 
 void Material::setUniformsTextures(Shader* pShader, Texture2D* pWhiteTexture) {
-	switch (_type) {
-	case RenderScene::_standard:
-		pShader->setShaderTexture("pgeDiffuseMap", _pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : _pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeSpecularMap", _pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : _pSpecularMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeShininessMap", _pShininessMap == nullptr ? pWhiteTexture->getTextureID() : _pShininessMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeEmissiveMap", _pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : _pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
+	switch (type) {
+	case RenderScene::standard:
+		pShader->setShaderTexture("pgeDiffuseMap", pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeSpecularMap", pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : pSpecularMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeShininessMap", pShininessMap == nullptr ? pWhiteTexture->getTextureID() : pShininessMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeEmissiveMap", pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
 
 		break;
 
-	case RenderScene::_normal:
-		pShader->setShaderTexture("pgeDiffuseMap", _pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : _pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeSpecularMap", _pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : _pSpecularMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeShininessMap", _pShininessMap == nullptr ? pWhiteTexture->getTextureID() : _pShininessMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeEmissiveMap", _pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : _pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeNormalMap", _pNormalMap == nullptr ? pWhiteTexture->getTextureID() : _pNormalMap->getTextureID(), GL_TEXTURE_2D);
+	case RenderScene::normal:
+		pShader->setShaderTexture("pgeDiffuseMap", pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeSpecularMap", pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : pSpecularMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeShininessMap", pShininessMap == nullptr ? pWhiteTexture->getTextureID() : pShininessMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeEmissiveMap", pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeNormalMap", pNormalMap == nullptr ? pWhiteTexture->getTextureID() : pNormalMap->getTextureID(), GL_TEXTURE_2D);
 
 		break;
 
-	case RenderScene::_heightNormal:
+	case RenderScene::heightNormal:
 	default:
-		pShader->setShaderTexture("pgeDiffuseMap", _pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : _pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeSpecularMap", _pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : _pSpecularMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeShininessMap", _pShininessMap == nullptr ? pWhiteTexture->getTextureID() : _pShininessMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeEmissiveMap", _pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : _pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeNormalMap", _pNormalMap == nullptr ? pWhiteTexture->getTextureID() : _pNormalMap->getTextureID(), GL_TEXTURE_2D);
-		pShader->setShaderTexture("pgeHeightMap", _pHeightMap == nullptr ? pWhiteTexture->getTextureID() : _pHeightMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeDiffuseMap", pDiffuseMap == nullptr ? pWhiteTexture->getTextureID() : pDiffuseMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeSpecularMap", pSpecularMap == nullptr ? pWhiteTexture->getTextureID() : pSpecularMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeShininessMap", pShininessMap == nullptr ? pWhiteTexture->getTextureID() : pShininessMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeEmissiveMap", pEmissiveMap == nullptr ? pWhiteTexture->getTextureID() : pEmissiveMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeNormalMap", pNormalMap == nullptr ? pWhiteTexture->getTextureID() : pNormalMap->getTextureID(), GL_TEXTURE_2D);
+		pShader->setShaderTexture("pgeHeightMap", pHeightMap == nullptr ? pWhiteTexture->getTextureID() : pHeightMap->getTextureID(), GL_TEXTURE_2D);
 
 		break;
 	}
 }
 
 void Material::bindUniformBuffer(UBOShaderInterface &uboShaderInterface) {
-	if (_refreshUniformBuffer) {
-		if (!_uniformBuffer.created())
+	if (refreshUniformBufferFlag) {
+		if (!uniformBuffer.created())
 			createUniformBuffer(uboShaderInterface);
 
 		setUniformsBuffer(uboShaderInterface);
 
-		_refreshUniformBuffer = false;
+		refreshUniformBufferFlag = false;
 	}
 
-	uboShaderInterface.bindBufferToSetIndex(_uniformBuffer);
+	uboShaderInterface.bindBufferToSetIndex(uniformBuffer);
 }
 
 void Material::updateShaderType() {
-	if (_pNormalMap != nullptr) {
-		if (_pHeightMap != nullptr)
-			_type = RenderScene::_heightNormal;
+	if (pNormalMap != nullptr) {
+		if (pHeightMap != nullptr)
+			type = RenderScene::heightNormal;
 		else
-			_type = RenderScene::_normal;
+			type = RenderScene::normal;
 	}
 	else
-		_type = RenderScene::_standard;
+		type = RenderScene::standard;
 }
 
 void Material::genMipMaps() {
-	if (_pDiffuseMap != nullptr)
-		_pDiffuseMap->genMipMaps();
+	if (pDiffuseMap != nullptr)
+		pDiffuseMap->genMipMaps();
 
-	if (_pSpecularMap != nullptr)
-		_pSpecularMap->genMipMaps();
+	if (pSpecularMap != nullptr)
+		pSpecularMap->genMipMaps();
 
-	if (_pShininessMap != nullptr)
-		_pShininessMap->genMipMaps();
+	if (pShininessMap != nullptr)
+		pShininessMap->genMipMaps();
 
-	if (_pEmissiveMap != nullptr)
-		_pEmissiveMap->genMipMaps();
+	if (pEmissiveMap != nullptr)
+		pEmissiveMap->genMipMaps();
 
-	if (_pNormalMap != nullptr)
-		_pNormalMap->genMipMaps();
+	if (pNormalMap != nullptr)
+		pNormalMap->genMipMaps();
 
-	if (_pHeightMap != nullptr)
-		_pHeightMap->genMipMaps();
+	if (pHeightMap != nullptr)
+		pHeightMap->genMipMaps();
 }
 
 bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureManager, std::vector<Material> &materials) {
@@ -155,7 +155,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 			
-			ss >> pCurrent->_emissiveColor;
+			ss >> pCurrent->emissiveColor;
 		}
 		else if(header == "Kd") {
 			if (pCurrent == nullptr) {
@@ -165,7 +165,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 			
-			ss >> pCurrent->_diffuseColor.x >> pCurrent->_diffuseColor.y >> pCurrent->_diffuseColor.z;
+			ss >> pCurrent->diffuseColor.x >> pCurrent->diffuseColor.y >> pCurrent->diffuseColor.z;
 		}
 		else if(header == "Ks") {
 			if (pCurrent == nullptr) {
@@ -175,7 +175,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 			
-			ss >> pCurrent->_specularColor;
+			ss >> pCurrent->specularColor;
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
@@ -185,7 +185,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_shininess;
+			ss >> pCurrent->shininess;
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
@@ -213,7 +213,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
@@ -241,7 +241,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
@@ -269,7 +269,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pSpecularMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pSpecularMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
@@ -297,7 +297,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pShininessMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pShininessMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
@@ -325,7 +325,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pNormalMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pNormalMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
@@ -353,7 +353,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pHeightMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pHeightMap = static_cast<Texture2D*>(pAsset.get());
 		}
 	}
 
@@ -407,7 +407,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_emissiveColor;
+			ss >> pCurrent->emissiveColor;
 		}
 		else if (header == "Kd") {
 			if (pCurrent == nullptr) {
@@ -417,7 +417,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_diffuseColor.x >> pCurrent->_diffuseColor.y >> pCurrent->_diffuseColor.z;
+			ss >> pCurrent->diffuseColor.x >> pCurrent->diffuseColor.y >> pCurrent->diffuseColor.z;
 		}
 		else if (header == "Ks") {
 			if (pCurrent == nullptr) {
@@ -427,7 +427,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_specularColor;
+			ss >> pCurrent->specularColor;
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
@@ -437,7 +437,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_shininess;
+			ss >> pCurrent->shininess;
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
@@ -465,7 +465,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
@@ -493,7 +493,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
@@ -521,7 +521,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pSpecularMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pSpecularMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
@@ -549,7 +549,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pShininessMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pShininessMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
@@ -577,7 +577,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pNormalMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pNormalMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
@@ -605,7 +605,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pHeightMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pHeightMap = static_cast<Texture2D*>(pAsset.get());
 		}
 	}
 
@@ -659,7 +659,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_emissiveColor;
+			ss >> pCurrent->emissiveColor;
 		}
 		else if (header == "Kd") {
 			if (pCurrent == nullptr) {
@@ -669,7 +669,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_diffuseColor.x >> pCurrent->_diffuseColor.y >> pCurrent->_diffuseColor.z;
+			ss >> pCurrent->diffuseColor.x >> pCurrent->diffuseColor.y >> pCurrent->diffuseColor.z;
 		}
 		else if (header == "Ks") {
 			if (pCurrent == nullptr) {
@@ -679,7 +679,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_specularColor;
+			ss >> pCurrent->specularColor;
 		}
 		else if (header == "Ns") {
 			if (pCurrent == nullptr) {
@@ -689,7 +689,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			ss >> pCurrent->_shininess;
+			ss >> pCurrent->shininess;
 		}
 		else if (header == "map_Ka") {
 			if (pCurrent == nullptr) {
@@ -717,7 +717,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pEmissiveMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Kd") {
 			if (pCurrent == nullptr) {
@@ -745,7 +745,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pDiffuseMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ks") {
 			if (pCurrent == nullptr) {
@@ -773,7 +773,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pSpecularMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pSpecularMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "map_Ki") {
 			if (pCurrent == nullptr) {
@@ -801,7 +801,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pShininessMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pShininessMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "bump" || header == "map_Bump") {
 			if (pCurrent == nullptr) {
@@ -829,7 +829,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pNormalMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pNormalMap = static_cast<Texture2D*>(pAsset.get());
 		}
 		else if (header == "height" || header == "map_Height") {
 			if (pCurrent == nullptr) {
@@ -857,7 +857,7 @@ bool Material::loadFromMTL(const std::string &fileName, AssetManager* pTextureMa
 				return false;
 			}
 
-			pCurrent->_pHeightMap = static_cast<Texture2D*>(pAsset.get());
+			pCurrent->pHeightMap = static_cast<Texture2D*>(pAsset.get());
 		}
 	}
 

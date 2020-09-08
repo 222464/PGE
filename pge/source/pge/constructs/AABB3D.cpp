@@ -1,5 +1,5 @@
-#include <pge/constructs/AABB3D.h>
-#include <pge/constructs/Quaternion.h>
+#include "AABB3D.h"
+#include "Quaternion.h"
 
 #include <limits>
 #include <assert.h>
@@ -7,47 +7,47 @@
 using namespace pge;
 
 AABB3D::AABB3D()
-: _lowerBound(0.0f, 0.0f, 0.0f), _upperBound(1.0f, 1.0f, 1.0f),
-_center(0.5f, 0.5f, 0.5f), _halfDims(0.5f, 0.5f, 0.5f)
+: lowerBound(0.0f, 0.0f, 0.0f), upperBound(1.0f, 1.0f, 1.0f),
+center(0.5f, 0.5f, 0.5f), halfDims(0.5f, 0.5f, 0.5f)
 {}
 
 AABB3D::AABB3D(const Vec3f &lowerBound, const Vec3f &upperBound)
-: _lowerBound(lowerBound), _upperBound(upperBound)
+: lowerBound(lowerBound), upperBound(upperBound)
 {
 	calculateHalfDims();
 	calculateCenter();
 }
 
 void AABB3D::setCenter(const Vec3f &center) {
-	_center = center;
+	this->center = center;
 
 	calculateBounds();
 }
 
 void AABB3D::incCenter(const Vec3f &increment) {
-	_center += increment;
+	center += increment;
 
 	calculateBounds();
 }
 
 void AABB3D::setHalfDims(const Vec3f &halfDims) {
-	_halfDims = halfDims;
+	this->halfDims = halfDims;
 
 	calculateBounds();
 }
 
 bool AABB3D::intersects(const AABB3D &other) const {
-	if (_upperBound.x < other._lowerBound.x)
+	if (upperBound.x < other.lowerBound.x)
 		return false;
-	if (_upperBound.y < other._lowerBound.y)
+	if (upperBound.y < other.lowerBound.y)
 		return false;
-	if (_upperBound.z < other._lowerBound.z)
+	if (upperBound.z < other.lowerBound.z)
 		return false;
-	if (_lowerBound.x > other._upperBound.x)
+	if (lowerBound.x > other.upperBound.x)
 		return false;
-	if (_lowerBound.y > other._upperBound.y)
+	if (lowerBound.y > other.upperBound.y)
 		return false;
-	if (_lowerBound.z > other._upperBound.z)
+	if (lowerBound.z > other.upperBound.z)
 		return false;
 
 	return true;
@@ -55,8 +55,8 @@ bool AABB3D::intersects(const AABB3D &other) const {
 
 bool AABB3D::intersects(const Vec3f& p1, const Vec3f& p2) const {
 	Vec3f d((p2 - p1) * 0.5f);
-	Vec3f e((_upperBound - _lowerBound) * 0.5f);
-	Vec3f c(p1 + d - (_lowerBound + _upperBound) * 0.5f);
+	Vec3f e((upperBound - lowerBound) * 0.5f);
+	Vec3f c(p1 + d - (lowerBound + upperBound) * 0.5f);
 	Vec3f ad(fabsf(d.x), fabsf(d.y), fabsf(d.z)); // Returns same vector with all components positive
 
 	if (fabsf(c.x) > e.x + ad.x)
@@ -81,20 +81,20 @@ bool AABB3D::intersects(const Vec3f& p1, const Vec3f& p2) const {
 bool AABB3D::intersects(const Vec3f &start, const Vec3f &direction, float &t0, float &t1) const {
 	Vec3f directionInv = Vec3f(1.0f, 1.0f, 1.0f) / direction;
 
-	float tx1 = (_lowerBound.x - start.x) * directionInv.x;
-	float tx2 = (_upperBound.x - start.x) * directionInv.x;
+	float tx1 = (lowerBound.x - start.x) * directionInv.x;
+	float tx2 = (upperBound.x - start.x) * directionInv.x;
 
 	t0 = std::min(tx1, tx2);
 	t1 = std::max(tx1, tx2);
 
-	float ty1 = (_lowerBound.y - start.y) * directionInv.y;
-	float ty2 = (_upperBound.y - start.y) * directionInv.y;
+	float ty1 = (lowerBound.y - start.y) * directionInv.y;
+	float ty2 = (upperBound.y - start.y) * directionInv.y;
 
 	t0 = std::max(t0, std::min(ty1, ty2));
 	t1 = std::min(t1, std::max(ty1, ty2));
 
-	float tz1 = (_lowerBound.z - start.z) * directionInv.z;
-	float tz2 = (_upperBound.z - start.z) * directionInv.z;
+	float tz1 = (lowerBound.z - start.z) * directionInv.z;
+	float tz2 = (upperBound.z - start.z) * directionInv.z;
 
 	t0 = std::max(t0, std::min(tz1, tz2));
 	t1 = std::min(t1, std::max(tz1, tz2));
@@ -103,24 +103,24 @@ bool AABB3D::intersects(const Vec3f &start, const Vec3f &direction, float &t0, f
 }
 
 bool AABB3D::contains(const AABB3D &other) const {
-	if (other._lowerBound.x >= _lowerBound.x &&
-		other._upperBound.x <= _upperBound.x &&
-		other._lowerBound.y >= _lowerBound.y &&
-		other._upperBound.y <= _upperBound.y &&
-		other._lowerBound.z >= _lowerBound.z &&
-		other._upperBound.z <= _upperBound.z)
+	if (other.lowerBound.x >= lowerBound.x &&
+		other.upperBound.x <= upperBound.x &&
+		other.lowerBound.y >= lowerBound.y &&
+		other.upperBound.y <= upperBound.y &&
+		other.lowerBound.z >= lowerBound.z &&
+		other.upperBound.z <= upperBound.z)
 		return true;
 
 	return false;
 }
 
 bool AABB3D::contains(const Vec3f &vec) const {
-	if (vec.x >= _lowerBound.x &&
-		vec.y >= _lowerBound.y &&
-		vec.z >= _lowerBound.z &&
-		vec.x <= _upperBound.x &&
-		vec.y <= _upperBound.y &&
-		vec.z <= _upperBound.z)
+	if (vec.x >= lowerBound.x &&
+		vec.y >= lowerBound.y &&
+		vec.z >= lowerBound.z &&
+		vec.x <= upperBound.x &&
+		vec.y <= upperBound.y &&
+		vec.z <= upperBound.z)
 		return true;
 
 	return false;
@@ -129,34 +129,34 @@ bool AABB3D::contains(const Vec3f &vec) const {
 AABB3D AABB3D::getTransformedAABB(const Matrix4x4f &mat) const {
 	AABB3D transformedAABB;
 
-	Vec3f newCenter(mat * _center);
+	Vec3f newCenter(mat * center);
 
-	transformedAABB._lowerBound = newCenter;
-	transformedAABB._upperBound = newCenter;
+	transformedAABB.lowerBound = newCenter;
+	transformedAABB.upperBound = newCenter;
 
 	// Loop through all corners, transform, and compare
 	for (int x = -1; x <= 1; x += 2)
 	for (int y = -1; y <= 1; y += 2)
 	for (int z = -1; z <= 1; z += 2) {
-		Vec3f corner(x * _halfDims.x + _center.x, y * _halfDims.y + _center.y, z * _halfDims.z + _center.z);
+		Vec3f corner(x * halfDims.x + center.x, y * halfDims.y + center.y, z * halfDims.z + center.z);
 
 		// Transform the corner
 		corner = mat * corner;
 
 		// Compare bounds
-		if (corner.x > transformedAABB._upperBound.x)
-			transformedAABB._upperBound.x = corner.x;
-		if (corner.y > transformedAABB._upperBound.y)
-			transformedAABB._upperBound.y = corner.y;
-		if (corner.z > transformedAABB._upperBound.z)
-			transformedAABB._upperBound.z = corner.z;
+		if (corner.x > transformedAABB.upperBound.x)
+			transformedAABB.upperBound.x = corner.x;
+		if (corner.y > transformedAABB.upperBound.y)
+			transformedAABB.upperBound.y = corner.y;
+		if (corner.z > transformedAABB.upperBound.z)
+			transformedAABB.upperBound.z = corner.z;
 
-		if (corner.x < transformedAABB._lowerBound.x)
-			transformedAABB._lowerBound.x = corner.x;
-		if (corner.y < transformedAABB._lowerBound.y)
-			transformedAABB._lowerBound.y = corner.y;
-		if (corner.z < transformedAABB._lowerBound.z)
-			transformedAABB._lowerBound.z = corner.z;
+		if (corner.x < transformedAABB.lowerBound.x)
+			transformedAABB.lowerBound.x = corner.x;
+		if (corner.y < transformedAABB.lowerBound.y)
+			transformedAABB.lowerBound.y = corner.y;
+		if (corner.z < transformedAABB.lowerBound.z)
+			transformedAABB.lowerBound.z = corner.z;
 	}
 
 	// Move from local into world space
@@ -167,61 +167,61 @@ AABB3D AABB3D::getTransformedAABB(const Matrix4x4f &mat) const {
 }
 
 Vec3f AABB3D::getVertexP(const Vec3f &normal) const {
-	Vec3f p(_lowerBound);
+	Vec3f p(lowerBound);
 
 	if (normal.x >= 0.0f)
-		p.x = _upperBound.x;
+		p.x = upperBound.x;
 	if (normal.y >= 0.0f)
-		p.y = _upperBound.y;
+		p.y = upperBound.y;
 	if (normal.z >= 0.0f)
-		p.z = _upperBound.z;
+		p.z = upperBound.z;
 
 	return p;
 }
 
 Vec3f AABB3D::getVertexN(const Vec3f &normal) const {
-	Vec3f n(_upperBound);
+	Vec3f n(upperBound);
 
 	if (normal.x >= 0.0f)
-		n.x = _lowerBound.x;
+		n.x = lowerBound.x;
 	if (normal.y >= 0.0f)
-		n.y = _lowerBound.y;
+		n.y = lowerBound.y;
 	if (normal.z >= 0.0f)
-		n.z = _lowerBound.z;
+		n.z = lowerBound.z;
 
 	return n;
 }
 
 float AABB3D::getRadius() const {
-	return _halfDims.magnitude();
+	return halfDims.magnitude();
 }
 
 void AABB3D::expand(const Vec3f &point) {
-	if (point.x < _lowerBound.x)
-		_lowerBound.x = point.x;
-	if (point.y < _lowerBound.y)
-		_lowerBound.y = point.y;
-	if (point.z < _lowerBound.z)
-		_lowerBound.z = point.z;
-	if (point.x > _upperBound.x)
-		_upperBound.x = point.x;
-	if (point.y > _upperBound.y)
-		_upperBound.y = point.y;
-	if (point.z > _upperBound.z)
-		_upperBound.z = point.z;
+	if (point.x < lowerBound.x)
+		lowerBound.x = point.x;
+	if (point.y < lowerBound.y)
+		lowerBound.y = point.y;
+	if (point.z < lowerBound.z)
+		lowerBound.z = point.z;
+	if (point.x > upperBound.x)
+		upperBound.x = point.x;
+	if (point.y > upperBound.y)
+		upperBound.y = point.y;
+	if (point.z > upperBound.z)
+		upperBound.z = point.z;
 }
 
 void AABB3D::expand(const AABB3D &other) {
-	if (other._lowerBound.x < _lowerBound.x)
-		_lowerBound.x = other._lowerBound.x;
-	if (other._lowerBound.y < _lowerBound.y)
-		_lowerBound.y = other._lowerBound.y;
-	if (other._lowerBound.z < _lowerBound.z)
-		_lowerBound.z = other._lowerBound.z;
-	if (other._upperBound.x > _upperBound.x)
-		_upperBound.x = other._upperBound.x;
-	if (other._upperBound.y > _upperBound.y)
-		_upperBound.y = other._upperBound.y;
-	if (other._upperBound.z > _upperBound.z)
-		_upperBound.z = other._upperBound.z;
+	if (other.lowerBound.x < lowerBound.x)
+		lowerBound.x = other.lowerBound.x;
+	if (other.lowerBound.y < lowerBound.y)
+		lowerBound.y = other.lowerBound.y;
+	if (other.lowerBound.z < lowerBound.z)
+		lowerBound.z = other.lowerBound.z;
+	if (other.upperBound.x > upperBound.x)
+		upperBound.x = other.upperBound.x;
+	if (other.upperBound.y > upperBound.y)
+		upperBound.y = other.upperBound.y;
+	if (other.upperBound.z > upperBound.z)
+		upperBound.z = other.upperBound.z;
 }

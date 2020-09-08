@@ -1,7 +1,7 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec2f.h>
+#include "Vec3f.h"
+#include "Vec2f.h"
 #include <vector>
 #include <array>
 #include <assert.h>
@@ -17,24 +17,24 @@
 namespace pge {
 	class Matrix3x3f {
 	public:
-		static const float _directionMatrixNormalizationTolerance;
+		static const float directionMatrixNormalizationTolerance;
 
-		std::array<float, 9> _elements;
+		std::array<float, 9> elements;
 
 		Matrix3x3f()
 		{}
 
 		Matrix3x3f(std::vector<float> sourceArray) {
 			for (size_t i = 0; i < 9; i++)
-				_elements[i] = sourceArray[i];
+				elements[i] = sourceArray[i];
 		}
 
 		Matrix3x3f(std::array<float, 9> sourceArray) {
-			_elements = sourceArray;
+			elements = sourceArray;
 		}
 
 		float &operator[](int i) {
-			return _elements[i];
+			return elements[i];
 		}
 
 		Matrix3x3f operator*(const Matrix3x3f &other) const;
@@ -52,13 +52,13 @@ namespace pge {
 		void set(int i, int j, float val) {
 			assert(i >= 0 && j >= 0 && i < 3 && j < 3);
 
-			_elements[3 * i + j] = val; // Row-major would be i + 3 * j
+			elements[3 * i + j] = val; // Row-major would be i + 3 * j
 		}
 
 		float get(int i, int j) const {
 			assert(i >= 0 && j >= 0 && i < 3 && j < 3);
 
-			return _elements[3 * i + j]; // Row-major would be i + 3 * j
+			return elements[3 * i + j]; // Row-major would be i + 3 * j
 		}
 
 		void setIdentity();

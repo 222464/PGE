@@ -1,10 +1,10 @@
 #pragma once
 
-#include <pge/system/Uncopyable.h>
-#include <pge/constructs/AABB3D.h>
-#include <pge/constructs/Point3i.h>
+#include "../../system/Uncopyable.h"
+#include "../../constructs/AABB3D.h"
+#include "../../constructs/Point3i.h"
 
-#include <pge/scene/SceneObjectRef.h>
+#include "../../scene/SceneObjectRef.h"
 
 #include <memory>
 #include <array>
@@ -16,20 +16,20 @@
 namespace pge {
 	class OctreeNode : public Uncopyable {
 	private:
-		OctreeNode* _pParent;
-		class Octree* _pOctree;
+		OctreeNode* pParent;
+		class Octree* pOctree;
 
-		bool _hasChildren;
+		bool hasChildren;
 
-		std::array<std::unique_ptr<OctreeNode>, 8> _children;
+		std::array<std::unique_ptr<OctreeNode>, 8> children;
 
-		std::unordered_set<SceneObjectRef, SceneObjectRef> _occupants;
+		std::unordered_set<SceneObjectRef, SceneObjectRef> occupants;
 
-		AABB3D _region;
+		AABB3D region;
 
-		int _level;
+		int level;
 
-		int _numOccupantsBelow;
+		int numOccupantsBelow;
 
 		void getPossibleOccupantPosition(const SceneObjectRef &oc, Point3i &point);
 
@@ -40,9 +40,9 @@ namespace pge {
 
 		void destroyChildren() {
 			for (int i = 0; i < 8; i++)
-				_children[i].reset();
+				children[i].reset();
 
-			_hasChildren = false;
+			hasChildren = false;
 		}
 
 		void getOccupants(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
@@ -58,7 +58,7 @@ namespace pge {
 
 	public:
 		OctreeNode()
-			: _hasChildren(false), _numOccupantsBelow(0)
+			: hasChildren(false), numOccupantsBelow(0)
 		{}
 
 		OctreeNode(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
@@ -67,20 +67,20 @@ namespace pge {
 		void create(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
 
 		class Octree* getTree() const {
-			return _pOctree;
+			return pOctree;
 		}
 
 		void add(const SceneObjectRef &oc);
 
 		const AABB3D &getRegion() const {
-			return _region;
+			return region;
 		}
 
 		void getAllOccupantsBelow(std::vector<SceneObjectRef> &occupants);
 		void getAllOccupantsBelow(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
 
 		int getNumOccupantsBelow() const {
-			return _numOccupantsBelow;
+			return numOccupantsBelow;
 		}
 
 		void pruneDeadReferences();

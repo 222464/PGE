@@ -1,28 +1,28 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../scene/Scene.h"
 
-#include <pge/constructs/Matrix4x4f.h>
+#include "../constructs/Matrix4x4f.h"
 
-#include <pge/rendering/model/StaticModelOBJ.h>
+#include "../rendering/model/StaticModelOBJ.h"
 
 #include <iostream>
 
 class SceneObjectPropLOD : public pge::SceneObject {
 private:
-	std::vector<pge::StaticModelOBJ*> _pModelsOBJ;
+	std::vector<pge::StaticModelOBJ*> pModelsOBJ;
 
-	pge::SceneObjectRef _batcherRef;
+	pge::SceneObjectRef batcherRef;
 
 public:
-	pge::Matrix4x4f _transform;
+	pge::Matrix4x4f transform;
 
-	float _lodSwitchDistance;
+	float lodSwitchDistance;
 
 	SceneObjectPropLOD()
-		: _lodSwitchDistance(20.0f)
+		: lodSwitchDistance(20.0f)
 	{
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create(const std::vector<std::string> &fileNames);

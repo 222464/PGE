@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/model/StaticModel.h>
+#include "../../scene/RenderScene.h"
+#include "StaticModel.h"
 
 namespace pge {
 	class SceneObjectStaticModelBatcher : public SceneObject {
 	private:
-		std::unordered_map<StaticModel*, std::list<Matrix4x4f>> _modelTransforms;
+		std::unordered_map<StaticModel*, std::list<Matrix4x4f>> modelTransforms;
 
 	public:
 		SceneObjectStaticModelBatcher() {
-			_renderMask = 0xffff;
+			renderMask = 0xffff;
 		}
 
 		// Inherited from SceneObject

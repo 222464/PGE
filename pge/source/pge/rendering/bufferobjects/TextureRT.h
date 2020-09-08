@@ -1,21 +1,21 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
 namespace pge {
 	class TextureRT {
 	private:
-		unsigned int _width, _height;
+		unsigned int width, height;
 
-		GLuint _fboID, _texID, _depthID; // _depthID is set to -1 to indicate that it is not used
+		GLuint fboID, texID, depthID; // depthID is set to -1 to indicate that it is not used
 
 	public:
 		TextureRT()
-			: _fboID(0)
+			: fboID(0)
 		{}
 
 		~TextureRT() {
-			if (_fboID != 0)
+			if (fboID != 0)
 				destroy();
 		}
 
@@ -23,27 +23,27 @@ namespace pge {
 		void destroy();
 
 		unsigned int getWidth() const {
-			return _width;
+			return width;
 		}
 
 		unsigned int getHeight() const {
-			return _height;
+			return height;
 		}
 
 		void setViewport() {
-			glViewport(0, 0, _width, _height);
+			glViewport(0, 0, width, height);
 		}
 
 		void bind() {
-			glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 		}
 
 		void bindDraw() {
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboID);
 		}
 
 		void bindRead() {
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboID);
 		}
 
 		static void unbind() {
@@ -59,19 +59,19 @@ namespace pge {
 		}
 
 		GLuint getTextureID() const {
-			return _texID;
+			return texID;
 		}
 
 		GLuint getFBOID() const {
-			return _fboID;
+			return fboID;
 		}
 
 		void releaseTexture() {
-			_texID = 0;
+			texID = 0;
 		}
 
 		bool created() const {
-			return _fboID != 0;
+			return fboID != 0;
 		}
 	};
 }

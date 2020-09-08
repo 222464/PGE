@@ -1,25 +1,25 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../scene/Scene.h"
 
-#include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
+#include "input/SceneObjectBufferedInput.h"
 
 class SceneObjectFloatingCamera : public pge::SceneObject {
 private:
-	pge::SceneObjectRef _input;
+	pge::SceneObjectRef input;
 
 public:
-	float _sensitivity;
-	float _acceleration;
-	float _deceleration;
+	float sensitivity;
+	float acceleration;
+	float deceleration;
 
-	float _runMultiplier;
+	float runMultiplier;
 
-	float _angleX, _angleY;
+	float angleX, angleY;
 
-	pge::Vec3f _velocity;
+	pge::Vec3f velocity;
 
-	bool _acceptingInput;
+	bool acceptingInput;
 
 	SceneObjectFloatingCamera();
 

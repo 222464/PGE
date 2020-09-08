@@ -1,4 +1,4 @@
-#include <pge/rendering/imageeffects/SceneObjectSSR.h>
+#include "SceneObjectSSR.h"
 
 using namespace pge;
 
@@ -9,115 +9,115 @@ void SceneObjectSSR::create(const std::shared_ptr<Shader> &blurShaderHorizontalE
 	const std::shared_ptr<TextureCube> &cubeMap,
 	const std::shared_ptr<Texture2D> &noiseMap)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 
-	_blurShaderHorizontalEdgeAware = blurShaderHorizontalEdgeAware;
-	_blurShaderVerticalEdgeAware = blurShaderVerticalEdgeAware;
-	_ssrShader = ssrShader;
-	_renderImageShader = renderImageShader;
-	_cubeMap = cubeMap;
-	_noiseMap = noiseMap;
+	this->blurShaderHorizontalEdgeAware = blurShaderHorizontalEdgeAware;
+	this->blurShaderVerticalEdgeAware = blurShaderVerticalEdgeAware;
+	this->ssrShader = ssrShader;
+	this->renderImageShader = renderImageShader;
+	this->cubeMap = cubeMap;
+	this->noiseMap = noiseMap;
 
-	_ssrShader->bind();
+	ssrShader->bind();
 
-	_ssrShader->setShaderTexture("pgeGBufferColor", getRenderScene()->_gBuffer.getTextureID(GBuffer::_diffuseAndSpecular), GL_TEXTURE_2D);
-	_ssrShader->setShaderTexture("pgeGBufferPosition", getRenderScene()->_gBuffer.getTextureID(GBuffer::_positionAndEmissive), GL_TEXTURE_2D);
-	_ssrShader->setShaderTexture("pgeGBufferNormal", getRenderScene()->_gBuffer.getTextureID(GBuffer::_normalAndShininess), GL_TEXTURE_2D);
-	_ssrShader->setShaderTexture("pgeGBufferEffect", getRenderScene()->_gBuffer.getEffectTextureID(), GL_TEXTURE_2D);
-	_ssrShader->setShaderTexture("pgeCubeMap", _cubeMap->getTextureID(), GL_TEXTURE_CUBE_MAP);
-	_ssrShader->setShaderTexture("pgeNoiseMap", _noiseMap->getTextureID(), GL_TEXTURE_2D);
+	ssrShader->setShaderTexture("pgeGBufferColor", getRenderScene()->gBuffer.getTextureID(GBuffer::diffuseAndSpecular), GL_TEXTURE_2D);
+	ssrShader->setShaderTexture("pgeGBufferPosition", getRenderScene()->gBuffer.getTextureID(GBuffer::positionAndEmissive), GL_TEXTURE_2D);
+	ssrShader->setShaderTexture("pgeGBufferNormal", getRenderScene()->gBuffer.getTextureID(GBuffer::normalAndShininess), GL_TEXTURE_2D);
+	ssrShader->setShaderTexture("pgeGBufferEffect", getRenderScene()->gBuffer.getEffectTextureID(), GL_TEXTURE_2D);
+	ssrShader->setShaderTexture("pgeCubeMap", cubeMap->getTextureID(), GL_TEXTURE_CUBE_MAP);
+	ssrShader->setShaderTexture("pgeNoiseMap", noiseMap->getTextureID(), GL_TEXTURE_2D);
 
-	_blurShaderHorizontalEdgeAware->bind();
+	blurShaderHorizontalEdgeAware->bind();
 
-	_blurShaderHorizontalEdgeAware->setShaderTexture("pgeGBufferPosition", getRenderScene()->_gBuffer.getTextureID(GBuffer::_positionAndEmissive), GL_TEXTURE_2D);
-	_blurShaderHorizontalEdgeAware->setShaderTexture("pgeGBufferNormal", getRenderScene()->_gBuffer.getTextureID(GBuffer::_normalAndShininess), GL_TEXTURE_2D);
+	blurShaderHorizontalEdgeAware->setShaderTexture("pgeGBufferPosition", getRenderScene()->gBuffer.getTextureID(GBuffer::positionAndEmissive), GL_TEXTURE_2D);
+	blurShaderHorizontalEdgeAware->setShaderTexture("pgeGBufferNormal", getRenderScene()->gBuffer.getTextureID(GBuffer::normalAndShininess), GL_TEXTURE_2D);
 
-	_blurShaderVerticalEdgeAware->bind();
+	blurShaderVerticalEdgeAware->bind();
 
-	_blurShaderVerticalEdgeAware->setShaderTexture("pgeGBufferPosition", getRenderScene()->_gBuffer.getTextureID(GBuffer::_positionAndEmissive), GL_TEXTURE_2D);
-	_blurShaderVerticalEdgeAware->setShaderTexture("pgeGBufferNormal", getRenderScene()->_gBuffer.getTextureID(GBuffer::_normalAndShininess), GL_TEXTURE_2D);
+	blurShaderVerticalEdgeAware->setShaderTexture("pgeGBufferPosition", getRenderScene()->gBuffer.getTextureID(GBuffer::positionAndEmissive), GL_TEXTURE_2D);
+	blurShaderVerticalEdgeAware->setShaderTexture("pgeGBufferNormal", getRenderScene()->gBuffer.getTextureID(GBuffer::normalAndShininess), GL_TEXTURE_2D);
 }
 
 void SceneObjectSSR::onAdd() {
-	_effectBuffer = getScene()->getNamed("ebuf");
+	effectBuffer = getScene()->getNamed("ebuf");
 
-	assert(_effectBuffer.isAlive());
+	assert(effectBuffer.isAlive());
 }
 
 void SceneObjectSSR::postRender() {
-	SceneObjectEffectBuffer* pEffectBuffer = static_cast<SceneObjectEffectBuffer*>(_effectBuffer.get());
+	SceneObjectEffectBuffer* pEffectBuffer = static_cast<SceneObjectEffectBuffer*>(effectBuffer.get());
 
-	Vec2f sizeInv(1.0f / static_cast<float>(pEffectBuffer->_fullPing->getWidth()), 1.0f / static_cast<float>(pEffectBuffer->_fullPing->getHeight()));
+	Vec2f sizeInv(1.0f / static_cast<float>(pEffectBuffer->fullPing->getWidth()), 1.0f / static_cast<float>(pEffectBuffer->fullPing->getHeight()));
 
 	glDisable(GL_DEPTH_TEST);
 
-	_ssrShader->bind();
+	ssrShader->bind();
 
 	Matrix3x3f normalMatrixInv;
 	//Matrix4x4f projectionMatrixInv;
 
-	getRenderScene()->_logicCamera.getNormalMatrix().inverse(normalMatrixInv);
-	//getRenderScene()->_logicCamera._projectionMatrix.inverse(projectionMatrixInv);
+	getRenderScene()->logicCamera.getNormalMatrix().inverse(normalMatrixInv);
+	//getRenderScene()->logicCamera.projectionMatrix.inverse(projectionMatrixInv);
 
-	_ssrShader->setUniformmat4("pgeProjectionMatrix", getRenderScene()->_logicCamera._projectionMatrix);
+	ssrShader->setUniformmat4("pgeProjectionMatrix", getRenderScene()->logicCamera.projectionMatrix);
 	//_ssrShader->setUniformmat4("pgeProjectionMatrixInv", projectionMatrixInv);
-	_ssrShader->setUniformmat3("pgeNormalMatrixInv", normalMatrixInv);
-	_ssrShader->setUniformv2f("pgeSizeInv", sizeInv);
+	ssrShader->setUniformmat3("pgeNormalMatrixInv", normalMatrixInv);
+	ssrShader->setUniformv2f("pgeSizeInv", sizeInv);
 
-	_ssrShader->bindShaderTextures();
+	ssrShader->bindShaderTextures();
 
-	pEffectBuffer->_fullPing->bind();
-	pEffectBuffer->_fullPing->setViewport();
+	pEffectBuffer->fullPing->bind();
+	pEffectBuffer->fullPing->setViewport();
 
 	getRenderScene()->renderNormalizedQuad();
 
-	for (size_t i = 0; i < _numBlurPasses; i++) {
-		_blurShaderHorizontalEdgeAware->bind();
+	for (size_t i = 0; i < numBlurPasses; i++) {
+		blurShaderHorizontalEdgeAware->bind();
 
-		_blurShaderHorizontalEdgeAware->setShaderTexture("pgeScene", pEffectBuffer->_fullPing->getTextureID(), GL_TEXTURE_2D);
-		_blurShaderHorizontalEdgeAware->setUniformf("pgeBlurSize", _blurRadius);
-		_blurShaderHorizontalEdgeAware->setUniformv2f("pgeSizeInv", sizeInv);
+		blurShaderHorizontalEdgeAware->setShaderTexture("pgeScene", pEffectBuffer->fullPing->getTextureID(), GL_TEXTURE_2D);
+		blurShaderHorizontalEdgeAware->setUniformf("pgeBlurSize", blurRadius);
+		blurShaderHorizontalEdgeAware->setUniformv2f("pgeSizeInv", sizeInv);
 
-		_blurShaderHorizontalEdgeAware->bindShaderTextures();
+		blurShaderHorizontalEdgeAware->bindShaderTextures();
 
-		pEffectBuffer->_fullPong->bind();
-		pEffectBuffer->_fullPong->setViewport();
+		pEffectBuffer->fullPong->bind();
+		pEffectBuffer->fullPong->setViewport();
 
 		getRenderScene()->renderNormalizedQuad();
 
-		_blurShaderVerticalEdgeAware->bind();
+		blurShaderVerticalEdgeAware->bind();
 
-		_blurShaderVerticalEdgeAware->setShaderTexture("pgeScene", pEffectBuffer->_fullPong->getTextureID(), GL_TEXTURE_2D);
-		_blurShaderVerticalEdgeAware->setUniformf("pgeBlurSize", _blurRadius);
-		_blurShaderVerticalEdgeAware->setUniformv2f("pgeSizeInv", sizeInv);
+		blurShaderVerticalEdgeAware->setShaderTexture("pgeScene", pEffectBuffer->fullPong->getTextureID(), GL_TEXTURE_2D);
+		blurShaderVerticalEdgeAware->setUniformf("pgeBlurSize", blurRadius);
+		blurShaderVerticalEdgeAware->setUniformv2f("pgeSizeInv", sizeInv);
 
-		_blurShaderVerticalEdgeAware->bindShaderTextures();
+		blurShaderVerticalEdgeAware->bindShaderTextures();
 
-		pEffectBuffer->_fullPing->bind();
-		pEffectBuffer->_fullPing->setViewport();
+		pEffectBuffer->fullPing->bind();
+		pEffectBuffer->fullPing->setViewport();
 
 		getRenderScene()->renderNormalizedQuad();
 	}
 
-	Vec2f gBufferSizeInv(1.0f / static_cast<float>(getRenderScene()->_gBuffer.getWidth()), 1.0f / static_cast<float>(getRenderScene()->_gBuffer.getHeight()));
+	Vec2f gBufferSizeInv(1.0f / static_cast<float>(getRenderScene()->gBuffer.getWidth()), 1.0f / static_cast<float>(getRenderScene()->gBuffer.getHeight()));
 
 	// Blend with effect buffer
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	_renderImageShader->bind();
+	renderImageShader->bind();
 
-	_renderImageShader->setShaderTexture("pgeScene", pEffectBuffer->_fullPing->getTextureID(), GL_TEXTURE_2D);
+	renderImageShader->setShaderTexture("pgeScene", pEffectBuffer->fullPing->getTextureID(), GL_TEXTURE_2D);
 
-	_renderImageShader->setUniformv2f("pgeGBufferSizeInv", gBufferSizeInv);
+	renderImageShader->setUniformv2f("pgeGBufferSizeInv", gBufferSizeInv);
 
-	_renderImageShader->bindShaderTextures();
+	renderImageShader->bindShaderTextures();
 
-	getRenderScene()->_gBuffer.bind();
-	getRenderScene()->_gBuffer.setDrawEffect();
-	getRenderScene()->_gBuffer.setReadEffect();
+	getRenderScene()->gBuffer.bind();
+	getRenderScene()->gBuffer.setDrawEffect();
+	getRenderScene()->gBuffer.setReadEffect();
 
-	getRenderScene()->_gBuffer.setViewport();
+	getRenderScene()->gBuffer.setViewport();
 
 	getRenderScene()->renderNormalizedQuad();
 

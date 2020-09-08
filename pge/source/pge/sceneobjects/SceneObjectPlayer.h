@@ -1,42 +1,42 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
-#include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
-#include <pge/physics/DynamicCharacterController.h>
+#include "../scene/Scene.h"
+#include "input/SceneObjectBufferedInput.h"
+#include "physics/SceneObjectPhysicsWorld.h"
+#include "../physics/DynamicCharacterController.h"
 
 class SceneObjectPlayer : public pge::SceneObject {
 private:
-	pge::SceneObjectRef _input;
+	pge::SceneObjectRef input;
 
-	std::shared_ptr<pge::DynamicCharacterController> _characterController;
+	std::shared_ptr<pge::DynamicCharacterController> characterController;
 
-	float _radius, _height, _mass, _stepHeight;
+	float radius, height, mass, stepHeight;
 
-	sf::Vector2i _lastMousePosition;
+	sf::Vector2i lastMousePosition;
 
 public:
-	float _sensitivity;
+	float sensitivity;
 
-	float _noClipAcceleration;
-	float _noClipDeceleration;
+	float noClipAcceleration;
+	float noClipDeceleration;
 
-	float _noClipRunMultiplier;
+	float noClipRunMultiplier;
 
-	float _acceleration;
-	float _deceleration;
+	float acceleration;
+	float deceleration;
 
-	float _runMultiplier;
+	float runMultiplier;
 
-	float _cameraHeightOffset;
+	float cameraHeightOffset;
 
-	float _angleX, _angleY;
+	float angleX, angleY;
 
-	pge::Vec3f _noClipVelocity;
+	pge::Vec3f noClipVelocity;
 
-	bool _allowNoclipChange;
+	bool allowNoclipChange;
 
-	bool _acceptingInput;
+	bool acceptingInput;
 
 	SceneObjectPlayer();
 

@@ -1,16 +1,16 @@
-#include <pge/rendering/imageeffects/SceneObjectFog.h>
+#include "SceneObjectFog.h"
 
 using namespace pge;
 
 void SceneObjectFog::create(const std::shared_ptr<Shader> &fogShader) {
-	_fogShader = fogShader;
+	this->fogShader = fogShader;
 
-	Vec2f gBufferSizeInv(1.0f / static_cast<float>(getRenderScene()->_gBuffer.getWidth()), 1.0f / static_cast<float>(getRenderScene()->_gBuffer.getHeight()));
+	Vec2f gBufferSizeInv(1.0f / static_cast<float>(getRenderScene()->gBuffer.getWidth()), 1.0f / static_cast<float>(getRenderScene()->gBuffer.getHeight()));
 
-	_fogShader->bind();
+	fogShader->bind();
 
-	_fogShader->setShaderTexture("pgeGBufferPosition", getRenderScene()->_gBuffer.getTextureID(GBuffer::_positionAndEmissive), GL_TEXTURE_2D);
-	_fogShader->setUniformv2f("pgeSizeInv", gBufferSizeInv);
+	fogShader->setShaderTexture("pgeGBufferPosition", getRenderScene()->gBuffer.getTextureID(GBuffer::positionAndEmissive), GL_TEXTURE_2D);
+	fogShader->setUniformv2f("pgeSizeInv", gBufferSizeInv);
 }
 
 void SceneObjectFog::postRender() {
@@ -20,11 +20,11 @@ void SceneObjectFog::postRender() {
 	glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
 	// Render luma to full ping
-	_fogShader->bind();
-	_fogShader->setUniformv3f("pgeFogColor", _fogColor);
-	_fogShader->setUniformf("pgeFogStartDistance", _fogStartDistance);
+	fogShader->bind();
+	fogShader->setUniformv3f("pgeFogColor", fogColor);
+	fogShader->setUniformf("pgeFogStartDistance", fogStartDistance);
 
-	_fogShader->bindShaderTextures();
+	fogShader->bindShaderTextures();
 
 	getRenderScene()->renderNormalizedQuad();
 

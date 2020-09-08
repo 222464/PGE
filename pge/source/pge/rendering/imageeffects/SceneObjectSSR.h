@@ -1,33 +1,33 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/imageeffects/SceneObjectEffectBuffer.h>
-#include <pge/rendering/texture/TextureCube.h>
+#include "../../scene/RenderScene.h"
+#include "SceneObjectEffectBuffer.h"
+#include "../texture/TextureCube.h"
 
 namespace pge {
 	class SceneObjectSSR : public SceneObject {
 	private:
-		pge::SceneObjectRef _effectBuffer;
+		pge::SceneObjectRef effectBuffer;
 
-		std::shared_ptr<Shader> _blurShaderHorizontalEdgeAware;
-		std::shared_ptr<Shader> _blurShaderVerticalEdgeAware;
+		std::shared_ptr<Shader> blurShaderHorizontalEdgeAware;
+		std::shared_ptr<Shader> blurShaderVerticalEdgeAware;
 
-		std::shared_ptr<Shader> _ssrShader;
+		std::shared_ptr<Shader> ssrShader;
 
-		std::shared_ptr<Shader> _renderImageShader;
+		std::shared_ptr<Shader> renderImageShader;
 
-		std::shared_ptr<TextureCube> _cubeMap;
+		std::shared_ptr<TextureCube> cubeMap;
 
-		std::shared_ptr<Texture2D> _noiseMap;
+		std::shared_ptr<Texture2D> noiseMap;
 
 	public:
-		size_t _numBlurPasses;
-		float _blurRadius;
+		size_t numBlurPasses;
+		float blurRadius;
 
-		float _reflectionRadius;
+		float reflectionRadius;
 
 		SceneObjectSSR()
-			: _numBlurPasses(3), _blurRadius(0.001727f)
+			: numBlurPasses(3), blurRadius(0.001727f)
 		{}
 
 		void create(const std::shared_ptr<Shader> &blurShaderHorizontalEdgeAware,

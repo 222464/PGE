@@ -1,18 +1,18 @@
-#include <pge/geometry/FormTriangle.h>
+#include "FormTriangle.h"
 
-#include <pge/util/Functions.h>
+#include "../util/Functions.h"
 
 #include <iostream>
 
 using namespace pge;
 
 FormTriangle::FormTriangle()
-	: _materialIndex(0)
+	: materialIndex(0)
 {}
 
 bool FormTriangle::rayTest(const Vec3f &start, const Vec3f &dir, float &t, Vec3f &hitPos) {
-	Vec3f e1 = _points[1] - _points[0];
-	Vec3f e2 = _points[2] - _points[0];
+	Vec3f e1 = points[1] - points[0];
+	Vec3f e2 = points[2] - points[0];
 
 	Vec3f h = dir.cross(e2);
 	float a = e1.dot(h);
@@ -22,7 +22,7 @@ bool FormTriangle::rayTest(const Vec3f &start, const Vec3f &dir, float &t, Vec3f
 
 	float f = 1.0f / a;
 
-	Vec3f s = start - _points[0];
+	Vec3f s = start - points[0];
 
 	float u = f * s.dot(h);
 
@@ -49,11 +49,11 @@ bool FormTriangle::rayTest(const Vec3f &start, const Vec3f &dir, float &t, Vec3f
 
 Vec3f FormTriangle::getBarycentricCoords(const Vec3f &hitPos) {
 	// Find barycentric coordinates (area-weighted coordinates of hitPos)
-	Vec3f f0 = _points[0] - hitPos;
-	Vec3f f1 = _points[1] - hitPos;
-	Vec3f f2 = _points[2] - hitPos;
+	Vec3f f0 = points[0] - hitPos;
+	Vec3f f1 = points[1] - hitPos;
+	Vec3f f2 = points[2] - hitPos;
 
-	Vec3f vecArea = (_points[0] - _points[1]).cross(_points[0] - _points[2]);
+	Vec3f vecArea = (points[0] - points[1]).cross(points[0] - points[2]);
 	Vec3f vecArea0 = f1.cross(f2);
 	Vec3f vecArea1 = f2.cross(f0);
 	Vec3f vecArea2 = f0.cross(f1);
@@ -67,28 +67,28 @@ Vec3f FormTriangle::getBarycentricCoords(const Vec3f &hitPos) {
 }
 
 Vec2f FormTriangle::getImageCoord(const Vec3f &barycentricCoords) {
-	return _uv[0] * barycentricCoords.x + _uv[1] * barycentricCoords.y + _uv[2] * barycentricCoords.z;
+	return uv[0] * barycentricCoords.x + uv[1] * barycentricCoords.y + uv[2] * barycentricCoords.z;
 }
 
 Vec3f FormTriangle::getPosition(const Vec3f &barycentricCoords) {
-	return _points[0] * barycentricCoords.x + _points[1] * barycentricCoords.y + _points[2] * barycentricCoords.z;
+	return points[0] * barycentricCoords.x + points[1] * barycentricCoords.y + points[2] * barycentricCoords.z;
 }
 
 Vec3f FormTriangle::getNormal(const Vec3f &barycentricCoords) {
-	return _normals[0] * barycentricCoords.x + _normals[1] * barycentricCoords.y + _normals[2] * barycentricCoords.z;
+	return normals[0] * barycentricCoords.x + normals[1] * barycentricCoords.y + normals[2] * barycentricCoords.z;
 }
 
 unsigned int FormTriangle::getMaterialIndex() {
-	return _materialIndex;
+	return materialIndex;
 }
 
 AABB3D FormTriangle::getAABB() {
 	AABB3D aabb;
 
-	aabb._lowerBound = aabb._upperBound = _points[0];
+	aabb.lowerBound = aabb.upperBound = points[0];
 
-	aabb.expand(_points[1]);
-	aabb.expand(_points[2]);
+	aabb.expand(points[1]);
+	aabb.expand(points[2]);
 
 	aabb.calculateHalfDims();
 	aabb.calculateCenter();
@@ -97,13 +97,13 @@ AABB3D FormTriangle::getAABB() {
 }
 
 Vec3f FormTriangle::getCenter() {
-	return (_points[0] + _points[1] + _points[2]) * 0.33333f;
+	return (points[0] + points[1] + points[2]) * 0.33333f;
 }
 
 float FormTriangle::getArea() {
-	float a = (_points[0] - _points[1]).magnitude();
-	float b = (_points[0] - _points[2]).magnitude();
-	float c = (_points[1] - _points[2]).magnitude();
+	float a = (points[0] - points[1]).magnitude();
+	float b = (points[0] - points[2]).magnitude();
+	float c = (points[1] - points[2]).magnitude();
 
 	float s = (a + b + c) * 0.5f;
 
@@ -115,7 +115,7 @@ bool FormTriangle::isAdjacent(const FormTriangle &other) const {
 
 	for (unsigned char i = 0; i < 3; i++)
 	for (unsigned char j = 0; j < 3; j++)
-	if (_points[i] == other._points[j]) {
+	if (points[i] == other.points[j]) {
 		numPointsEqual++;
 
 		if (numPointsEqual == 2)

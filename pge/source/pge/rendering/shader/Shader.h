@@ -1,14 +1,14 @@
 #pragma once
 
-#include <pge/assetmanager/Asset.h>
+#include "../../assetmanager/Asset.h"
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
-#include <pge/constructs/Matrix3x3f.h>
-#include <pge/constructs/Matrix4x4f.h>
-#include <pge/constructs/Vec2f.h>
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec4f.h>
+#include "../../constructs/Matrix3x3f.h"
+#include "../../constructs/Matrix4x4f.h"
+#include "../../constructs/Vec2f.h"
+#include "../../constructs/Vec3f.h"
+#include "../../constructs/Vec4f.h"
 
 #include <string>
 #include <unordered_map>
@@ -18,62 +18,62 @@ namespace pge {
 	public:
 		struct TextureAndAttachment {
 			// Common
-			GLuint _textureHandle, _attachment;
+			GLuint textureHandle, attachment;
 
-			bool _isImage;
+			bool isImage;
 
 			// Texture only stuff
-			GLuint _target;
+			GLuint target;
 
 			// Image only stuff
-			GLuint _level;
-			bool _isLayered;
-			GLint _layer;
-			GLenum _access;
-			GLenum _format;
+			GLuint level;
+			bool isLayered;
+			GLint layer;
+			GLenum access;
+			GLenum format;
 
 			TextureAndAttachment()
 			{}
 
 			TextureAndAttachment(GLuint textureHandle, GLuint attachment, GLuint target)
-				: _textureHandle(textureHandle), _attachment(attachment),
-				_isImage(false),
-				_target(target)
+				: textureHandle(textureHandle), attachment(attachment),
+				isImage(false),
+				target(target)
 			{}
 
 			TextureAndAttachment(GLuint textureHandle, GLuint attachment, GLuint level, bool isLayered, GLint layer, GLenum access, GLenum format)
-				: _textureHandle(textureHandle), _attachment(attachment),
-				_isImage(true), 
-				_level(level), _isLayered(isLayered), _layer(layer), _access(access), _format(format)
+				: textureHandle(textureHandle), attachment(attachment),
+				isImage(true), 
+				level(level), isLayered(isLayered), layer(layer), access(access), format(format)
 			{}
 		};
 
 	private:
-		GLuint _progID;
-		GLuint _geomID, _vertID, _fragID, _compID;
+		GLuint progID;
+		GLuint geomID, vertID, fragID, compID;
 
-		std::unordered_map<std::string, TextureAndAttachment> _textures;
+		std::unordered_map<std::string, TextureAndAttachment> textures;
 
 		// Cache attribute locations for speed
-		std::unordered_map<std::string, int> _attributeLocations;
+		std::unordered_map<std::string, int> attributeLocations;
 
-		GLuint _lastAttachment;
+		GLuint lastAttachment;
 
 		void checkProgram() {
 #ifdef PGE_DEBUG
 			GLint programID;
 			glGetIntegerv(GL_CURRENT_PROGRAM, &programID);
 
-			if (programID != _progID) {
+			if (programID != progID) {
 				std::cerr << "Attempted to set shader parameter before binding!" << std::endl;
 				abort();
 			}
 #endif
 		}
 
-		GLuint _lastUniformBlockBindingIndex;
+		GLuint lastUniformBlockBindingIndex;
 
-		static Shader* _pCurrentShader;
+		static Shader* pCurrentShader;
 
 	public:
 		static bool loadShader(const std::string &name, GLuint id);
@@ -153,31 +153,31 @@ namespace pge {
 		void setUniform4fv(int paramLoc, GLuint numParams, const float* params);
 
 		void bind() {
-			if (_pCurrentShader != this) {
-				glUseProgram(_progID);
+			if (pCurrentShader != this) {
+				glUseProgram(progID);
 
-				_pCurrentShader = this;
+				pCurrentShader = this;
 			}
 		}
 
 		void forceBind() {
-			glUseProgram(_progID);
+			glUseProgram(progID);
 
-			_pCurrentShader = this;
+			pCurrentShader = this;
 		}
 
 		static void unbind() {
 			glUseProgram(0);
 
-			_pCurrentShader = nullptr;
+			pCurrentShader = nullptr;
 		}
 
 		GLuint getProgramID() const {
-			return _progID;
+			return progID;
 		}
 
 		static Shader* getCurrentShader() {
-			return _pCurrentShader;
+			return pCurrentShader;
 		}
 
 		// Manual texture unit setting

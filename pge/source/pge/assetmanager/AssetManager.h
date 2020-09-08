@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pge/assetmanager/Asset.h>
+#include "Asset.h"
 
-#include <pge/system/Uncopyable.h>
+#include "../system/Uncopyable.h"
 
 #include <unordered_map>
 #include <memory>
@@ -17,24 +17,24 @@ Stuff returned by GetAsset functions may be casted to the derived class
 namespace pge {
 	class AssetManager : public Uncopyable {
 	private:
-		std::unordered_map<std::string, std::shared_ptr<Asset>> _assets;
+		std::unordered_map<std::string, std::shared_ptr<Asset>> assets;
 
 		// Factory function pointer
-		Asset* (*_assetFactory)();
+		Asset* (*assetFactory)();
 
-		std::mutex _mutex;
+		std::mutex mutex;
 
 	public:
 		AssetManager()
-			: _assetFactory(nullptr)
+			: assetFactory(nullptr)
 		{}
 
 		void create(Asset* (*assetFactory)()) {
-			_assetFactory = assetFactory;
+			this->assetFactory = assetFactory;
 		}
 
 		bool created() const {
-			return _assetFactory != nullptr;
+			return assetFactory != nullptr;
 		}
 
 		bool getAsset(const std::string &name);
@@ -44,7 +44,7 @@ namespace pge {
 		void destroyAsset(const std::string &name);
 
 		void clearAssets() {
-			_assets.clear();
+			assets.clear();
 		}
 	};
 }

@@ -1,31 +1,31 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/imageeffects/SceneObjectEffectBuffer.h>
+#include "../../scene/RenderScene.h"
+#include "SceneObjectEffectBuffer.h"
 
 namespace pge {
 	class SceneObjectSSAO : public SceneObject {
 	private:
-		pge::SceneObjectRef _effectBuffer;
+		pge::SceneObjectRef effectBuffer;
 
-		std::shared_ptr<Shader> _blurShaderHorizontal;
-		std::shared_ptr<Shader> _blurShaderVertical;
+		std::shared_ptr<Shader> blurShaderHorizontal;
+		std::shared_ptr<Shader> blurShaderVertical;
 
-		std::shared_ptr<Shader> _ssaoShader;
+		std::shared_ptr<Shader> ssaoShader;
 
-		std::shared_ptr<Shader> _renderImageShader;
+		std::shared_ptr<Shader> renderImageShader;
 
-		std::shared_ptr<Texture2D> _noiseMap;
+		std::shared_ptr<Texture2D> noiseMap;
 
 	public:
-		size_t _numBlurPasses;
-		float _blurRadius;
+		size_t numBlurPasses;
+		float blurRadius;
 
-		float _ssaoRadius;
-		float _ssaoStrength;
+		float ssaoRadius;
+		float ssaoStrength;
 
 		SceneObjectSSAO()
-			: _numBlurPasses(2), _blurRadius(0.00493f), _ssaoRadius(0.2f), _ssaoStrength(3.0f)
+			: numBlurPasses(2), blurRadius(0.00493f), ssaoRadius(0.2f), ssaoStrength(3.0f)
 		{}
 
 		void create(const std::shared_ptr<Shader> &blurShaderHorizontal,

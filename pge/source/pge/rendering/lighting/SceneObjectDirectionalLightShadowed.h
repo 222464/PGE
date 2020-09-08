@@ -1,39 +1,39 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/lighting/SceneObjectLighting.h>
-#include <pge/rendering/bufferobjects/DepthRT.h>
+#include "SceneObjectLighting.h"
+#include "../bufferobjects/DepthRT.h"
 
-#include <pge/constructs/Vec3f.h>
+#include "../../constructs/Vec3f.h"
 
 namespace pge {
 	class SceneObjectDirectionalLightShadowed : public SceneObject {
 	private:
-		SceneObjectRef _lighting;
+		SceneObjectRef lighting;
 
-		Vec3f _color;
-		Vec3f _direction;
+		Vec3f color;
+		Vec3f direction;
 
-		std::shared_ptr<VBO> _uniformBuffer;
+		std::shared_ptr<VBO> uniformBuffer;
 
-		std::vector<float> _splitDistances;
-		std::vector<Matrix4x4f> _lightBiasViewProjections;
-		std::vector<std::shared_ptr<DepthRT>> _cascades;
+		std::vector<float> splitDistances;
+		std::vector<Matrix4x4f> lightBiasViewProjections;
+		std::vector<std::shared_ptr<DepthRT>> cascades;
 
-		bool _needsUniformBufferUpdate;
+		bool needsUniformBufferUpdate;
 
-		float _zNear, _zFar;
+		float zNear, zFar;
 
 		void getFrustumCornerPoints(float zDistance, std::array<Vec3f, 4> &points);
 
 	public:
-		bool _enabled;
+		bool enabled;
 
-		float _downwardsRangeExtension;
-		float _upwardsRangeExtension;
+		float downwardsRangeExtension;
+		float upwardsRangeExtension;
 
-		float _sidewaysRangeExtensionMultiplier;
+		float sidewaysRangeExtensionMultiplier;
 
 		SceneObjectDirectionalLightShadowed();
 
@@ -47,11 +47,11 @@ namespace pge {
 		void setDirection(const Vec3f &direction);
 
 		const Vec3f &getColor() const {
-			return _color;
+			return color;
 		}
 
 		const Vec3f getDirection() const {
-			return _direction;
+			return direction;
 		}
 
 		void updateUniformBuffer();

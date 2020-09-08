@@ -1,31 +1,31 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
-#include <pge/rendering/Camera.h>
+#include "SceneObject.h"
+#include "../rendering/Camera.h"
 
-#include <pge/system/ThreadPool.h>
+#include "../system/ThreadPool.h"
 
 #include <vector>
 
 namespace pge {
 	class SceneObjectWorkItem : public ThreadPool::WorkItem {
 	public:
-		SceneObject* _pItem;
-		float _dt;
+		SceneObject* pItem;
+		float dt;
 
 		// Inherited from ThreadPool::WorkItem
 		void run(size_t threadIndex) {
-			_pItem->update(_dt);
-			_pItem->updateWithThreadData(_dt, threadIndex);
+			pItem->update(dt);
+			pItem->updateWithThreadData(dt, threadIndex);
 		}
 	};
 
 	class State {
 	private:
-		std::vector<std::shared_ptr<SceneObject>> _sceneObjects;
+		std::vector<std::shared_ptr<SceneObject>> sceneObjects;
 
 		// New indices for scene object references
-		std::vector<size_t> _newIndices;
+		std::vector<size_t> newIndices;
 
 	public:
 		// Runs threads on all scene objects

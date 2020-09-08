@@ -1,7 +1,7 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec4f.h>
+#include "Vec3f.h"
+#include "Vec4f.h"
 #include <vector>
 #include <array>
 
@@ -16,24 +16,24 @@
 namespace pge {
 	class Matrix4x4f {
 	public:
-		static const float _directionMatrixNormalizationTolerance;
+		static const float directionMatrixNormalizationTolerance;
 
-		std::array<float, 16> _elements;
+		std::array<float, 16> elements;
 
 		Matrix4x4f()
 		{}
 
 		Matrix4x4f(std::vector<float> sourceArray) {
 			for (size_t i = 0; i < 16; i++)
-				_elements[i] = sourceArray[i];
+				elements[i] = sourceArray[i];
 		}
 
 		Matrix4x4f(std::array<float, 16> sourceArray) {
-			_elements = sourceArray;
+			elements = sourceArray;
 		}
 
 		float &operator[](int i) {
-			return _elements[i];
+			return elements[i];
 		}
 
 		Matrix4x4f operator*(const Matrix4x4f &other) const;
@@ -49,11 +49,11 @@ namespace pge {
 		}
 
 		void set(int i, int j, float val) {
-			_elements[4 * i + j] = val; // Row-major would be i + 4 * j
+			elements[4 * i + j] = val; // Row-major would be i + 4 * j
 		}
 
 		float get(int i, int j) const {
-			return _elements[4 * i + j]; // Row-major would be i + 4 * j
+			return elements[4 * i + j]; // Row-major would be i + 4 * j
 		}
 
 		void setIdentity();

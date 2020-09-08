@@ -1,17 +1,17 @@
-#include <pge/scene/RenderScene.h>
+#include "pge/scene/RenderScene.h"
 
-#include <pge/sceneobjects/SceneObjectEntryPointBlockGame.h>
-#include <pge/sceneobjects/SceneObjectEntryPointSurf.h>
-#include <pge/sceneobjects/SceneObjectEntryPointCartPole.h>
-#include <pge/sceneobjects/SceneObjectEntryPointQuadruped.h>
-#include <pge/sceneobjects/SceneObjectEntryPointTennis.h>
+#include "pge/sceneobjects/SceneObjectEntryPointBlockGame.h"
+#include "pge/sceneobjects/SceneObjectEntryPointSurf.h"
+#include "pge/sceneobjects/SceneObjectEntryPointCartPole.h"
+#include "pge/sceneobjects/SceneObjectEntryPointQuadruped.h"
+#include "pge/sceneobjects/SceneObjectEntryPointTennis.h"
 
-#include <pge/sceneobjects/input/SceneObjectBufferedInput.h>
+#include "pge/sceneobjects/input/SceneObjectBufferedInput.h"
 
-#include <pge/rendering/lighting/SceneObjectLighting.h>
-#include <pge/rendering/model/SceneObjectStaticModelBatcher.h>
+#include "pge/rendering/lighting/SceneObjectLighting.h"
+#include "pge/rendering/model/SceneObjectStaticModelBatcher.h"
 
-#include <pge/util/Math.h>
+#include "pge/util/Math.h"
 
 #include <fstream>
 
@@ -102,9 +102,9 @@ int main(int argc, char *argv[]) {
 
 	std::unique_ptr<pge::RenderScene> scene(new pge::RenderScene());
 
-	scene->_renderingEnabled = show;
+	scene->renderingEnabled = show;
 
-	//scene->_randomGenerator.seed(time(nullptr));
+	//scene->randomGenerator.seed(time(nullptr));
 
 	{
 		std::shared_ptr<pge::Shader> gBufferRender(new pge::Shader());
@@ -120,9 +120,9 @@ int main(int argc, char *argv[]) {
 		scene->createRenderScene(8, pge::AABB3D(pge::Vec3f(-1.0f, -1.0f, -1.0f), pge::Vec3f(1.0f, 1.0f, 1.0f)), &window,
 			gBufferRender, gBufferRenderNormal, gBufferRenderHeightNormal, whiteTexture);
 
-		scene->_logicCamera._projectionMatrix = pge::Matrix4x4f::perspectiveMatrix(pge::_piOver4, static_cast<float>(window.getSize().x) / static_cast<float>(window.getSize().y), 0.1f, 10000.0f);
-		scene->_logicCamera._position = pge::Vec3f(1.5f, 1.5f, 1.5f);
-		scene->_logicCamera._rotation = pge::Quaternion::getFromMatrix(pge::Matrix4x4f::cameraDirectionMatrix(-scene->_logicCamera._position.normalized(), pge::Vec3f(0.0f, 1.0f, 0.0f)));
+		scene->logicCamera.projectionMatrix = pge::Matrix4x4f::perspectiveMatrix(pge::piOver4, static_cast<float>(window.getSize().x) / static_cast<float>(window.getSize().y), 0.1f, 10000.0f);
+		scene->logicCamera.position = pge::Vec3f(1.5f, 1.5f, 1.5f);
+		scene->logicCamera.rotation = pge::Quaternion::getFromMatrix(pge::Matrix4x4f::cameraDirectionMatrix(-scene->logicCamera.position.normalized(), pge::Vec3f(0.0f, 1.0f, 0.0f)));
 	}
 
 	// -------------------------------- Lighting --------------------------------
@@ -213,7 +213,7 @@ int main(int argc, char *argv[]) {
 			pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(bufferedInputRef.get());
 
 			while (window.pollEvent(windowEvent)) {
-				pBufferedInput->_events.push_back(windowEvent);
+				pBufferedInput->events.push_back(windowEvent);
 
 				switch (windowEvent.type) {
 				case sf::Event::Closed:
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
 			//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
 			//	quit = true;
 
-			if (scene->_close)
+			if (scene->close)
 				quit = true;
 		}
 

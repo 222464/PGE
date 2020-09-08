@@ -1,16 +1,16 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
-#include <pge/rendering/mesh/StaticMesh.h>
+#include "../../scene/SceneObject.h"
+#include "../mesh/StaticMesh.h"
 
 namespace pge {
 	class TerrainGrass : public SceneObject {
 	private:
-		SceneObjectRef _grassBatchRenderer;
+		SceneObjectRef grassBatchRenderer;
 
-		std::vector<std::shared_ptr<StaticMesh>> _staticMeshes;
+		std::vector<std::shared_ptr<StaticMesh>> staticMeshes;
 
-		Vec3f _chunkCorner;
+		Vec3f chunkCorner;
 
 	public:
 		void create(const std::vector<Vec3f> &grassPositions, const Vec3f &chunkCorner,

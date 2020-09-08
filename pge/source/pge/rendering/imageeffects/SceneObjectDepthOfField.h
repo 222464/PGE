@@ -1,28 +1,28 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/imageeffects/SceneObjectEffectBuffer.h>
+#include "../../scene/RenderScene.h"
+#include "SceneObjectEffectBuffer.h"
 
 namespace pge {
 	class SceneObjectDepthOfField : public SceneObject {
 	private:
-		pge::SceneObjectRef _effectBuffer;
+		pge::SceneObjectRef effectBuffer;
 
-		std::shared_ptr<Shader> _depthOfFieldBlurShaderHorizontal;
-		std::shared_ptr<Shader> _depthOfFieldBlurShaderVertical;
+		std::shared_ptr<Shader> depthOfFieldBlurShaderHorizontal;
+		std::shared_ptr<Shader> depthOfFieldBlurShaderVertical;
 
-		std::shared_ptr<Shader> _renderImageShader;
+		std::shared_ptr<Shader> renderImageShader;
 
 	public:
-		size_t _numBlurPasses;
-		float _blurRadius;
+		size_t numBlurPasses;
+		float blurRadius;
 
-		float _focalDistance;
-		float _focalRange;
+		float focalDistance;
+		float focalRange;
 
 		SceneObjectDepthOfField()
-			: _focalDistance(8.0f), _focalRange(2.0f),
-			_numBlurPasses(3), _blurRadius(0.00115f)
+			: focalDistance(8.0f), focalRange(2.0f),
+			numBlurPasses(3), blurRadius(0.00115f)
 		{}
 
 		void create(const std::shared_ptr<Shader> &depthOfFieldBlurShaderHorizontal,

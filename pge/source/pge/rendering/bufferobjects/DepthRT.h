@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pge/rendering/SFMLOGL.h>
+#include "../SFMLOGL.h"
 
 namespace pge {
 	class DepthRT {
@@ -10,45 +10,45 @@ namespace pge {
 		};
 
 	private:
-		GLuint _fboID;
-		GLuint _depthID;
+		GLuint fboID;
+		GLuint depthID;
 
-		unsigned int _width, _height;
+		unsigned int width, height;
 
 	public:
 		DepthRT()
-			: _fboID(0)
+			: fboID(0)
 		{}
 
 		~DepthRT() {
-			if (_fboID != 0)
+			if (fboID != 0)
 				destroy();
 		}
 
 		void create(unsigned int width, unsigned int height, Precision precision = _16);
 
 		unsigned int getWidth() const {
-			return _width;
+			return width;
 		}
 
 		unsigned int getHeight() const {
-			return _height;
+			return height;
 		}
 
 		void setViewport() {
-			glViewport(0, 0, _width, _height);
+			glViewport(0, 0, width, height);
 		}
 
 		void bind() {
-			glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 		}
 
 		void bindDraw() {
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fboID);
 		}
 
 		void bindRead() {
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, _fboID);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, fboID);
 		}
 
 		static void unbind() {
@@ -64,11 +64,11 @@ namespace pge {
 		}
 
 		GLuint getDepthTextureID() const {
-			return _depthID;
+			return depthID;
 		}
 
 		GLuint getFBOID() const {
-			return _fboID;
+			return fboID;
 		}
 
 		void destroy();

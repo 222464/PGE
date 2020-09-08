@@ -1,4 +1,4 @@
-#include <pge/rendering/texture/Texture2DArray.h>
+#include "Texture2DArray.h"
 
 #include <sstream>
 #include <iostream>
@@ -28,12 +28,12 @@ bool Texture2DArray::createAsset(const std::string &name) {
 		return false;
 	}
 
-	_layers = names.size();
+	layers = names.size();
 
-	glGenTextures(1, &_textureID);
-	glBindTexture(GL_TEXTURE_2D_ARRAY, _textureID);
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, textureID);
 
-	for (size_t i = 0; i < _layers; i++) {
+	for (size_t i = 0; i < layers; i++) {
 		sf::Image image;
 
 		if (!image.loadFromFile(names[i])) {
@@ -45,12 +45,12 @@ bool Texture2DArray::createAsset(const std::string &name) {
 
 		// First texture determines format of others
 		if (i == 0) {
-			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, image.getSize().x, image.getSize().y, _layers, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, image.getSize().x, image.getSize().y, layers, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-			_size = image.getSize();
+			size = image.getSize();
 		}
 		else {
-			if (image.getSize() != _size) {
+			if (image.getSize() != size) {
 #ifdef PGE_DEBUG
 				std::cerr << "Image " << names[i] << " doesn't match the dimensions of the array!" << std::endl;
 #endif

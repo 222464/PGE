@@ -1,4 +1,4 @@
-#include <pge/rendering/shader/Shader.h>
+#include "Shader.h"
 
 #include <iostream>
 #include <sstream>
@@ -9,25 +9,25 @@
 
 using namespace pge;
 
-Shader* Shader::_pCurrentShader = nullptr;
+Shader* Shader::pCurrentShader = nullptr;
 
 Shader::Shader()
-: _progID(0), _geomID(0), _vertID(0), _fragID(0), _compID(0),
-_lastAttachment(0), _lastUniformBlockBindingIndex(0)
+: progID(0), geomID(0), vertID(0), fragID(0), compID(0),
+lastAttachment(0), lastUniformBlockBindingIndex(0)
 {}
 
 Shader::~Shader() {
-	if (_progID != 0) {
-		glDeleteProgram(_progID);
+	if (progID != 0) {
+		glDeleteProgram(progID);
 
-		if(_geomID != 0)
-			glDeleteShader(_geomID);
+		if(geomID != 0)
+			glDeleteShader(geomID);
 
-		if(_vertID != 0)
-			glDeleteShader(_vertID);
+		if(vertID != 0)
+			glDeleteShader(vertID);
 
-		if(_fragID != 0)
-			glDeleteShader(_fragID);
+		if(fragID != 0)
+			glDeleteShader(fragID);
 	}
 }
 
@@ -221,7 +221,7 @@ bool Shader::createAsset(const std::string &name) {
 
 		is >> computeName;
 
-		if (!loadComputeShader(computeName, _compID)) {
+		if (!loadComputeShader(computeName, compID)) {
 			std::cerr << "Could not load compute shader!" << std::endl;
 			return false;
 		}
@@ -233,42 +233,42 @@ bool Shader::createAsset(const std::string &name) {
 
 		// Load the shaders
 		if (geomName != "NONE")
-		if (!loadGeometryShader(geomName, _geomID)) {
+		if (!loadGeometryShader(geomName, geomID)) {
 			std::cerr << "Could not load geometry shader!" << std::endl;
 			return false;
 		}
 
 		if (vertName != "NONE")
-		if (!loadVertexShader(vertName, _vertID)) {
+		if (!loadVertexShader(vertName, vertID)) {
 			std::cerr << "Could not load vertex shader!" << std::endl;
 			return false;
 		}
 
 		if (fragName != "NONE")
-		if (!loadFragmentShader(fragName, _fragID)) {
+		if (!loadFragmentShader(fragName, fragID)) {
 			std::cerr << "Could not load fragment shader!" << std::endl;
 			return false;
 		}
 	}
 
 	// Create the main program
-	_progID = glCreateProgram();
+	progID = glCreateProgram();
 
 	// Attach the shader components to the program
-	if (_compID != 0)
-		glAttachShader(_progID, _compID);
+	if (compID != 0)
+		glAttachShader(progID, compID);
 	else {
-		if (_geomID != 0)
-			glAttachShader(_progID, _geomID);
+		if (geomID != 0)
+			glAttachShader(progID, geomID);
 
-		if (_vertID != 0)
-			glAttachShader(_progID, _vertID);
+		if (vertID != 0)
+			glAttachShader(progID, vertID);
 
-		if (_fragID != 0)
-			glAttachShader(_progID, _fragID);
+		if (fragID != 0)
+			glAttachShader(progID, fragID);
 	}
 
-	if (!link(_progID)) {
+	if (!link(progID)) {
 		std::cerr << "- in " << name << std::endl;
 
 		return false;
@@ -280,47 +280,47 @@ bool Shader::createAsset(const std::string &name) {
 }
 
 void Shader::setShaderTexture(const std::string &name, GLuint textureID, GLuint target) {
-	assert(_progID != 0);
+	assert(progID != 0);
 
 	checkProgram();
 
 	// See if the texture already exists, in which case it is simply updated
-	std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.find(name);
+	std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.find(name);
 		
 	// If the texture does not already exist
-	if(it == _textures.end()) {
+	if(it == textures.end()) {
 		// Check that the uniform exists
-		int baseImageLoc = glGetUniformLocation(_progID, name.c_str());
+		int baseImageLoc = glGetUniformLocation(progID, name.c_str());
 			
 		if(baseImageLoc != -1) {
-			glUniform1i(baseImageLoc, _lastAttachment);
+			glUniform1i(baseImageLoc, lastAttachment);
 				
 			// Add the texture to the hash
-			_textures[name] = TextureAndAttachment(textureID, _lastAttachment, target);
+			textures[name] = TextureAndAttachment(textureID, lastAttachment, target);
 				
-			_lastAttachment++;
+			lastAttachment++;
 		}
 	}
 	else {
 		// Update the existing texture
-		it->second._textureHandle = textureID;
-		it->second._target = target;
-		it->second._isImage = false;
+		it->second.textureHandle = textureID;
+		it->second.target = target;
+		it->second.isImage = false;
 	}
 }
 
 void Shader::setShaderTexture(const std::string &name, GLuint textureAttachment, GLuint textureID, GLuint target) {
-	assert(_progID != 0);
+	assert(progID != 0);
 
 	checkProgram();
 
 	// See if the texture already exists, in which case it is simply updated
-	std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.find(name);
+	std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.find(name);
 		
 	// If the texture does not already exist
-	if(it == _textures.end()) {
+	if(it == textures.end()) {
 		// Check that the uniform exists
-		int baseImageLoc = glGetUniformLocation(_progID, name.c_str());
+		int baseImageLoc = glGetUniformLocation(progID, name.c_str());
 			
 		if(baseImageLoc == -1)
 			std::cerr << "Could not find the uniform " << name << "!" << std::endl;
@@ -328,64 +328,64 @@ void Shader::setShaderTexture(const std::string &name, GLuint textureAttachment,
 			glUniform1i(baseImageLoc, textureAttachment);
 				
 			// Add the texture to the hash
-			_textures[name] = TextureAndAttachment(textureID, textureAttachment, target);
+			textures[name] = TextureAndAttachment(textureID, textureAttachment, target);
 		}
 	}
 	else {
 		// Update the existing texture
-		it->second._textureHandle = textureID;
-		it->second._attachment = textureAttachment;
-		it->second._target = target;
-		it->second._isImage = false;
+		it->second.textureHandle = textureID;
+		it->second.attachment = textureAttachment;
+		it->second.target = target;
+		it->second.isImage = false;
 	}
 }
 
 void Shader::setShaderImage(const std::string &name, GLuint textureID, GLuint level, bool isLayered, GLint layer, GLenum access, GLenum format) {
-	assert(_progID != 0);
+	assert(progID != 0);
 
 	checkProgram();
 
 	// See if the texture already exists, in which case it is simply updated
-	std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.find(name);
+	std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.find(name);
 
 	// If the texture does not already exist
-	if (it == _textures.end()) {
+	if (it == textures.end()) {
 		// Check that the uniform exists
-		int baseImageLoc = glGetUniformLocation(_progID, name.c_str());
+		int baseImageLoc = glGetUniformLocation(progID, name.c_str());
 
 		if (baseImageLoc != -1) {
-			glUniform1i(baseImageLoc, _lastAttachment);
+			glUniform1i(baseImageLoc, lastAttachment);
 
 			// Add the texture to the hash
-			_textures[name] = TextureAndAttachment(textureID, _lastAttachment, level, isLayered, layer, access, format);
+			textures[name] = TextureAndAttachment(textureID, lastAttachment, level, isLayered, layer, access, format);
 
-			_lastAttachment++;
+			lastAttachment++;
 		}
 	}
 	else {
 		// Update the existing texture
-		it->second._textureHandle = textureID;
-		it->second._level = level;
-		it->second._isLayered = isLayered;
-		it->second._layer = layer;
-		it->second._access = access;
-		it->second._format = format;
-		it->second._isImage = true;
+		it->second.textureHandle = textureID;
+		it->second.level = level;
+		it->second.isLayered = isLayered;
+		it->second.layer = layer;
+		it->second.access = access;
+		it->second.format = format;
+		it->second.isImage = true;
 	}
 }
 
 void Shader::setShaderImage(const std::string &name, GLuint textureAttachment, GLuint textureID, GLuint level, bool isLayered, GLint layer, GLenum access, GLenum format) {
-	assert(_progID != 0);
+	assert(progID != 0);
 
 	checkProgram();
 
 	// See if the texture already exists, in which case it is simply updated
-	std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.find(name);
+	std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.find(name);
 
 	// If the texture does not already exist
-	if (it == _textures.end()) {
+	if (it == textures.end()) {
 		// Check that the uniform exists
-		int baseImageLoc = glGetUniformLocation(_progID, name.c_str());
+		int baseImageLoc = glGetUniformLocation(progID, name.c_str());
 
 		if (baseImageLoc == -1)
 			std::cerr << "Could not find the uniform " << name << "!" << std::endl;
@@ -393,28 +393,28 @@ void Shader::setShaderImage(const std::string &name, GLuint textureAttachment, G
 			glUniform1i(baseImageLoc, textureAttachment);
 
 			// Add the texture to the hash
-			_textures[name] = TextureAndAttachment(textureID, textureAttachment, level, isLayered, layer, access, format);
+			textures[name] = TextureAndAttachment(textureID, textureAttachment, level, isLayered, layer, access, format);
 		}
 	}
 	else {
 		// Update the existing texture
-		it->second._textureHandle = textureID;
-		it->second._attachment = textureAttachment;
-		it->second._level = level;
-		it->second._isLayered = isLayered;
-		it->second._layer = layer;
-		it->second._access = access;
-		it->second._format = format;
-		it->second._isImage = true;
+		it->second.textureHandle = textureID;
+		it->second.attachment = textureAttachment;
+		it->second.level = level;
+		it->second.isLayered = isLayered;
+		it->second.layer = layer;
+		it->second.access = access;
+		it->second.format = format;
+		it->second.isImage = true;
 	}
 }
 
 void Shader::bindShaderTextures() {
 	// Bind all textures
-	for(std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.begin(); it != _textures.end(); it++) {
-		if (!it->second._isImage) {
-			glActiveTexture(GL_TEXTURE0 + it->second._attachment);
-			glBindTexture(it->second._target, it->second._textureHandle);
+	for(std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.begin(); it != textures.end(); it++) {
+		if (!it->second.isImage) {
+			glActiveTexture(GL_TEXTURE0 + it->second.attachment);
+			glBindTexture(it->second.target, it->second.textureHandle);
 		}
 		
 	}
@@ -424,10 +424,10 @@ void Shader::bindShaderTextures() {
 
 void Shader::unbindShaderTextures() {
 	// Bind all used textures
-	for(std::unordered_map<std::string, TextureAndAttachment>::iterator it = _textures.begin(); it != _textures.end(); it++) {
-		if (!it->second._isImage) {
-			glActiveTexture(GL_TEXTURE0 + it->second._attachment);
-			glBindTexture(it->second._target, 0);
+	for(std::unordered_map<std::string, TextureAndAttachment>::iterator it = textures.begin(); it != textures.end(); it++) {
+		if (!it->second.isImage) {
+			glActiveTexture(GL_TEXTURE0 + it->second.attachment);
+			glBindTexture(it->second.target, 0);
 		}
 	}
 
@@ -437,10 +437,10 @@ void Shader::unbindShaderTextures() {
 int Shader::getAttributeLocation(const std::string &name) {
 	int paramLoc;
 
-	std::unordered_map<std::string, int>::iterator it = _attributeLocations.find(name);
+	std::unordered_map<std::string, int>::iterator it = attributeLocations.find(name);
 
-	if(it == _attributeLocations.end())
-		_attributeLocations[name] = paramLoc = glGetUniformLocation(_progID, name.c_str());
+	if(it == attributeLocations.end())
+		attributeLocations[name] = paramLoc = glGetUniformLocation(progID, name.c_str());
 	else
 		paramLoc = it->second;
 
@@ -531,7 +531,7 @@ int Shader::setUniformmat3(const std::string &name, const Matrix3x3f &param) {
 	int paramLoc = getAttributeLocation(name);
 	
 	if (paramLoc != -1)
-		glUniformMatrix3fv(paramLoc, 1, false, &param._elements[0]);
+		glUniformMatrix3fv(paramLoc, 1, false, &param.elements[0]);
 	
 	return paramLoc;
 }
@@ -542,7 +542,7 @@ int Shader::setUniformmat4(const std::string &name, const Matrix4x4f &param) {
 	int paramLoc = getAttributeLocation(name);
 	
 	if (paramLoc != -1)
-		glUniformMatrix4fv(paramLoc, 1, false, &param._elements[0]);
+		glUniformMatrix4fv(paramLoc, 1, false, &param.elements[0]);
 	
 	return paramLoc;
 }
@@ -713,14 +713,14 @@ void Shader::setUniformmat3(int paramLoc, const Matrix3x3f &param) {
 	checkProgram();
 
 	if (paramLoc != -1)
-		glUniformMatrix3fv(paramLoc, 1, false, &param._elements[0]);
+		glUniformMatrix3fv(paramLoc, 1, false, &param.elements[0]);
 }
 
 void Shader::setUniformmat4(int paramLoc, const Matrix4x4f &param) {
 	checkProgram();
 	
 	if (paramLoc != -1)
-		glUniformMatrix4fv(paramLoc, 1, false, &param._elements[0]);
+		glUniformMatrix4fv(paramLoc, 1, false, &param.elements[0]);
 }
 
 void Shader::setUniform1iv(int paramLoc, GLuint numParams, const int* params) {

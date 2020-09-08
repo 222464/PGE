@@ -1,9 +1,9 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/AABB3D.h>
-#include <pge/constructs/PlaneEquationf.h>
-#include <pge/constructs/Matrix4x4f.h>
+#include "../../constructs/Vec3f.h"
+#include "../../constructs/AABB3D.h"
+#include "../../constructs/PlaneEquationf.h"
+#include "../../constructs/Matrix4x4f.h"
 
 namespace pge {
 	class Frustum {
@@ -12,9 +12,9 @@ namespace pge {
 			planeTop = 0, planeBottom, planeLeft, planeRight, planeNear, planeFar
 		};
 
-		std::array<PlaneEquationf, 6> _planes;
+		std::array<PlaneEquationf, 6> planes;
 
-		std::array<Vec3f, 8> _corners;
+		std::array<Vec3f, 8> corners;
 
 	public:
 		enum ObjectLocation {
@@ -30,7 +30,7 @@ namespace pge {
 		void calculateCorners(const Matrix4x4f &cameraInverse); // Inverse ViewProjection
 
 		Vec3f getCorner(size_t index) const {
-			return _corners[index];
+			return corners[index];
 		}
 	};
 }

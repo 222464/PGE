@@ -1,25 +1,25 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
+#include "../../scene/SceneObject.h"
 
-#include <pge/rendering/lighting/SceneObjectLighting.h>
+#include "SceneObjectLighting.h"
 
-#include <pge/constructs/Vec3f.h>
+#include "../../constructs/Vec3f.h"
 
 namespace pge {
 	class SceneObjectDirectionalLight : public SceneObject {
 	private:
-		SceneObjectRef _lighting;
+		SceneObjectRef lighting;
 
-		Vec3f _color;
-		Vec3f _direction;
+		Vec3f color;
+		Vec3f direction;
 
-		std::shared_ptr<VBO> _uniformBuffer;
+		std::shared_ptr<VBO> uniformBuffer;
 
-		bool _needsUniformBufferUpdate;
+		bool needsUniformBufferUpdate;
 
 	public:
-		bool _enabled;
+		bool enabled;
 
 		SceneObjectDirectionalLight();
 
@@ -32,11 +32,11 @@ namespace pge {
 		void setDirection(const Vec3f &direction);
 
 		const Vec3f &getColor() const {
-			return _color;
+			return color;
 		}
 
 		const Vec3f getDirection() const {
-			return _direction;
+			return direction;
 		}
 
 		void updateUniformBuffer();

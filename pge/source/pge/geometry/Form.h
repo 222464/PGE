@@ -1,9 +1,9 @@
 #pragma once
 
-#include <pge/constructs/Vec3f.h>
-#include <pge/constructs/Vec2f.h>
-#include <pge/constructs/AABB3D.h>
-#include <pge/rendering/material/Material.h>
+#include "../constructs/Vec3f.h"
+#include "../constructs/Vec2f.h"
+#include "../constructs/AABB3D.h"
+#include "../rendering/material/Material.h"
 
 namespace pge {
 	class Form {

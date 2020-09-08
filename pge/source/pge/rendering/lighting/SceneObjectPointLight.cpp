@@ -1,77 +1,77 @@
-#include <pge/rendering/lighting/SceneObjectPointLight.h>
+#include "SceneObjectPointLight.h"
 
 using namespace pge;
 
 SceneObjectPointLight::SceneObjectPointLight()
-: _position(0.0f, 0.0f, 0.0f),
-_color(1.0f, 1.0f, 1.0f),
-_range(1.0f),
-_needsUniformBufferUpdate(true),
-_enabled(true)
+: position(0.0f, 0.0f, 0.0f),
+color(1.0f, 1.0f, 1.0f),
+range(1.0f),
+needsUniformBufferUpdate(true),
+enabled(true)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 
-	_aabb._lowerBound = Vec3f(-1.0f, -1.0f, -1.0f);
-	_aabb._lowerBound = Vec3f(1.0f, 1.0f, 1.0f);
+	aabb.lowerBound = Vec3f(-1.0f, -1.0f, -1.0f);
+	aabb.lowerBound = Vec3f(1.0f, 1.0f, 1.0f);
 
-	_aabb.calculateHalfDims();
-	_aabb.calculateCenter();
+	aabb.calculateHalfDims();
+	aabb.calculateCenter();
 }
 
 void SceneObjectPointLight::create(SceneObjectLighting* pLighting) {
-	_lighting = pLighting;
+	lighting = pLighting;
 
-	_uniformBuffer.reset(new VBO());
-	_uniformBuffer->create();
+	uniformBuffer.reset(new VBO());
+	uniformBuffer->create();
 
-	pLighting->_pointLightLightUBOShaderInterface->setUpBuffer(*_uniformBuffer);
+	pLighting->pointLightLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
 
 	updateUniformBuffer();
 }
 
 void SceneObjectPointLight::setPosition(const Vec3f &position) {
-	_position = position;
+	this->position = position;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 
-	_aabb.setCenter(position);
+	aabb.setCenter(position);
 
 	updateAABB();
 }
 
 void SceneObjectPointLight::setColor(const Vec3f &color) {
-	_color = color;
+	this->color = color;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectPointLight::setRange(float range) {
-	_range = range;
+	this->range = range;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 
-	_aabb.setHalfDims(Vec3f(_range, _range, _range));
+	aabb.setHalfDims(Vec3f(range, range, range));
 
 	updateAABB();
 }
 
 void SceneObjectPointLight::updateUniformBuffer() {
-	_uniformBuffer->bind(GL_UNIFORM_BUFFER);
+	uniformBuffer->bind(GL_UNIFORM_BUFFER);
 
-	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(_lighting.get());
+	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-	pLighting->_pointLightLightUBOShaderInterface->setUniformv3f("pgePointLightPosition", getRenderScene()->_renderCamera.getViewMatrix() * _position);
+	pLighting->pointLightLightUBOShaderInterface->setUniformv3f("pgePointLightPosition", getRenderScene()->renderCamera.getViewMatrix() * position);
 
-	if (_needsUniformBufferUpdate) {
-		pLighting->_pointLightLightUBOShaderInterface->setUniformv3f("pgePointLightColor", _color);
-		pLighting->_pointLightLightUBOShaderInterface->setUniformf("pgePointLightRange", _range);
-		pLighting->_pointLightLightUBOShaderInterface->setUniformf("pgePointLightRangeInv", 1.0f / _range);
+	if (needsUniformBufferUpdate) {
+		pLighting->pointLightLightUBOShaderInterface->setUniformv3f("pgePointLightColor", color);
+		pLighting->pointLightLightUBOShaderInterface->setUniformf("pgePointLightRange", range);
+		pLighting->pointLightLightUBOShaderInterface->setUniformf("pgePointLightRangeInv", 1.0f / range);
 
-		_needsUniformBufferUpdate = false;
+		needsUniformBufferUpdate = false;
 	}
 }
 
 void SceneObjectPointLight::deferredRender() {
-	if (_enabled && !getRenderScene()->_renderingShadows && getRenderScene()->_shaderSwitchesEnabled)
-		static_cast<SceneObjectLighting*>(_lighting.get())->_pointLights.push_back(*this);
+	if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
+		static_cast<SceneObjectLighting*>(lighting.get())->pointLights.push_back(*this);
 }

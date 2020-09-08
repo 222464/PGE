@@ -1,20 +1,20 @@
-#include <pge/rendering/voxel/VoxelChunk.h>
+#include "VoxelChunk.h"
 
-#include <pge/rendering/voxel/VoxelTerrain.h>
+#include "VoxelTerrain.h"
 
-#include <pge/util/Math.h>
+#include "../../util/Math.h"
 
 using namespace pge;
 
 void VoxelChunk::create(const SceneObjectRef &voxelTerrain, const Point3i &centerRelativePosition) {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 	
-	_voxelTerrain = voxelTerrain;
+	this->voxelTerrain = voxelTerrain;
 
-	if (_sharedData == nullptr)
-		_sharedData.reset(new SharedData());
+	if (sharedData == nullptr)
+		sharedData.reset(new SharedData());
 
-	_centerRelativePosition = centerRelativePosition;
+	this->centerRelativePosition = centerRelativePosition;
 
 	updateChunkAABB();
 }
@@ -50,7 +50,7 @@ void VoxelChunk::addVertex(const Point3i &center, int lod,
 		for (unsigned char i = 0; i < 8; i++) {
 			Point3i p = p1 + Point3i((i & 0x04) == 0 ? 0 : -lod, (i & 0x02) == 0 ? 0 : -lod, (i & 0x01) == 0 ? 0 : -lod);
 			Vec3f pf(static_cast<float>(p.x), static_cast<float>(p.y), static_cast<float>(p.z));
-			float v = static_cast<float>(pVoxelTerrain->getVoxel(p)) * pVoxelTerrain->_voxelScalar;
+			float v = static_cast<float>(pVoxelTerrain->getVoxel(p)) * pVoxelTerrain->voxelScalar;
 
 			pa[i] = pf;
 			va[i] = v;
@@ -121,7 +121,7 @@ void VoxelChunk::addVertex(const Point3i &center, int lod,
 
 		assert(vSum != 0.0f);
 
-		vertexPosition = vertexPosition / vSum * pVoxelTerrain->_voxelSize;
+		vertexPosition = vertexPosition / vSum * pVoxelTerrain->voxelSize;
 
 		// Create new vertex
 		// Find position via weighted average of
@@ -189,19 +189,19 @@ void VoxelChunk::addGeometry(const Point3i &center, int lod, int side,
 }
 
 void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitution, float friction) {
-	assert(_voxelTerrain.isAlive());
+	assert(voxelTerrain.isAlive());
 
-	VoxelTerrain* pVoxelTerrain = static_cast<VoxelTerrain*>(_voxelTerrain.get());
+	VoxelTerrain* pVoxelTerrain = static_cast<VoxelTerrain*>(voxelTerrain.get());
 
-	if (_sharedData->_empty)
+	if (sharedData->empty)
 		return;
 
 	// Set empty to true, will remain unless set false when comes across full voxel in generation
-	_sharedData->_empty = false;
+	sharedData->empty = false;
 
-	_sharedData->_lods.resize(pVoxelTerrain->_numChunkLODs);
+	sharedData->lods.resize(pVoxelTerrain->numChunkLODs);
 
-	for (int lod = 1, lodIndex = 0; lodIndex < pVoxelTerrain->_numChunkLODs; lod *= 2, lodIndex++) {
+	for (int lod = 1, lodIndex = 0; lodIndex < pVoxelTerrain->numChunkLODs; lod *= 2, lodIndex++) {
 		std::unordered_map<ChunkVertex, voxelChunkMeshIndexType, ChunkVertex> positionToIndex;
 		std::unordered_map<voxelChunkMeshIndexType, bool> isFlange;
 
@@ -211,27 +211,27 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 		// Go through voxels (not differentiating between border voxels and inside voxels)
 		int lodOffset = lod;
 
-		for (int x = -lodOffset; x < _chunkSize + lodOffset; x += lod)
-		for (int y = -lodOffset; y < _chunkSize + lodOffset; y += lod)
-		for (int z = -lodOffset; z < _chunkSize + lodOffset; z += lod) {
+		for (int x = -lodOffset; x < chunkSize + lodOffset; x += lod)
+		for (int y = -lodOffset; y < chunkSize + lodOffset; y += lod)
+		for (int z = -lodOffset; z < chunkSize + lodOffset; z += lod) {
 			// If voxel is not empty
 			voxelType currentVoxel;
 			
 			bool setAsFlange;
 
-			if (x < 0 || x >= _chunkSize ||
-				y < 0 || y >= _chunkSize ||
-				z < 0 || z >= _chunkSize)
+			if (x < 0 || x >= chunkSize ||
+				y < 0 || y >= chunkSize ||
+				z < 0 || z >= chunkSize)
 			{
 				currentVoxel = pVoxelTerrain->getVoxel(Point3i(
-					_centerRelativePosition.x * _chunkSize + x,
-					_centerRelativePosition.y * _chunkSize + y,
-					_centerRelativePosition.z * _chunkSize + z));
+					centerRelativePosition.x * chunkSize + x,
+					centerRelativePosition.y * chunkSize + y,
+					centerRelativePosition.z * chunkSize + z));
 
 				setAsFlange = true;
 			}
 			else {
-				currentVoxel = _sharedData->_matrix[x + y * _chunkSize + z * _chunkSize * _chunkSize];
+				currentVoxel = sharedData->matrix[x + y * chunkSize + z * chunkSize * chunkSize];
 				setAsFlange = false;
 			}
 
@@ -240,7 +240,7 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 
 			// Check surrounding voxels to see if they are empty
 			for (int side = 0; side < 6; side++) {
-				Point3i offset(pVoxelTerrain->_positionOffsets[side] * lod);
+				Point3i offset(pVoxelTerrain->positionOffsets[side] * lod);
 
 				int newX = x + offset.x;
 				int newY = y + offset.y;
@@ -249,47 +249,47 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 				voxelType voxel;
 
 				// If check location is outside this chunk, get the neighboring chunk
-				if (newX < 0 || newX >= _chunkSize ||
-					newY < 0 || newY >= _chunkSize ||
-					newZ < 0 || newZ >= _chunkSize)
+				if (newX < 0 || newX >= chunkSize ||
+					newY < 0 || newY >= chunkSize ||
+					newZ < 0 || newZ >= chunkSize)
 					voxel = pVoxelTerrain->getVoxel(Point3i(
-					_centerRelativePosition.x * _chunkSize + newX,
-					_centerRelativePosition.y * _chunkSize + newY,
-					_centerRelativePosition.z * _chunkSize + newZ));
+					centerRelativePosition.x * chunkSize + newX,
+					centerRelativePosition.y * chunkSize + newY,
+					centerRelativePosition.z * chunkSize + newZ));
 				else
-					voxel = _sharedData->_matrix[newX + newY * _chunkSize + newZ * _chunkSize * _chunkSize];
+					voxel = sharedData->matrix[newX + newY * chunkSize + newZ * chunkSize * chunkSize];
 
 				// If empty
 				if (voxel < 0)
-					addGeometry(Point3i(_centerRelativePosition.x * _chunkSize + x, _centerRelativePosition.y * _chunkSize + y, _centerRelativePosition.z * _chunkSize + z),
+					addGeometry(Point3i(centerRelativePosition.x * chunkSize + x, centerRelativePosition.y * chunkSize + y, centerRelativePosition.z * chunkSize + z),
 						lod, side, positionToIndex, vertices, faceIndices, isFlange, setAsFlange, pVoxelTerrain);
 			}
 		}
 
-		_sharedData->_lods[lodIndex]._numVertices = vertices.size();
-		_sharedData->_lods[lodIndex]._numFaceIndices = faceIndices.size();
+		sharedData->lods[lodIndex].numVertices = vertices.size();
+		sharedData->lods[lodIndex].numFaceIndices = faceIndices.size();
 
 		assert(faceIndices.size() % 4 == 0);
 
-		_sharedData->_lods[lodIndex]._empty = _sharedData->_lods[lodIndex]._numVertices == 0;
+		sharedData->lods[lodIndex].empty = sharedData->lods[lodIndex].numVertices == 0;
 
-		if (lodIndex == 0 && _sharedData->_lods[lodIndex]._empty) {
-			_sharedData->_empty = true;
+		if (lodIndex == 0 && sharedData->lods[lodIndex].empty) {
+			sharedData->empty = true;
 
 			return;
 		}
 
-		if (_sharedData->_lods[lodIndex]._empty)
+		if (sharedData->lods[lodIndex].empty)
 			continue;
 
 		// Generate real indices from face indices (triangulate the quads)
-		_sharedData->_lods[lodIndex]._numIndices = 3 * _sharedData->_lods[lodIndex]._numFaceIndices / 2;
+		sharedData->lods[lodIndex].numIndices = 3 * sharedData->lods[lodIndex].numFaceIndices / 2;
 
 		std::vector<ChunkFace> indices;
-		indices.reserve(_sharedData->_lods[lodIndex]._numIndices / 6);
+		indices.reserve(sharedData->lods[lodIndex].numIndices / 6);
 
 		// Calculate normals and generate real indices
-		for (size_t i = 0; i < _sharedData->_lods[lodIndex]._numFaceIndices; i += 4) {
+		for (size_t i = 0; i < sharedData->lods[lodIndex].numFaceIndices; i += 4) {
 			// Triangulate quad
 			Vertex &vertex0 = vertices[faceIndices[i]];
 			Vertex &vertex1 = vertices[faceIndices[i + 1]];
@@ -302,14 +302,14 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 			bool hasNormal0 = false;
 			bool hasNormal1 = false;
 
-			if (vertex1._position != vertex2._position && vertex1._position != vertex0._position && vertex2._position != vertex0._position) {
-				normal0 = ((vertex1._position - vertex0._position).cross(vertex2._position - vertex0._position)).normalized();
+			if (vertex1.position != vertex2.position && vertex1.position != vertex0.position && vertex2.position != vertex0.position) {
+				normal0 = ((vertex1.position - vertex0.position).cross(vertex2.position - vertex0.position)).normalized();
 
 				hasNormal0 = true;
 			}
 
-			if (vertex2._position != vertex0._position && vertex3._position != vertex2._position && vertex0._position != vertex3._position) {
-				normal1 = ((vertex3._position - vertex2._position).cross(vertex0._position - vertex3._position)).normalized();
+			if (vertex2.position != vertex0.position && vertex3.position != vertex2.position && vertex0.position != vertex3.position) {
+				normal1 = ((vertex3.position - vertex2.position).cross(vertex0.position - vertex3.position)).normalized();
 
 				hasNormal1 = true;
 			}
@@ -327,10 +327,10 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 
 			Vec3f normalSum = (normal0 + normal1) * 0.5f;
 
-			vertex0._normal += normalSum;
-			vertex1._normal += normal0;
-			vertex2._normal += normalSum;
-			vertex3._normal += normal1;
+			vertex0.normal += normalSum;
+			vertex1.normal += normal0;
+			vertex2.normal += normalSum;
+			vertex3.normal += normal1;
 
 			//assert(normalSum != Vec3f(0.0f, 0.0f, 0.0f) && normal0 != Vec3f(0.0f, 0.0f, 0.0f) && normal1 != Vec3f(0.0f, 0.0f, 0.0f));
 
@@ -339,108 +339,108 @@ void VoxelChunk::generate(SceneObjectPhysicsWorld* pPhysicsWorld, float restitut
 		}
 
 		for (size_t i = 0; i < vertices.size(); i++) {
-			if (vertices[i]._normal.magnitude() < 0.00001f)
-				vertices[i]._normal = Vec3f(0.0f, 1.0f, 0.0f);
+			if (vertices[i].normal.magnitude() < 0.00001f)
+				vertices[i].normal = Vec3f(0.0f, 1.0f, 0.0f);
 
-			vertices[i]._normal.normalize();
+			vertices[i].normal.normalize();
 		}
 
 		// Move flanges along normals
-		for (size_t i = 0; i < _sharedData->_lods[lodIndex]._numFaceIndices; i++) {
+		for (size_t i = 0; i < sharedData->lods[lodIndex].numFaceIndices; i++) {
 			if (isFlange[faceIndices[i]])
-				vertices[faceIndices[i]]._position -= vertices[faceIndices[i]]._normal * (lod - 1) * 0.125f;
+				vertices[faceIndices[i]].position -= vertices[faceIndices[i]].normal * (lod - 1) * 0.125f;
 		}
 
 		// Destroy any existing buffers
-		if (_sharedData->_lods[lodIndex]._vertices.created())
-			_sharedData->_lods[lodIndex]._vertices.destroy();
+		if (sharedData->lods[lodIndex].vertices.created())
+			sharedData->lods[lodIndex].vertices.destroy();
 
-		if (_sharedData->_lods[lodIndex]._indices.created())
-			_sharedData->_lods[lodIndex]._indices.destroy();
+		if (sharedData->lods[lodIndex].indices.created())
+			sharedData->lods[lodIndex].indices.destroy();
 
 		// Create (or re-create) VBOs
-		_sharedData->_lods[lodIndex]._vertices.create();
-		_sharedData->_lods[lodIndex]._indices.create();
+		sharedData->lods[lodIndex].vertices.create();
+		sharedData->lods[lodIndex].indices.create();
 
 		// Vertex VBO
-		_sharedData->_lods[lodIndex]._vertices.bind(GL_ARRAY_BUFFER);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * _sharedData->_lods[lodIndex]._numVertices, &vertices[0], GL_STATIC_DRAW);
-		_sharedData->_lods[lodIndex]._vertices.unbind();
+		sharedData->lods[lodIndex].vertices.bind(GL_ARRAY_BUFFER);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * sharedData->lods[lodIndex].numVertices, &vertices[0], GL_STATIC_DRAW);
+		sharedData->lods[lodIndex].vertices.unbind();
 
 		// Index VBO
-		_sharedData->_lods[lodIndex]._indices.bind(GL_ELEMENT_ARRAY_BUFFER);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(voxelChunkMeshIndexType) * _sharedData->_lods[lodIndex]._numIndices, &indices[0], GL_STATIC_DRAW);
-		_sharedData->_lods[lodIndex]._indices.unbind();
+		sharedData->lods[lodIndex].indices.bind(GL_ELEMENT_ARRAY_BUFFER);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(voxelChunkMeshIndexType) * sharedData->lods[lodIndex].numIndices, &indices[0], GL_STATIC_DRAW);
+		sharedData->lods[lodIndex].indices.unbind();
 
 		PGE_GL_ERROR_CHECK();
 
 		// ---------------------------------------- Generate Physics Mesh ----------------------------------------
 
 		if (pPhysicsWorld != nullptr && lod == 1) {
-			_physicsWorld = pPhysicsWorld;
+			physicsWorld = pPhysicsWorld;
 
-			_pTriangleMesh.reset(new btTriangleMesh());
+			pTriangleMesh.reset(new btTriangleMesh());
 
 			// Add all vertices
 			for (size_t i = 0; i < indices.size(); i++) {
-				const Vec3f &vertex0 = vertices[indices[i]._i0]._position;
-				const Vec3f &vertex1 = vertices[indices[i]._i1]._position;
-				const Vec3f &vertex2 = vertices[indices[i]._i2]._position;
+				const Vec3f &vertex0 = vertices[indices[i].i0].position;
+				const Vec3f &vertex1 = vertices[indices[i].i1].position;
+				const Vec3f &vertex2 = vertices[indices[i].i2].position;
 
-				const Vec3f &vertex3 = vertices[indices[i]._i3]._position;
-				const Vec3f &vertex4 = vertices[indices[i]._i4]._position;
-				const Vec3f &vertex5 = vertices[indices[i]._i5]._position;
+				const Vec3f &vertex3 = vertices[indices[i].i3].position;
+				const Vec3f &vertex4 = vertices[indices[i].i4].position;
+				const Vec3f &vertex5 = vertices[indices[i].i5].position;
 
-				_pTriangleMesh->addTriangle(bt(vertex0), bt(vertex1), bt(vertex2), false);
-				_pTriangleMesh->addTriangle(bt(vertex3), bt(vertex4), bt(vertex5), false);
+				pTriangleMesh->addTriangle(bt(vertex0), bt(vertex1), bt(vertex2), false);
+				pTriangleMesh->addTriangle(bt(vertex3), bt(vertex4), bt(vertex5), false);
 			}
 
-			_pMeshShape.reset(new btBvhTriangleMeshShape(_pTriangleMesh.get(), true, true));
+			pMeshShape.reset(new btBvhTriangleMeshShape(pTriangleMesh.get(), true, true));
 
-			_pMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 0.0f, 0.0f))));
+			pMotionState.reset(new btDefaultMotionState(btTransform(btQuaternion(0.0f, 0.0f, 0.0f, 1.0f), btVector3(0.0f, 0.0f, 0.0f))));
 
-			btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0.0f, _pMotionState.get(), _pMeshShape.get(), btVector3(0.0f, 0.0f, 0.0f));
+			btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(0.0f, pMotionState.get(), pMeshShape.get(), btVector3(0.0f, 0.0f, 0.0f));
 
 			rigidBodyCI.m_restitution = restitution;
 			rigidBodyCI.m_friction = friction;
 
-			_pRigidBody.reset(new btRigidBody(rigidBodyCI));
+			pRigidBody.reset(new btRigidBody(rigidBodyCI));
 
-			pPhysicsWorld->_pDynamicsWorld->addRigidBody(_pRigidBody.get());
+			pPhysicsWorld->pDynamicsWorld->addRigidBody(pRigidBody.get());
 		}
 	}
 }
 
 void VoxelChunk::deferredRender() {
-	if (_voxelTerrain.isAlive() && !_sharedData->_empty)
-		static_cast<VoxelTerrain*>(_voxelTerrain.get())->_renderChunks.push_back(*this);
+	if (voxelTerrain.isAlive() && !sharedData->empty)
+		static_cast<VoxelTerrain*>(voxelTerrain.get())->renderChunks.push_back(*this);
 }
 
 VoxelTerrain* VoxelChunk::getTerrain() {
-	assert(_voxelTerrain.isAlive());
+	assert(voxelTerrain.isAlive());
 
-	return static_cast<VoxelTerrain*>(_voxelTerrain.get());
+	return static_cast<VoxelTerrain*>(voxelTerrain.get());
 }
 
 void VoxelChunk::updateChunkAABB() {
-	VoxelTerrain* pVoxelTerrain = static_cast<VoxelTerrain*>(_voxelTerrain.get());
+	VoxelTerrain* pVoxelTerrain = static_cast<VoxelTerrain*>(voxelTerrain.get());
 
-	_aabb._lowerBound = Vec3f((pVoxelTerrain->getCenter().x + _centerRelativePosition.x) * _chunkSize,
-		(pVoxelTerrain->getCenter().y + _centerRelativePosition.y) * _chunkSize,
-		(pVoxelTerrain->getCenter().z + _centerRelativePosition.z) * _chunkSize) * pVoxelTerrain->_voxelSize;
-	_aabb._upperBound = _aabb._lowerBound + Vec3f(_chunkSize, _chunkSize, _chunkSize) * pVoxelTerrain->_voxelSize;
+	aabb.lowerBound = Vec3f((pVoxelTerrain->getCenter().x + centerRelativePosition.x) * chunkSize,
+		(pVoxelTerrain->getCenter().y + centerRelativePosition.y) * chunkSize,
+		(pVoxelTerrain->getCenter().z + centerRelativePosition.z) * chunkSize) * pVoxelTerrain->voxelSize;
+	aabb.upperBound = aabb.lowerBound + Vec3f(chunkSize, chunkSize, chunkSize) * pVoxelTerrain->voxelSize;
 
-	_aabb.calculateHalfDims();
-	_aabb.calculateCenter();
+	aabb.calculateHalfDims();
+	aabb.calculateCenter();
 
 	updateAABB();
 }
 
 void VoxelChunk::onDestroy() {
-	if (_pRigidBody != nullptr && _physicsWorld.isAlive()) {
+	if (pRigidBody != nullptr && physicsWorld.isAlive()) {
 		// Remove body from physics world
-		SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(_physicsWorld.get());
+		SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<SceneObjectPhysicsWorld*>(physicsWorld.get());
 
-		pPhysicsWorld->_pDynamicsWorld->removeRigidBody(_pRigidBody.get());
+		pPhysicsWorld->pDynamicsWorld->removeRigidBody(pRigidBody.get());
 	}
 }

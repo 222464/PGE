@@ -1,37 +1,37 @@
-#include <pge/rendering/voxel/TerrainGenerator.h>
+#include "TerrainGenerator.h"
 
-#include <pge/rendering/voxel/TerrainGrass.h>
-#include <pge/rendering/voxel/TerrainGrassBatcher.h>
+#include "TerrainGrass.h"
+#include "TerrainGrassBatcher.h"
 
-#include <pge/rendering/lighting/SceneObjectPointLight.h>
+#include "../lighting/SceneObjectPointLight.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
-#include <pge/sceneobjects/SceneObjectPropLOD.h>
+#include "../../sceneobjects/SceneObjectProp.h"
+#include "../../sceneobjects/SceneObjectPropLOD.h"
 
-#include <pge/constructs/Planef.h>
+#include "../../constructs/Planef.h"
 
-#include <pge/util/NoiseGenerator.h>
+#include "../../util/NoiseGenerator.h"
 
-#include <pge/util/Math.h>
+#include "../../util/Math.h"
 
 using namespace pge;
 
 void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 	NoiseGenerator generator;
-	generator._seed = seed;
+	generator.seed = seed;
 
-	Point3i start((chunk.getTerrain()->getCenter() + chunk.getCenterRelativePosition()) * VoxelChunk::_chunkSize);
-	Point3i centerOffset(chunk.getCenterRelativePosition() * VoxelChunk::_chunkSize);
+	Point3i start((chunk.getTerrain()->getCenter() + chunk.getCenterRelativePosition()) * VoxelChunk::chunkSize);
+	Point3i centerOffset(chunk.getCenterRelativePosition() * VoxelChunk::chunkSize);
 	Vec3f startf(static_cast<float>(start.x), static_cast<float>(start.y), static_cast<float>(start.z));
 	Vec3f centerf(0.0f, 0.0f, 0.0f);
 
-	for (int x = 0; x < VoxelChunk::_chunkSize; x++)
-	for (int y = 0; y < VoxelChunk::_chunkSize; y++)
-	for (int z = 0; z < VoxelChunk::_chunkSize; z++) {
+	for (int x = 0; x < VoxelChunk::chunkSize; x++)
+	for (int y = 0; y < VoxelChunk::chunkSize; y++)
+	for (int z = 0; z < VoxelChunk::chunkSize; z++) {
 		Vec3f worldPos(static_cast<float>(x + start.x), static_cast<float>(y + start.y), static_cast<float>(z + start.z));
 
 		//float value = clamp((worldPos - centerf).magnitude() - 20.0f, -1.0f, 1.0f);
-		float value = clamp(1.0f * ((generator.perlinNoise3D(worldPos.x * 0.01f, worldPos.y * 0.01f, worldPos.z * 0.01f, 6, 0.6f, 0.7f)) + 12.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::_chunkSize)), -1.0f, 1.0f);
+		float value = clamp(1.0f * ((generator.perlinNoise3D(worldPos.x * 0.01f, worldPos.y * 0.01f, worldPos.z * 0.01f, 6, 0.6f, 0.7f)) + 12.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::chunkSize)), -1.0f, 1.0f);
 
 		chunk.setVoxel(Point3i(x, y, z), static_cast<voxelType>(value * 127.0f));
 	}
@@ -43,24 +43,24 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 	const float grassYOffset = -0.2f;
 
-	const float grassAngleCos = cosf(_pi * 0.3f);
+	const float grassAngleCos = cosf(pi * 0.3f);
 
 	//const float lightChance = 0.02f;
 
 	//pge::SceneObjectRef lighting = chunk.getScene()->getNamed("lighting");
 
-	int lowestVoxelY = -chunk.getTerrain()->getSize().y * VoxelChunk::_chunkSize / 2;
+	int lowestVoxelY = -chunk.getTerrain()->getSize().y * VoxelChunk::chunkSize / 2;
 
 	std::uniform_int_distribution<int> distGrassAmount(minGrassPerCell, maxGrassPerCell);
-	std::uniform_real_distribution<float> voxelDist(0.0f, chunk.getTerrain()->_voxelSize);
+	std::uniform_real_distribution<float> voxelDist(0.0f, chunk.getTerrain()->voxelSize);
 	std::uniform_real_distribution<float> uniformDist(0.0f, 1.0f);
 
 	//std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
 	// Find surface, add grass
-	for (int x = 0; x < VoxelChunk::_chunkSize; x++)
-	for (int y = 0; y < VoxelChunk::_chunkSize; y++)
-	for (int z = 0; z < VoxelChunk::_chunkSize; z++) {
+	for (int x = 0; x < VoxelChunk::chunkSize; x++)
+	for (int y = 0; y < VoxelChunk::chunkSize; y++)
+	for (int z = 0; z < VoxelChunk::chunkSize; z++) {
 		Point3i worldPosi(x + centerOffset.x, y + centerOffset.y, z + centerOffset.z);
 
 		if (worldPosi.y <= lowestVoxelY)
@@ -68,11 +68,11 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 		//if (chunk.getVoxel(Point3i(x, y, z)) < 0 && chunk.getTerrain()->getVoxel(worldPosi + Point3i(0, 1, 0)) >= 0) {
 		// Found surface. Add grass to this cell
-		int grassAmount = distGrassAmount(chunk.getScene()->_randomGenerator);
+		int grassAmount = distGrassAmount(chunk.getScene()->randomGenerator);
 
 		Vec3f worldPosf(static_cast<float>(worldPosi.x), static_cast<float>(worldPosi.y), static_cast<float>(worldPosi.z));
 
-		worldPosf *= chunk.getTerrain()->_voxelSize;
+		worldPosf *= chunk.getTerrain()->voxelSize;
 
 		// ------------------------------- Extract plane from voxels -----------------------------------
 
@@ -84,7 +84,7 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 		for (unsigned char i = 0; i < 8; i++) {
 			Point3i p = p1 + Point3i((i & 0x04) == 0 ? 0 : 1, (i & 0x02) == 0 ? 0 : 1, (i & 0x01) == 0 ? 0 : 1);
 			Vec3f pf(static_cast<float>(p.x), static_cast<float>(p.y), static_cast<float>(p.z));
-			float v = static_cast<float>(chunk.getTerrain()->getVoxel(p)) * chunk.getTerrain()->_voxelScalar;
+			float v = static_cast<float>(chunk.getTerrain()->getVoxel(p)) * chunk.getTerrain()->voxelScalar;
 
 			pa[i] = pf;
 			va[i] = v;
@@ -187,8 +187,8 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 			for (int i = 0; i < grassAmount; i++) {
 				Vec3f p;
 
-				p.x = worldPosf.x + voxelDist(chunk.getScene()->_randomGenerator) - chunk.getTerrain()->_voxelSize;
-				p.z = worldPosf.z + voxelDist(chunk.getScene()->_randomGenerator) - chunk.getTerrain()->_voxelSize;
+				p.x = worldPosf.x + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
+				p.z = worldPosf.z + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
 
 				// Ray cast on plane
 				Vec3f rO(p.x, 0.0f, p.z);
@@ -202,7 +202,7 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 			}
 
 			// Randomly spawn tree
-			if (uniformDist(chunk.getScene()->_randomGenerator) < 0.015f) {
+			if (uniformDist(chunk.getScene()->randomGenerator) < 0.015f) {
 				std::shared_ptr<SceneObjectPropLOD> tree(new SceneObjectPropLOD());
 
 				chunk.getScene()->add(tree, true);
@@ -217,8 +217,8 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 				Vec3f p;
 
-				p.x = worldPosf.x + voxelDist(chunk.getScene()->_randomGenerator) - chunk.getTerrain()->_voxelSize;
-				p.z = worldPosf.z + voxelDist(chunk.getScene()->_randomGenerator) - chunk.getTerrain()->_voxelSize;
+				p.x = worldPosf.x + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
+				p.z = worldPosf.z + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
 
 				// Ray cast on plane
 				Vec3f rO(p.x, 0.0f, p.z);
@@ -228,7 +228,7 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 				p.y = d;
 
-				tree->_transform = Matrix4x4f::translateMatrix(p);
+				tree->transform = Matrix4x4f::translateMatrix(p);
 
 				tree->calculateAABB();
 			}
@@ -279,20 +279,20 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 
 void pge::terrainGeneratorFlatlands(VoxelChunk &chunk, int seed) {
 	NoiseGenerator generator;
-	generator._seed = seed;
+	generator.seed = seed;
 
-	Point3i start((chunk.getTerrain()->getCenter() + chunk.getCenterRelativePosition()) * VoxelChunk::_chunkSize);
-	Point3i centerOffset(chunk.getCenterRelativePosition() * VoxelChunk::_chunkSize);
+	Point3i start((chunk.getTerrain()->getCenter() + chunk.getCenterRelativePosition()) * VoxelChunk::chunkSize);
+	Point3i centerOffset(chunk.getCenterRelativePosition() * VoxelChunk::chunkSize);
 	Vec3f startf(static_cast<float>(start.x), static_cast<float>(start.y), static_cast<float>(start.z));
 	Vec3f centerf(0.0f, 0.0f, 0.0f);
 
-	for (int x = 0; x < VoxelChunk::_chunkSize; x++)
-	for (int y = 0; y < VoxelChunk::_chunkSize; y++)
-	for (int z = 0; z < VoxelChunk::_chunkSize; z++) {
+	for (int x = 0; x < VoxelChunk::chunkSize; x++)
+	for (int y = 0; y < VoxelChunk::chunkSize; y++)
+	for (int z = 0; z < VoxelChunk::chunkSize; z++) {
 		Vec3f worldPos(static_cast<float>(x + start.x), static_cast<float>(y + start.y), static_cast<float>(z + start.z));
 
 		//float value = clamp((worldPos - centerf).magnitude() - 20.0f, -1.0f, 1.0f);
-		float value = clamp(6.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::_chunkSize), -1.0f, 1.0f);
+		float value = clamp(6.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::chunkSize), -1.0f, 1.0f);
 
 		chunk.setVoxel(Point3i(x, y, z), static_cast<voxelType>(value * 127.0f));
 	}

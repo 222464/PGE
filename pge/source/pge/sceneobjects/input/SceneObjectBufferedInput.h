@@ -1,25 +1,25 @@
 #pragma once
 
-#include <pge/scene/Scene.h>
+#include "../../scene/Scene.h"
 
 namespace pge {
 	class SceneObjectBufferedInput : public SceneObject {
 	private:
-		std::vector<bool> _prevKeyStates;
-		std::vector<bool> _currentKeyStates;
+		std::vector<bool> prevKeyStates;
+		std::vector<bool> currentKeyStates;
 
-		bool _prevLMBDown;
-		bool _prevRMBDown;
-		bool _prevMMBDown;
+		bool prevLMBDown;
+		bool prevRMBDown;
+		bool prevMMBDown;
 
-		bool _currentLMBDown;
-		bool _currentRMBDown;
-		bool _currentMMBDown;
+		bool currentLMBDown;
+		bool currentRMBDown;
+		bool currentMMBDown;
 
-		int _mouseWheelDelta;
+		int mouseWheelDelta;
 
 	public:
-		std::vector<sf::Event> _events;
+		std::vector<sf::Event> events;
 
 		SceneObjectBufferedInput();
 
@@ -27,71 +27,71 @@ namespace pge {
 		void synchronousUpdate(float dt);
 
 		bool isKeyDown(sf::Keyboard::Key key) const {
-			return _currentKeyStates[key];
+			return currentKeyStates[key];
 		}
 
 		bool wasKeyDown(sf::Keyboard::Key key) const {
-			return _prevKeyStates[key];
+			return prevKeyStates[key];
 		}
 
 		bool isKeyPressed(sf::Keyboard::Key key) const {
-			return _currentKeyStates[key] && !_prevKeyStates[key];
+			return currentKeyStates[key] && !prevKeyStates[key];
 		}
 
 		bool isKeyReleased(sf::Keyboard::Key key) const {
-			return !_currentKeyStates[key] && _prevKeyStates[key];
+			return !currentKeyStates[key] && prevKeyStates[key];
 		}
 
 		bool isLMBDown() const {
-			return _currentLMBDown;
+			return currentLMBDown;
 		}
 
 		bool wasLMBDown() const {
-			return _prevLMBDown;
+			return prevLMBDown;
 		}
 
 		bool isLMBPressed() const {
-			return _currentLMBDown && !_prevLMBDown;
+			return currentLMBDown && !prevLMBDown;
 		}
 
 		bool isLMBReleased() const {
-			return !_currentLMBDown && _prevLMBDown;
+			return !currentLMBDown && prevLMBDown;
 		}
 
 		bool isRMBDown() const {
-			return _currentRMBDown;
+			return currentRMBDown;
 		}
 
 		bool wasRMBDown() const {
-			return _prevRMBDown;
+			return prevRMBDown;
 		}
 
 		bool isRMBPressed() const {
-			return _currentRMBDown && !_prevRMBDown;
+			return currentRMBDown && !prevRMBDown;
 		}
 
 		bool isRMBReleased() const {
-			return !_currentRMBDown && _prevRMBDown;
+			return !currentRMBDown && prevRMBDown;
 		}
 
 		bool isMMBDown() const {
-			return _currentMMBDown;
+			return currentMMBDown;
 		}
 
 		bool wasMMBDown() const {
-			return _prevMMBDown;
+			return prevMMBDown;
 		}
 
 		bool isMMBPressed() const {
-			return _currentMMBDown && !_prevMMBDown;
+			return currentMMBDown && !prevMMBDown;
 		}
 
 		bool isMMBReleased() const {
-			return !_currentMMBDown && _prevMMBDown;
+			return !currentMMBDown && prevMMBDown;
 		}
 
 		int getMouseWheelDelta() const {
-			return _mouseWheelDelta;
+			return mouseWheelDelta;
 		}
 
 		SceneObject* copyFactory() {

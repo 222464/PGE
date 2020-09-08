@@ -1,4 +1,4 @@
-#include <pge/rendering/SFMLOGL.h>
+#include "SFMLOGL.h"
 
 #include <GL/glu.h>
 
@@ -6,7 +6,7 @@
 
 using namespace pge;
 
-GLuint pge::_vaoID = 0;
+GLuint pge::vaoID = 0;
 
 bool pge::checkForGLError() {
 	GLuint errorCode = glGetError();
@@ -22,8 +22,8 @@ bool pge::checkForGLError() {
 }
 
 void pge::sfmloglSetup() {
-	glGenVertexArrays(1, &_vaoID);
-    glBindVertexArray(_vaoID);
+	glGenVertexArrays(1, &vaoID);
+    glBindVertexArray(vaoID);
 
 	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
 	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);

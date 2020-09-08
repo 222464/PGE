@@ -1,115 +1,115 @@
-#include <pge/rendering/lighting/SceneObjectSpotLight.h>
+#include "SceneObjectSpotLight.h"
 
 using namespace pge;
 
 SceneObjectSpotLight::SceneObjectSpotLight()
-: _position(0.0f, 0.0f, 0.0f),
-_color(1.0f, 1.0f, 1.0f),
-_range(1.0f),
-_direction(1.0f, 0.0f, 0.0f),
-_spotAngle(_piOver4),
-_exponent(8.0f),
-_needsUniformBufferUpdate(true),
-_enabled(true)
+: position(0.0f, 0.0f, 0.0f),
+color(1.0f, 1.0f, 1.0f),
+range(1.0f),
+direction(1.0f, 0.0f, 0.0f),
+spotAngle(piOver4),
+exponent(8.0f),
+needsUniformBufferUpdate(true),
+enabled(true)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 
 	updateSpotLightInternals();
 }
 
 void SceneObjectSpotLight::create(SceneObjectLighting* pLighting) {
-	_lighting = pLighting;
+	lighting = pLighting;
 
-	_uniformBuffer.reset(new VBO());
-	_uniformBuffer->create();
+	uniformBuffer.reset(new VBO());
+	uniformBuffer->create();
 
-	pLighting->_spotLightLightUBOShaderInterface->setUpBuffer(*_uniformBuffer);
+	pLighting->spotLightLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
 
 	updateUniformBuffer();
 }
 
 void SceneObjectSpotLight::setPosition(const Vec3f &position) {
-	_position = position;
+	this->position = position;
 
 	updateSpotLightInternals();
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::setColor(const Vec3f &color) {
-	_color = color;
+	this->color = color;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::setRange(float range) {
-	_range = range;
+	this->range = range;
 
 	updateSpotLightInternals();
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::setDirection(const Vec3f &direction) {
-	_direction = direction;
+	this->direction = direction;
 
 	updateSpotLightInternals();
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::setSpotAngle(float angle) {
-	_spotAngle = angle;
+	spotAngle = angle;
 
 	updateSpotLightInternals();
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::setExponent(float exponent) {
-	_exponent = exponent;
+	this->exponent = exponent;
 
-	_needsUniformBufferUpdate = true;
+	needsUniformBufferUpdate = true;
 }
 
 void SceneObjectSpotLight::updateUniformBuffer() {
-	_uniformBuffer->bind(GL_UNIFORM_BUFFER);
+	uniformBuffer->bind(GL_UNIFORM_BUFFER);
 
-	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(&(*_lighting));
+	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(&(*lighting));
 
-	pLighting->_spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightColor", _color);
-	pLighting->_spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightRange", _range);
-	pLighting->_spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightRangeInv", 1.0f / _range);
-	pLighting->_spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightSpreadAngleCos", _spotAngleCos);
-	pLighting->_spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightSpreadAngleCosFlipInv", 1.0f / (1.0f - _spotAngleCos));
-	pLighting->_spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightExponent", _exponent);
+	pLighting->spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightColor", color);
+	pLighting->spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightRange", range);
+	pLighting->spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightRangeInv", 1.0f / range);
+	pLighting->spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightSpreadAngleCos", spotAngleCos);
+	pLighting->spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightSpreadAngleCosFlipInv", 1.0f / (1.0f - spotAngleCos));
+	pLighting->spotLightLightUBOShaderInterface->setUniformf("pgeSpotLightExponent", exponent);
 
-	if (_needsUniformBufferUpdate) {
-		pLighting->_spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightPosition", getRenderScene()->_renderCamera.getViewMatrix() * _position);
-		pLighting->_spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightDirection", getRenderScene()->_renderCamera.getNormalMatrix() * _direction);
+	if (needsUniformBufferUpdate) {
+		pLighting->spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightPosition", getRenderScene()->renderCamera.getViewMatrix() * position);
+		pLighting->spotLightLightUBOShaderInterface->setUniformv3f("pgeSpotLightDirection", getRenderScene()->renderCamera.getNormalMatrix() * direction);
 
-		_needsUniformBufferUpdate = false;
+		needsUniformBufferUpdate = false;
 	}
 }
 
 void SceneObjectSpotLight::deferredRender() {
-	if (_enabled && !getRenderScene()->_renderingShadows && getRenderScene()->_shaderSwitchesEnabled)
-		static_cast<SceneObjectLighting*>(_lighting.get())->_spotLights.push_back(*this);
+	if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
+		static_cast<SceneObjectLighting*>(lighting.get())->spotLights.push_back(*this);
 }
 
 void SceneObjectSpotLight::updateSpotLightInternals() {
-	_spotAngleCos = cosf(_spotAngle);
-	_endConeRadius = _range * tanf(_spotAngle);
+	spotAngleCos = cosf(spotAngle);
+	endConeRadius = range * tanf(spotAngle);
 
 	// X axis shifted unit AABB for transform
-	_aabb.setHalfDims(Vec3f(0.5f, 1.0f, 1.0f));
-	_aabb.setCenter(Vec3f(0.5f, 0.0f, 0.0f));
+	aabb.setHalfDims(Vec3f(0.5f, 1.0f, 1.0f));
+	aabb.setCenter(Vec3f(0.5f, 0.0f, 0.0f));
 
 	// Update transform
-	_transform = Matrix4x4f::translateMatrix(_position) * Matrix4x4f::directionMatrixAutoUp(_direction) * Matrix4x4f::scaleMatrix(Vec3f(_range, _endConeRadius, _endConeRadius));
+	transform = Matrix4x4f::translateMatrix(position) * Matrix4x4f::directionMatrixAutoUp(direction) * Matrix4x4f::scaleMatrix(Vec3f(range, endConeRadius, endConeRadius));
 
 	// Rotation
-	_aabb = _aabb.getTransformedAABB(_transform);
+	aabb = aabb.getTransformedAABB(transform);
 
 	// Tree update
 	updateAABB();

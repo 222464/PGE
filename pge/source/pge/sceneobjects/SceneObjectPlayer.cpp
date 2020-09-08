@@ -1,22 +1,22 @@
-#include <pge/sceneobjects/SceneObjectPlayer.h>
+#include "SceneObjectPlayer.h"
 
-#include <pge/scene/RenderScene.h>
+#include "../scene/RenderScene.h"
 
-#include <pge/util/Math.h>
+#include "../util/Math.h"
 
 SceneObjectPlayer::SceneObjectPlayer() 
-: _sensitivity(0.01f), _angleX(0.0f), _angleY(0.0f), _noClipVelocity(0.0f, 0.0f, 0.0f),
-_noClipAcceleration(120.0f), _noClipDeceleration(10.0f), _noClipRunMultiplier(8.0f),
-_acceleration(20.0f), _deceleration(4.0f), _runMultiplier(2.5f),
-_radius(0.5f), _height(2.0f), _mass(70.0f), _stepHeight(0.2f),
-_cameraHeightOffset(1.0f),
-_allowNoclipChange(true), _acceptingInput(false),
-_lastMousePosition(128, 128)
+: sensitivity(0.01f), angleX(0.0f), angleY(0.0f), noClipVelocity(0.0f, 0.0f, 0.0f),
+noClipAcceleration(120.0f), noClipDeceleration(10.0f), noClipRunMultiplier(8.0f),
+acceleration(20.0f), deceleration(4.0f), runMultiplier(2.5f),
+radius(0.5f), height(2.0f), mass(70.0f), stepHeight(0.2f),
+cameraHeightOffset(1.0f),
+allowNoclipChange(true), acceptingInput(false),
+lastMousePosition(128, 128)
 {}
 
 void SceneObjectPlayer::setNoClip(bool noClip) {
 	if (noClip)
-		_characterController.reset();
+		characterController.reset();
 	else {
 		assert(getScene() != nullptr);
 
@@ -24,93 +24,93 @@ void SceneObjectPlayer::setNoClip(bool noClip) {
 
 		assert(physicsWorld.isAlive());
 
-		_characterController.reset(new pge::DynamicCharacterController(getScene(), static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get()), getScene()->_logicCamera._position + pge::Vec3f(0.0f, -_cameraHeightOffset, 0.0f), _radius, _height, _mass, _stepHeight));
+		characterController.reset(new pge::DynamicCharacterController(getScene(), static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get()), getScene()->logicCamera.position + pge::Vec3f(0.0f, -cameraHeightOffset, 0.0f), radius, height, mass, stepHeight));
 	}
 }
 
 void SceneObjectPlayer::onAdd() {
-	_input = getScene()->getNamed("buffIn");
+	input = getScene()->getNamed("buffIn");
 
-	assert(_input.isAlive());
+	assert(input.isAlive());
 }
 
 void SceneObjectPlayer::update(float dt) {
-	pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(_input.get());
+	pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(input.get());
 
 	if (pBufferedInput->isKeyPressed(sf::Keyboard::Escape)) {
-		_acceptingInput = !_acceptingInput;
+		acceptingInput = !acceptingInput;
 		
-		if (_acceptingInput) {
-			_lastMousePosition = sf::Mouse::getPosition(*getRenderScene()->getRenderWindow());
+		if (acceptingInput) {
+			lastMousePosition = sf::Mouse::getPosition(*getRenderScene()->getRenderWindow());
 
 			sf::Mouse::setPosition(sf::Vector2i(128, 128), *getRenderScene()->getRenderWindow());
 		}
 		else
-			sf::Mouse::setPosition(_lastMousePosition, *getRenderScene()->getRenderWindow());
+			sf::Mouse::setPosition(lastMousePosition, *getRenderScene()->getRenderWindow());
 	}
 
-	if (_acceptingInput) {
+	if (acceptingInput) {
 		sf::Vector2i mousePosition = sf::Mouse::getPosition(*getRenderScene()->getRenderWindow()) - sf::Vector2i(128, 128);
 		sf::Mouse::setPosition(sf::Vector2i(128, 128), *getRenderScene()->getRenderWindow());
 		
-		_angleX -= mousePosition.x * _sensitivity;
-		_angleY -= mousePosition.y * _sensitivity;
+		angleX -= mousePosition.x * sensitivity;
+		angleY -= mousePosition.y * sensitivity;
 
-		_angleX = fmodf(_angleX, pge::_piTimes2);
+		angleX = fmodf(angleX, pge::piTimes2);
 
-		if (_angleY < -pge::_piOver2)
-			_angleY = -pge::_piOver2;
-		else if (_angleY > pge::_piOver2)
-			_angleY = pge::_piOver2;
+		if (angleY < -pge::piOver2)
+			angleY = -pge::piOver2;
+		else if (angleY > pge::piOver2)
+			angleY = pge::piOver2;
 
-		getRenderScene()->_logicCamera._rotation = pge::Quaternion(_angleX, pge::Vec3f(0.0f, 1.0f, 0.0f)) * pge::Quaternion(_angleY, pge::Vec3f(1.0f, 0.0f, 0.0f));
+		getRenderScene()->logicCamera.rotation = pge::Quaternion(angleX, pge::Vec3f(0.0f, 1.0f, 0.0f)) * pge::Quaternion(angleY, pge::Vec3f(1.0f, 0.0f, 0.0f));
 
-		if (_allowNoclipChange)
+		if (allowNoclipChange)
 		if (pBufferedInput->isKeyPressed(sf::Keyboard::N))
-			setNoClip(_characterController != nullptr);
+			setNoClip(characterController != nullptr);
 
-		if (_characterController == nullptr) {
-			float accel = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? _noClipAcceleration * _noClipRunMultiplier : _noClipAcceleration;
+		if (characterController == nullptr) {
+			float accel = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? noClipAcceleration * noClipRunMultiplier : noClipAcceleration;
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-				_noClipVelocity += getRenderScene()->_logicCamera._rotation * pge::Vec3f(0.0f, 0.0f, -accel * dt);
+				noClipVelocity += getRenderScene()->logicCamera.rotation * pge::Vec3f(0.0f, 0.0f, -accel * dt);
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-				_noClipVelocity += getRenderScene()->_logicCamera._rotation * pge::Vec3f(0.0f, 0.0f, accel * dt);
+				noClipVelocity += getRenderScene()->logicCamera.rotation * pge::Vec3f(0.0f, 0.0f, accel * dt);
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-				_noClipVelocity += getRenderScene()->_logicCamera._rotation * pge::Vec3f(accel * dt, 0.0f, 0.0f);
+				noClipVelocity += getRenderScene()->logicCamera.rotation * pge::Vec3f(accel * dt, 0.0f, 0.0f);
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-				_noClipVelocity += getRenderScene()->_logicCamera._rotation * pge::Vec3f(-accel * dt, 0.0f, 0.0f);
+				noClipVelocity += getRenderScene()->logicCamera.rotation * pge::Vec3f(-accel * dt, 0.0f, 0.0f);
 
-			_noClipVelocity += -_noClipDeceleration * _noClipVelocity * dt;
+			noClipVelocity += -noClipDeceleration * noClipVelocity * dt;
 
-			getRenderScene()->_logicCamera._position += _noClipVelocity * dt;
+			getRenderScene()->logicCamera.position += noClipVelocity * dt;
 		}
 		else {
-			float accel = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? _acceleration * _runMultiplier : _acceleration;
+			float accel = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift) ? acceleration * runMultiplier : acceleration;
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-				_characterController->walk(getRenderScene()->_logicCamera._rotation * pge::Vec3f(0.0f, 0.0f, -accel * dt));
+				characterController->walk(getRenderScene()->logicCamera.rotation * pge::Vec3f(0.0f, 0.0f, -accel * dt));
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-				_characterController->walk(getRenderScene()->_logicCamera._rotation * pge::Vec3f(0.0f, 0.0f, accel * dt));
+				characterController->walk(getRenderScene()->logicCamera.rotation * pge::Vec3f(0.0f, 0.0f, accel * dt));
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-				_characterController->walk(getRenderScene()->_logicCamera._rotation * pge::Vec3f(accel * dt, 0.0f, 0.0f));
+				characterController->walk(getRenderScene()->logicCamera.rotation * pge::Vec3f(accel * dt, 0.0f, 0.0f));
 			else if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-				_characterController->walk(getRenderScene()->_logicCamera._rotation * pge::Vec3f(-accel * dt, 0.0f, 0.0f));
+				characterController->walk(getRenderScene()->logicCamera.rotation * pge::Vec3f(-accel * dt, 0.0f, 0.0f));
 
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-				_characterController->jump();
+				characterController->jump();
 
-			_characterController->_deceleration = _deceleration;
+			characterController->deceleration = deceleration;
 
-			_characterController->update(dt);
+			characterController->update(dt);
 
-			getRenderScene()->_logicCamera._position = _characterController->getPosition() + pge::Vec3f(0.0f, _cameraHeightOffset, 0.0f);
+			getRenderScene()->logicCamera.position = characterController->getPosition() + pge::Vec3f(0.0f, cameraHeightOffset, 0.0f);
 		}
 	}
 }
 
 void SceneObjectPlayer::synchronousUpdate(float dt) {
-	getRenderScene()->getRenderWindow()->setMouseCursorVisible(!_acceptingInput);
+	getRenderScene()->getRenderWindow()->setMouseCursorVisible(!acceptingInput);
 }

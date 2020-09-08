@@ -1,10 +1,10 @@
-#include <pge/constructs/Matrix3x3f.h>
+#include "Matrix3x3f.h"
 
 #include <assert.h>
 
 using namespace pge;
 
-const float Matrix3x3f::_directionMatrixNormalizationTolerance = 0.9999f;
+const float Matrix3x3f::directionMatrixNormalizationTolerance = 0.9999f;
 
 Matrix3x3f Matrix3x3f::operator*(const Matrix3x3f &other) const {
 	Matrix3x3f product;
@@ -34,9 +34,9 @@ bool Matrix3x3f::operator==(const Matrix3x3f &other) const {
 }
 
 void Matrix3x3f::setIdentity() {
-	_elements[0] = 1.0f; _elements[3] = 0.0f; _elements[6] = 0.0f;
-	_elements[1] = 0.0f; _elements[4] = 1.0f; _elements[7] = 0.0f;
-	_elements[2] = 0.0f; _elements[5] = 0.0f; _elements[8] = 1.0f;
+	elements[0] = 1.0f; elements[3] = 0.0f; elements[6] = 0.0f;
+	elements[1] = 0.0f; elements[4] = 1.0f; elements[7] = 0.0f;
+	elements[2] = 0.0f; elements[5] = 0.0f; elements[8] = 1.0f;
 }
 
 Matrix3x3f Matrix3x3f::transpose() const {
@@ -50,12 +50,12 @@ Matrix3x3f Matrix3x3f::transpose() const {
 }
 
 float Matrix3x3f::determinant() const {
-	return _elements[0] * _elements[4] * _elements[8] +
-		_elements[3] * _elements[7] * _elements[2] +
-		_elements[6] * _elements[1] * _elements[5] -
-		_elements[2] * _elements[4] * _elements[6] - 
-		_elements[5] * _elements[7] * _elements[0] -
-		_elements[8] * _elements[1] * _elements[3];
+	return elements[0] * elements[4] * elements[8] +
+		elements[3] * elements[7] * elements[2] +
+		elements[6] * elements[1] * elements[5] -
+		elements[2] * elements[4] * elements[6] - 
+		elements[5] * elements[7] * elements[0] -
+		elements[8] * elements[1] * elements[3];
 }
 
 bool Matrix3x3f::inverse(Matrix3x3f &inverse) const {
@@ -66,15 +66,15 @@ bool Matrix3x3f::inverse(Matrix3x3f &inverse) const {
 
 	float detInv = 1.0f / det;
 
-	inverse._elements[0] = (_elements[4] * _elements[8] - _elements[5] * _elements[7]) * detInv;
-	inverse._elements[1] = (_elements[7] * _elements[2] - _elements[8] * _elements[1]) * detInv;
-	inverse._elements[2] = (_elements[1] * _elements[5] - _elements[2] * _elements[4]) * detInv;
-	inverse._elements[3] = (_elements[6] * _elements[5] - _elements[8] * _elements[3]) * detInv;
-	inverse._elements[4] = (_elements[0] * _elements[8] - _elements[2] * _elements[6]) * detInv;
-	inverse._elements[5] = (_elements[3] * _elements[2] - _elements[5] * _elements[0]) * detInv;
-	inverse._elements[6] = (_elements[3] * _elements[7] - _elements[4] * _elements[6]) * detInv;
-	inverse._elements[7] = (_elements[6] * _elements[1] - _elements[7] * _elements[0]) * detInv;
-	inverse._elements[8] = (_elements[0] * _elements[4] - _elements[1] * _elements[3]) * detInv;
+	inverse.elements[0] = (elements[4] * elements[8] - elements[5] * elements[7]) * detInv;
+	inverse.elements[1] = (elements[7] * elements[2] - elements[8] * elements[1]) * detInv;
+	inverse.elements[2] = (elements[1] * elements[5] - elements[2] * elements[4]) * detInv;
+	inverse.elements[3] = (elements[6] * elements[5] - elements[8] * elements[3]) * detInv;
+	inverse.elements[4] = (elements[0] * elements[8] - elements[2] * elements[6]) * detInv;
+	inverse.elements[5] = (elements[3] * elements[2] - elements[5] * elements[0]) * detInv;
+	inverse.elements[6] = (elements[3] * elements[7] - elements[4] * elements[6]) * detInv;
+	inverse.elements[7] = (elements[6] * elements[1] - elements[7] * elements[0]) * detInv;
+	inverse.elements[8] = (elements[0] * elements[4] - elements[1] * elements[3]) * detInv;
 
 	return true;
 }
@@ -125,26 +125,26 @@ Matrix3x3f Matrix3x3f::identityMatrix() {
 }
 
 void Matrix3x3f::getUBOPadded(std::array<float, 12> &data) const {
-	data[0] = _elements[0];
-	data[1] = _elements[1];
-	data[2] = _elements[2];
+	data[0] = elements[0];
+	data[1] = elements[1];
+	data[2] = elements[2];
 	data[3] = 0.0f;
-	data[4] = _elements[3];
-	data[5] = _elements[4];
-	data[6] = _elements[5];
+	data[4] = elements[3];
+	data[5] = elements[4];
+	data[6] = elements[5];
 	data[7] = 0.0f;
-	data[8] = _elements[6];
-	data[9] = _elements[7];
-	data[10] = _elements[8];
+	data[8] = elements[6];
+	data[9] = elements[7];
+	data[10] = elements[8];
 	data[11] = 0.0f;
 }
 
 Vec3f Matrix3x3f::operator*(const Vec3f &vec) const {
 	Vec3f result;
 	
-	result.x = _elements[0] * vec.x + _elements[3] * vec.y + _elements[6] * vec.z;
-	result.y = _elements[1] * vec.x + _elements[4] * vec.y + _elements[7] * vec.z;
-	result.z = _elements[2] * vec.x + _elements[5] * vec.y + _elements[8] * vec.z;
+	result.x = elements[0] * vec.x + elements[3] * vec.y + elements[6] * vec.z;
+	result.y = elements[1] * vec.x + elements[4] * vec.y + elements[7] * vec.z;
+	result.z = elements[2] * vec.x + elements[5] * vec.y + elements[8] * vec.z;
 
 	return result;
 }
@@ -152,8 +152,8 @@ Vec3f Matrix3x3f::operator*(const Vec3f &vec) const {
 Vec2f Matrix3x3f::operator*(const Vec2f &vec) const {
 	Vec2f result;
 
-	result.x = _elements[0] * vec.x + _elements[3] * vec.y + _elements[6];
-	result.y = _elements[1] * vec.x + _elements[4] * vec.y + _elements[7];
+	result.x = elements[0] * vec.x + elements[3] * vec.y + elements[6];
+	result.y = elements[1] * vec.x + elements[4] * vec.y + elements[7];
 
 	return result;
 }

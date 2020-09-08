@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include <pge/system/Uncopyable.h>
+#include "../system/Uncopyable.h"
 
 namespace pge {
 	class Asset : public Uncopyable {

@@ -1,10 +1,10 @@
-#include <pge/constructs/Quaternion.h>
-#include <pge/util/Math.h>
+#include "Quaternion.h"
+#include "../util/Math.h"
 
 using namespace pge;
 
-const float Quaternion::_quaternionNormalizationTolerance = 0.0001f;
-const float Quaternion::_quaternionDotTolerance = 0.9999f;
+const float Quaternion::quaternionNormalizationTolerance = 0.0001f;
+const float Quaternion::quaternionDotTolerance = 0.9999f;
 
 Quaternion::Quaternion(float angle, const Vec3f &axis) {
 	angle *= 0.5f;
@@ -20,7 +20,7 @@ Quaternion::Quaternion(float angle, const Vec3f &axis) {
 void Quaternion::normalize() {
 	float m2 = x * x + y * y + z * z + w * w;
 
-	if (fabsf(m2) > _quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
+	if (fabsf(m2) > quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > quaternionNormalizationTolerance) {
 		float mInv = 1.0f / sqrtf(m2);
 
 		w *= mInv;
@@ -33,7 +33,7 @@ void Quaternion::normalize() {
 Quaternion Quaternion::normalized() const {
 	float m2 = x * x + y * y + z * z + w * w;
 
-	if (fabsf(m2) > _quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > _quaternionNormalizationTolerance) {
+	if (fabsf(m2) > quaternionNormalizationTolerance && fabsf(m2 - 1.0f) > quaternionNormalizationTolerance) {
 		float mInv = 1.0f / sqrtf(m2);
 
 		return Quaternion(w * mInv, x * mInv, y * mInv, z * mInv);
@@ -45,7 +45,7 @@ Quaternion Quaternion::normalized() const {
 Vec3f Quaternion::getAxis() const {
 	float s = sqrtf(1.0f - w * w);
 
-	if (s < _quaternionNormalizationTolerance)
+	if (s < quaternionNormalizationTolerance)
 		return Vec3f(x, y, z);
 
 	float sInv = 1.0f / s;
@@ -79,7 +79,7 @@ void Quaternion::setFromRotateDifference(const Vec3f &v1, const Vec3f &v2) {
 }
 
 void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
-	float trace = mat._elements[0] + mat._elements[5] + mat._elements[10];
+	float trace = mat.elements[0] + mat.elements[5] + mat.elements[10];
 
 	if(trace > 0.0f) { 
 		float s = sqrtf(trace + 1.0f) * 2.0f;
@@ -87,35 +87,35 @@ void Quaternion::setFromMatrix(const Matrix4x4f &mat) {
 		float sInv = 1.0f / s;
 
 		w = 0.25f * s;
-		x = (mat._elements[9] - mat._elements[6]) * sInv;
-		y = (mat._elements[2] - mat._elements[8]) * sInv; 
-		z = (mat._elements[4] - mat._elements[1]) * sInv; 
-	} else if(mat._elements[0] > mat._elements[5] && mat._elements[0] > mat._elements[10]) { 
-		float s = sqrtf(1.0f + mat._elements[0] - mat._elements[5] - mat._elements[10]) * 2.0f;
+		x = (mat.elements[9] - mat.elements[6]) * sInv;
+		y = (mat.elements[2] - mat.elements[8]) * sInv; 
+		z = (mat.elements[4] - mat.elements[1]) * sInv; 
+	} else if(mat.elements[0] > mat.elements[5] && mat.elements[0] > mat.elements[10]) { 
+		float s = sqrtf(1.0f + mat.elements[0] - mat.elements[5] - mat.elements[10]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[9] - mat._elements[6]) * sInv;
+		w = (mat.elements[9] - mat.elements[6]) * sInv;
 		x = 0.25f * s;
-		y = (mat._elements[1] + mat._elements[4]) * sInv; 
-		z = (mat._elements[2] + mat._elements[8]) * sInv; 
-	} else if(mat._elements[5] > mat._elements[10]) { 
-		float s = sqrtf(1.0f + mat._elements[5] - mat._elements[0] - mat._elements[10]) * 2.0f;
+		y = (mat.elements[1] + mat.elements[4]) * sInv; 
+		z = (mat.elements[2] + mat.elements[8]) * sInv; 
+	} else if(mat.elements[5] > mat.elements[10]) { 
+		float s = sqrtf(1.0f + mat.elements[5] - mat.elements[0] - mat.elements[10]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[2] - mat._elements[8]) * sInv;
-		x = (mat._elements[1] + mat._elements[4]) * sInv; 
+		w = (mat.elements[2] - mat.elements[8]) * sInv;
+		x = (mat.elements[1] + mat.elements[4]) * sInv; 
 		y = 0.25f * s;
-		z = (mat._elements[6] + mat._elements[9]) * sInv; 
+		z = (mat.elements[6] + mat.elements[9]) * sInv; 
 	} else { 
-		float s = sqrtf(1.0f + mat._elements[10] - mat._elements[0] - mat._elements[5]) * 2.0f;
+		float s = sqrtf(1.0f + mat.elements[10] - mat.elements[0] - mat.elements[5]) * 2.0f;
 
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[4] - mat._elements[1]) * sInv;
-		x = (mat._elements[2] + mat._elements[8]) * sInv;
-		y = (mat._elements[6] + mat._elements[9]) * sInv;
+		w = (mat.elements[4] - mat.elements[1]) * sInv;
+		x = (mat.elements[2] + mat.elements[8]) * sInv;
+		y = (mat.elements[6] + mat.elements[9]) * sInv;
 		z = 0.25f * s;
 	}
 }
@@ -171,22 +171,22 @@ Matrix4x4f Quaternion::getMatrix() const {
 	float wy = w * y;
 	float wz = w * z;
 
-	mat._elements[0] = 1.0f - 2.0f * (y2 + z2);
-	mat._elements[1] = 2.0f * (xy - wz);
-	mat._elements[2] = 2.0f * (xz + wy);
-	mat._elements[3] = 0.0f;
-	mat._elements[4] = 2.0f * (xy + wz);
-	mat._elements[5] = 1.0f - 2.0f * (x2 + z2);
-	mat._elements[6] = 2.0f * (yz - wx);
-	mat._elements[7] = 0.0f;
-	mat._elements[8] = 2.0f * (xz - wy);
-	mat._elements[9] = 2.0f * (yz + wx);
-	mat._elements[10] = 1.0f - 2.0f * (x2 + y2);
-	mat._elements[11] = 0.0f;
-	mat._elements[12] = 0.0f;
-	mat._elements[13] = 0.0f;
-	mat._elements[14] = 0.0f;
-	mat._elements[15] = 1.0f;
+	mat.elements[0] = 1.0f - 2.0f * (y2 + z2);
+	mat.elements[1] = 2.0f * (xy - wz);
+	mat.elements[2] = 2.0f * (xz + wy);
+	mat.elements[3] = 0.0f;
+	mat.elements[4] = 2.0f * (xy + wz);
+	mat.elements[5] = 1.0f - 2.0f * (x2 + z2);
+	mat.elements[6] = 2.0f * (yz - wx);
+	mat.elements[7] = 0.0f;
+	mat.elements[8] = 2.0f * (xz - wy);
+	mat.elements[9] = 2.0f * (yz + wx);
+	mat.elements[10] = 1.0f - 2.0f * (x2 + y2);
+	mat.elements[11] = 0.0f;
+	mat.elements[12] = 0.0f;
+	mat.elements[13] = 0.0f;
+	mat.elements[14] = 0.0f;
+	mat.elements[15] = 1.0f;
 
 	return mat;
 }
@@ -208,39 +208,39 @@ void Quaternion::setFromEulerAngles(const Vec3f &eulerAngles) {
 }
 
 void Quaternion::setFromRotationMatrix3x3f(const Matrix3x3f &mat) {
-	float trace = mat._elements[0] + mat._elements[4] + mat._elements[8];
+	float trace = mat.elements[0] + mat.elements[4] + mat.elements[8];
 
 	if(trace > 0.0f) {
 		w = 0.5f * sqrtf(1.0f + trace);
 
 		float wTimes4Inv = 1.0f / (w * 4.0f);
 
-		x = (mat._elements[5] - mat._elements[7]) * wTimes4Inv;
-		y = (mat._elements[6] - mat._elements[2]) * wTimes4Inv;
-		z = (mat._elements[1] - mat._elements[3]) * wTimes4Inv;
-	} else if(mat._elements[0] > mat._elements[4] && mat._elements[0] > mat._elements[8]) {
-		float s = 2.0f * sqrtf(1.0f + mat._elements[0] - mat._elements[4] - mat._elements[8]);
+		x = (mat.elements[5] - mat.elements[7]) * wTimes4Inv;
+		y = (mat.elements[6] - mat.elements[2]) * wTimes4Inv;
+		z = (mat.elements[1] - mat.elements[3]) * wTimes4Inv;
+	} else if(mat.elements[0] > mat.elements[4] && mat.elements[0] > mat.elements[8]) {
+		float s = 2.0f * sqrtf(1.0f + mat.elements[0] - mat.elements[4] - mat.elements[8]);
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[5] - mat._elements[7]) * sInv;
+		w = (mat.elements[5] - mat.elements[7]) * sInv;
 		x = 0.25f * s;
-		y = (mat._elements[3] - mat._elements[1]) * sInv;
-		z = (mat._elements[6] - mat._elements[2]) * sInv;
-	} else if(mat._elements[4] > mat._elements[8]) {
-		float s = 2.0f * sqrtf(1.0f + mat._elements[4] - mat._elements[0] - mat._elements[8]);
+		y = (mat.elements[3] - mat.elements[1]) * sInv;
+		z = (mat.elements[6] - mat.elements[2]) * sInv;
+	} else if(mat.elements[4] > mat.elements[8]) {
+		float s = 2.0f * sqrtf(1.0f + mat.elements[4] - mat.elements[0] - mat.elements[8]);
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[6] - mat._elements[2]) * sInv;
-		x = (mat._elements[3] - mat._elements[1]) * sInv;
+		w = (mat.elements[6] - mat.elements[2]) * sInv;
+		x = (mat.elements[3] - mat.elements[1]) * sInv;
 		y = 0.25f * s;
-		z = (mat._elements[7] - mat._elements[5]) * sInv;
+		z = (mat.elements[7] - mat.elements[5]) * sInv;
 	} else {
-		float s = 2.0f * sqrtf(1.0f + mat._elements[8] - mat._elements[0] - mat._elements[4]);
+		float s = 2.0f * sqrtf(1.0f + mat.elements[8] - mat.elements[0] - mat.elements[4]);
 		float sInv = 1.0f / s;
 
-		w = (mat._elements[1] - mat._elements[3]) * sInv;
-		x = (mat._elements[6] - mat._elements[2]) * sInv;
-		y = (mat._elements[7] - mat._elements[5]) * sInv;
+		w = (mat.elements[1] - mat.elements[3]) * sInv;
+		x = (mat.elements[6] - mat.elements[2]) * sInv;
+		y = (mat.elements[7] - mat.elements[5]) * sInv;
 		z = 0.25f * s;
 	}
 }
@@ -255,10 +255,10 @@ Vec3f Quaternion::getEulerAngles() const {
 
 	float abcd = w * x + y * z;
 
-	if(abcd > (0.5f - _quaternionNormalizationTolerance) * unitLength)
-		return Vec3f(2.0f * atan2f(y, w), _pi, 0.0f);
-	else if(abcd < (-0.5f + _quaternionNormalizationTolerance) * unitLength)
-		return Vec3f(-2.0f * atan2f(y, w), -_pi, 0.0f);
+	if(abcd > (0.5f - quaternionNormalizationTolerance) * unitLength)
+		return Vec3f(2.0f * atan2f(y, w), pi, 0.0f);
+	else if(abcd < (-0.5f + quaternionNormalizationTolerance) * unitLength)
+		return Vec3f(-2.0f * atan2f(y, w), -pi, 0.0f);
 	else {
 		float adbc = w * z - x * y;
 		float acbd = w * y - x * z;
@@ -288,7 +288,7 @@ Quaternion Quaternion::lerp(const Quaternion &first, const Quaternion &second, f
 Quaternion Quaternion::slerp(const Quaternion &first, const Quaternion &second, float interpolationCoefficient) {
 	float dot = first.dot(second);
 
-	if(dot > _quaternionDotTolerance)
+	if(dot > quaternionDotTolerance)
 		return lerp(first, second, interpolationCoefficient);
 
 	dot = clamp(dot, -1.0f, 1.0f);

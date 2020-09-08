@@ -1,7 +1,7 @@
 #pragma once
 
-#include <pge/rendering/octree/OctreeNode.h>
-#include <pge/rendering/culling/Frustum.h>
+#include "OctreeNode.h"
+#include "../culling/Frustum.h"
 
 #include <memory>
 
@@ -18,9 +18,9 @@ namespace pge {
 	// Base class for dynamic and static octree types
 	class Octree {
 	protected:
-		std::unordered_set<SceneObjectRef, SceneObjectRef> _outsideRoot;
+		std::unordered_set<SceneObjectRef, SceneObjectRef> outsideRoot;
 
-		std::unique_ptr<OctreeNode> _pRootNode;
+		std::unique_ptr<OctreeNode> pRootNode;
 
 		// Called whenever something is removed, an action can be defined by derived classes
 		// Defaults to doing nothing
@@ -30,14 +30,14 @@ namespace pge {
 
 		void recursiveCopy(OctreeNode* pThisNode, OctreeNode* pOtherNode, OctreeNode* pThisParent);
 
-		std::recursive_mutex _mutex;
+		std::recursive_mutex mutex;
 
 	public:
-		size_t _minNumNodeOccupants;
-		size_t _maxNumNodeOccupants;
-		size_t _maxLevels;
+		size_t minNumNodeOccupants;
+		size_t maxNumNodeOccupants;
+		size_t maxLevels;
 
-		float _oversizeMultiplier;
+		float oversizeMultiplier;
 
 		Octree();
 		Octree(const Octree &other) {

@@ -2,63 +2,63 @@
 
 #include <SFML/Network.hpp>
 
-#include <pge/scene/RenderScene.h>
+#include "../scene/RenderScene.h"
 
-#include <pge/sceneobjects/SceneObjectProp.h>
-#include <pge/sceneobjects/physics/SceneObjectPhysicsWorld.h>
+#include "SceneObjectProp.h"
+#include "physics/SceneObjectPhysicsWorld.h"
 
 #include <BulletDynamics/ConstraintSolver/btConeTwistConstraint.h>
 
 class SceneObjectTennis : public pge::SceneObject {
 private:
 	// Rendering
-	pge::StaticModelOBJ* _pSlimeModel;
-	pge::StaticModelOBJ* _pBallModel;
+	pge::StaticModelOBJ* pSlimeModel;
+	pge::StaticModelOBJ* pBallModel;
 
-	pge::SceneObjectRef _batcherRef;
+	pge::SceneObjectRef batcherRef;
 
-	pge::Vec2f _action;
+	pge::Vec2f action;
 
-	int _ticksPerAction;
-	int _ticks;
+	int ticksPerAction;
+	int ticks;
 
 	// Physics
-	pge::SceneObjectRef _physicsWorld;
+	pge::SceneObjectRef physicsWorld;
 
 	// Slime
-	std::shared_ptr<btCollisionShape> _pCollisionShapeSlime;
-	std::shared_ptr<btDefaultMotionState> _pMotionStateSlime;
-	std::shared_ptr<btRigidBody> _pRigidBodySlime;
+	std::shared_ptr<btCollisionShape> pCollisionShapeSlime;
+	std::shared_ptr<btDefaultMotionState> pMotionStateSlime;
+	std::shared_ptr<btRigidBody> pRigidBodySlime;
 
 	// Ball
-	std::shared_ptr<btCollisionShape> _pCollisionShapeBall;
-	std::shared_ptr<btDefaultMotionState> _pMotionStateBall;
-	std::shared_ptr<btRigidBody> _pRigidBodyBall;
+	std::shared_ptr<btCollisionShape> pCollisionShapeBall;
+	std::shared_ptr<btDefaultMotionState> pMotionStateBall;
+	std::shared_ptr<btRigidBody> pRigidBodyBall;
 
-	float _reward;
+	float reward;
 
-	bool _show;
+	bool show;
 
-	bool _doneLastFrame;
+	bool doneLastFrame;
 
-	std::mt19937 _rng;
+	std::mt19937 rng;
 
-	bool _capture;
-	std::shared_ptr<std::vector<char>> _capBytes;
+	bool capture;
+	std::shared_ptr<std::vector<char>> capBytes;
 
-	std::shared_ptr<sf::TcpSocket> _socket;
+	std::shared_ptr<sf::TcpSocket> socket;
 
 	void act();
 
 public:
-	static const unsigned short _port = 54003;
+	static const unsigned short port = 54003;
 
-	static const unsigned int _maxBatchSize = 16384;
+	static const unsigned int maxBatchSize = 16384;
 
-	static const unsigned int _gameSeed = 1234;
+	static const unsigned int gameSeed = 1234;
 
 	SceneObjectTennis() {
-		_renderMask = 0xffff;
+		renderMask = 0xffff;
 	}
 
 	bool create();

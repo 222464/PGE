@@ -1,91 +1,91 @@
-#include <pge/rendering/voxel/TerrainGrassBatcher.h>
+#include "TerrainGrassBatcher.h"
 
-#include <pge/scene/RenderScene.h>
+#include "../../scene/RenderScene.h"
 
-#include <pge/util/Math.h>
+#include "../../util/Math.h"
 
 using namespace pge;
 
 TerrainGrassBatcher::TerrainGrassBatcher()
-: _waveTimer(0.0f), _completelyVisibleDistance(30.0f), _completelyInvisibleDistance(50.0f), _waveRate(2.0f),
-_renderShadows(false)
+: waveTimer(0.0f), completelyVisibleDistance(30.0f), completelyInvisibleDistance(50.0f), waveRate(2.0f),
+renderShadows(false)
 {
-	_renderMask = 0xffff;
+	renderMask = 0xffff;
 }
 
 void TerrainGrassBatcher::create(const std::shared_ptr<Texture2D> &grassTileSetDiffuse, const std::shared_ptr<Texture2D> &grassTileSetNormal, const std::shared_ptr<Texture2D> &noiseMap, const std::shared_ptr<Shader> &grassRenderShader, const std::shared_ptr<Shader> &depthRenderShader) {
-	_grassTileSetDiffuse = grassTileSetDiffuse;
-	_grassTileSetNormal = grassTileSetNormal;
-	_noiseMap = noiseMap;
-	_grassRenderShader = grassRenderShader;
-	_depthRenderShader = depthRenderShader;
+	this->grassTileSetDiffuse = grassTileSetDiffuse;
+	this->grassTileSetNormal = grassTileSetNormal;
+	this->noiseMap = noiseMap;
+	this->grassRenderShader = grassRenderShader;
+	this->depthRenderShader = depthRenderShader;
 
-	_grassTileSetDiffuse->genMipMaps();
-	_grassTileSetNormal->genMipMaps();
+	grassTileSetDiffuse->genMipMaps();
+	grassTileSetNormal->genMipMaps();
 
-	_grassRenderShader->bind();
+	grassRenderShader->bind();
 
-	_grassRenderShader->setShaderTexture("pgeDiffuseMap", _grassTileSetDiffuse->getTextureID(), GL_TEXTURE_2D);
-	_grassRenderShader->setShaderTexture("pgeNormalMap", _grassTileSetNormal->getTextureID(), GL_TEXTURE_2D);
-	_grassRenderShader->setShaderTexture("pgeNoiseMap", _noiseMap->getTextureID(), GL_TEXTURE_2D);
+	grassRenderShader->setShaderTexture("pgeDiffuseMap", grassTileSetDiffuse->getTextureID(), GL_TEXTURE_2D);
+	grassRenderShader->setShaderTexture("pgeNormalMap", grassTileSetNormal->getTextureID(), GL_TEXTURE_2D);
+	grassRenderShader->setShaderTexture("pgeNoiseMap", noiseMap->getTextureID(), GL_TEXTURE_2D);
 
-	_depthRenderShader->bind();
+	depthRenderShader->bind();
 
-	_depthRenderShader->setShaderTexture("pgeDiffuseMap", _grassTileSetDiffuse->getTextureID(), GL_TEXTURE_2D);
-	_depthRenderShader->setShaderTexture("pgeNoiseMap", _noiseMap->getTextureID(), GL_TEXTURE_2D);
+	depthRenderShader->setShaderTexture("pgeDiffuseMap", grassTileSetDiffuse->getTextureID(), GL_TEXTURE_2D);
+	depthRenderShader->setShaderTexture("pgeNoiseMap", noiseMap->getTextureID(), GL_TEXTURE_2D);
 }
 
 void TerrainGrassBatcher::update(float dt) {
-	_waveTimer = fmodf(_waveTimer + _waveRate * dt, _piTimes2);
+	waveTimer = fmodf(waveTimer + waveRate * dt, piTimes2);
 }
 
 void TerrainGrassBatcher::batchRender() {
-	if (getRenderScene()->_shaderSwitchesEnabled) {
-		_grassRenderShader->bind();
-		_grassRenderShader->bindShaderTextures();
+	if (getRenderScene()->shaderSwitchesEnabled) {
+		grassRenderShader->bind();
+		grassRenderShader->bindShaderTextures();
 
-		_grassRenderShader->setUniformf("pgeCompletelyVisibleDistance", _completelyVisibleDistance);
-		//_grassRenderShader->setUniformf("pgeCompletelyInvisibleDistance", _completelyInvisibleDistance);
-		_grassRenderShader->setUniformf("pgeInvFadeRange", 1.0f / (_completelyInvisibleDistance - _completelyVisibleDistance));
-		_grassRenderShader->setUniformf("pgeWaveTime", _waveTimer);
+		grassRenderShader->setUniformf("pgeCompletelyVisibleDistance", completelyVisibleDistance);
+		//_grassRenderShader->setUniformf("pgeCompletelyInvisibleDistance", completelyInvisibleDistance);
+		grassRenderShader->setUniformf("pgeInvFadeRange", 1.0f / (completelyInvisibleDistance - completelyVisibleDistance));
+		grassRenderShader->setUniformf("pgeWaveTime", waveTimer);
 
 		getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
 
-		for (std::list<SceneObjectRef>::iterator it = _grassObjects.begin(); it != _grassObjects.end(); it++) {
-			if ((getRenderScene()->_logicCamera._position - (*it)->getAABB().getCenter()).magnitude() - (*it)->getAABB().getRadius() > _completelyInvisibleDistance)
+		for (std::list<SceneObjectRef>::iterator it = grassObjects.begin(); it != grassObjects.end(); it++) {
+			if ((getRenderScene()->logicCamera.position - (*it)->getAABB().getCenter()).magnitude() - (*it)->getAABB().getRadius() > completelyInvisibleDistance)
 				continue;
 
 			TerrainGrass* pGrass = static_cast<TerrainGrass*>(it->get());
 
-			for (size_t i = 0; i < pGrass->_staticMeshes.size(); i++)
-				pGrass->_staticMeshes[i]->render();
+			for (size_t i = 0; i < pGrass->staticMeshes.size(); i++)
+				pGrass->staticMeshes[i]->render();
 		}
 	}
-	else if (getRenderScene()->_renderingShadows && _renderShadows) {
+	else if (getRenderScene()->renderingShadows && renderShadows) {
 		Shader* pPrevShader = Shader::getCurrentShader();
 
-		_depthRenderShader->bind();
-		_depthRenderShader->bindShaderTextures();
+		depthRenderShader->bind();
+		depthRenderShader->bindShaderTextures();
 
-		_depthRenderShader->setUniformf("pgeCompletelyVisibleDistance", _completelyVisibleDistance);
-		//_grassRenderShader->setUniformf("pgeCompletelyInvisibleDistance", _completelyInvisibleDistance);
-		_depthRenderShader->setUniformf("pgeInvFadeRange", 1.0f / (_completelyInvisibleDistance - _completelyVisibleDistance));
-		_depthRenderShader->setUniformf("pgeWaveTime", _waveTimer);
+		depthRenderShader->setUniformf("pgeCompletelyVisibleDistance", completelyVisibleDistance);
+		//_grassRenderShader->setUniformf("pgeCompletelyInvisibleDistance", completelyInvisibleDistance);
+		depthRenderShader->setUniformf("pgeInvFadeRange", 1.0f / (completelyInvisibleDistance - completelyVisibleDistance));
+		depthRenderShader->setUniformf("pgeWaveTime", waveTimer);
 
 		getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
 
-		for (std::list<SceneObjectRef>::iterator it = _grassObjects.begin(); it != _grassObjects.end(); it++) {
-			if ((getRenderScene()->_logicCamera._position - (*it)->getAABB().getCenter()).magnitude() - (*it)->getAABB().getRadius() > _completelyInvisibleDistance)
+		for (std::list<SceneObjectRef>::iterator it = grassObjects.begin(); it != grassObjects.end(); it++) {
+			if ((getRenderScene()->logicCamera.position - (*it)->getAABB().getCenter()).magnitude() - (*it)->getAABB().getRadius() > completelyInvisibleDistance)
 				continue;
 
 			TerrainGrass* pGrass = static_cast<TerrainGrass*>(it->get());
 
-			for (size_t i = 0; i < pGrass->_staticMeshes.size(); i++)
-				pGrass->_staticMeshes[i]->render();
+			for (size_t i = 0; i < pGrass->staticMeshes.size(); i++)
+				pGrass->staticMeshes[i]->render();
 		}
 
 		pPrevShader->bind();
 	}
 
-	_grassObjects.clear();
+	grassObjects.clear();
 }

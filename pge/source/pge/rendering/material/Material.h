@@ -1,36 +1,36 @@
 #pragma once
 
-#include <pge/scene/RenderScene.h>
-#include <pge/rendering/texture/Texture2D.h>
-#include <pge/rendering/bufferobjects/VBO.h>
+#include "../../scene/RenderScene.h"
+#include "../texture/Texture2D.h"
+#include "../bufferobjects/VBO.h"
 
 namespace pge {
 	// Set texture pointers to NULL to indicate it is not used
 	class Material {
 	private:
-		VBO _uniformBuffer;
+		VBO uniformBuffer;
 
-		bool _refreshUniformBuffer;
+		bool refreshUniformBufferFlag;
 
 	public:
-		Vec3f _diffuseColor;
-		float _specularColor;
-		float _shininess;
-		float _emissiveColor;
+		Vec3f diffuseColor;
+		float specularColor;
+		float shininess;
+		float emissiveColor;
 		
 		// Special
-		float _heightMapScale;
+		float heightMapScale;
 
-		Texture2D* _pDiffuseMap;
-		Texture2D* _pSpecularMap;
-		Texture2D* _pShininessMap;
-		Texture2D* _pEmissiveMap;
+		Texture2D* pDiffuseMap;
+		Texture2D* pSpecularMap;
+		Texture2D* pShininessMap;
+		Texture2D* pEmissiveMap;
 
 		// Special
-		Texture2D* _pNormalMap;
-		Texture2D* _pHeightMap;
+		Texture2D* pNormalMap;
+		Texture2D* pHeightMap;
 
-		RenderScene::GBufferRenderShaderType _type;
+		RenderScene::GBufferRenderShaderType type;
 
 		Material();
 
@@ -42,17 +42,17 @@ namespace pge {
 		void bindUniformBuffer(UBOShaderInterface &uboShaderInterface);
 
 		const VBO &getUniformBuffer() const {
-			return _uniformBuffer;
+			return uniformBuffer;
 		}
 
 		RenderScene::GBufferRenderShaderType getShaderType() const {
-			return _type;
+			return type;
 		}
 
 		void updateShaderType();
 
 		void refreshUniformBuffer() {
-			_refreshUniformBuffer = true;
+			refreshUniformBufferFlag = true;
 		}
 
 		void genMipMaps();

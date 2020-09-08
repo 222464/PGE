@@ -1,32 +1,32 @@
 #pragma once
 
-#include <pge/scene/SceneObject.h>
-#include <pge/rendering/mesh/StaticMesh.h>
+#include "../../scene/SceneObject.h"
+#include "../mesh/StaticMesh.h"
 
-#include <pge/rendering/voxel/TerrainGrass.h>
+#include "TerrainGrass.h"
 
 namespace pge {
 	class TerrainGrassBatcher : public SceneObject {
 	private:
-		std::list<SceneObjectRef> _grassObjects;
+		std::list<SceneObjectRef> grassObjects;
 
-		std::shared_ptr<Shader> _grassRenderShader;
+		std::shared_ptr<Shader> grassRenderShader;
 
-		std::shared_ptr<Shader> _depthRenderShader;
+		std::shared_ptr<Shader> depthRenderShader;
 
-		std::shared_ptr<Texture2D> _grassTileSetDiffuse;
-		std::shared_ptr<Texture2D> _grassTileSetNormal;
-		std::shared_ptr<Texture2D> _noiseMap;
+		std::shared_ptr<Texture2D> grassTileSetDiffuse;
+		std::shared_ptr<Texture2D> grassTileSetNormal;
+		std::shared_ptr<Texture2D> noiseMap;
 
-		float _waveTimer;
+		float waveTimer;
 
 	public:
-		float _completelyVisibleDistance;
-		float _completelyInvisibleDistance;
+		float completelyVisibleDistance;
+		float completelyInvisibleDistance;
 
-		float _waveRate;
+		float waveRate;
 
-		bool _renderShadows;
+		bool renderShadows;
 
 		TerrainGrassBatcher();
 
