@@ -78,13 +78,13 @@ void SceneObjectEntryPointBlockGame::onAdd() {
 
 	prop->calculateAABB();
 
-	std::shared_ptr<SceneObjectBlockGame> blockGame(new SceneObjectBlockGame());
+	//std::shared_ptr<SceneObjectBlockGame> blockGame(new SceneObjectBlockGame());
 
-	getRenderScene()->add(blockGame, false);
+	//getRenderScene()->add(blockGame, false);
 
-	blockGame->create(8, 30);
+	//blockGame->create(8, 30);
 
-	blockGame->layer = 100.0f;
+	//blockGame->layer = 100.0f;
 
 	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 

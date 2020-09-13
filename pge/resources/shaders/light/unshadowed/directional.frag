@@ -25,7 +25,7 @@ void main() {
 
 	viewNormal.xyz /= normalLength;
 
-	if(lambert <= 0.0) {
+	if (lambert <= 0.0) {
 		pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
 	}
@@ -33,7 +33,7 @@ void main() {
 	vec4 color = texture(pgeGBufferColor, texCoord);
 
 	// Specular
-	if(color.a == 0.0) // No specular
+	if (color.a == 0.0) // No specular
 		pgeOutputColor = vec4(color.rgb * lambert * pgeDirectionalLightColor, 1.0);
 	else { // Specular
 		vec3 viewPosition = texture(pgeGBufferPosition, texCoord).xyz;

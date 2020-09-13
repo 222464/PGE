@@ -7,7 +7,7 @@
 
 #include "../rendering/voxel/VoxelTerrain.h"
 #include "../rendering/voxel/TerrainGenerator.h"
-#include "../rendering/lighting/SceneObjectDirectionalLightShadowed.h"
+#include "../rendering/lighting/SceneObjectDirectionalLight.h"
 #include "../rendering/lighting/SceneObjectPointLightShadowed.h"
 
 #include "../rendering/imageeffects/SceneObjectEffectBuffer.h"
@@ -80,13 +80,13 @@ void SceneObjectEntryPointCartPole::onAdd() {
 
 	prop->calculateAABB();
 
-	std::shared_ptr<SceneObjectCartPole> cartPole(new SceneObjectCartPole());
+	//std::shared_ptr<SceneObjectCartPole> cartPole(new SceneObjectCartPole());
 
-	getRenderScene()->add(cartPole, false);
+	//getRenderScene()->add(cartPole, false);
 
-	cartPole->create();
+	//cartPole->create();
 
-	cartPole->layer = 100.0f;
+	//cartPole->layer = 100.0f;
 
 	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 
@@ -98,11 +98,11 @@ void SceneObjectEntryPointCartPole::onAdd() {
 
 	sky->calculateAABB();
 
-	std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
+	std::shared_ptr<pge::SceneObjectDirectionalLight> directionalLight(new pge::SceneObjectDirectionalLight());
 
 	getScene()->add(directionalLight);
 
-	directionalLight->create(pLighting, 3, 2048, 0.2f, 100.0f, 0.6f);
+	directionalLight->create(pLighting);
 
 	directionalLight->setDirection(pge::Vec3f(-0.2523f, -0.9423f, -0.424f).normalized());
 

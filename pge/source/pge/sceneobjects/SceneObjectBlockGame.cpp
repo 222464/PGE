@@ -378,8 +378,6 @@ void SceneObjectBlockGame::deferredRender() {
 
 void SceneObjectBlockGame::postRender() {
 	// Get data from effect buffer
-	glReadBuffer(GL_FRONT);
-
 	glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
 }
 

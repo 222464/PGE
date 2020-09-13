@@ -26,7 +26,7 @@ void main() {
 	// Alpha testing
 	vec4 diffuseTexColor = texture(pgeDiffuseMap, texCoord);
 
-	if(diffuseTexColor.a < 0.5)
+	if (diffuseTexColor.a < 0.5)
 		discard;
 
 	pgeOutputPosition = vec4(viewPosition, texture(pgeEmissiveMap, texCoord).r * pgeEmissiveColor);

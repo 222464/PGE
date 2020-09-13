@@ -19,7 +19,6 @@ class Tennis3DEnv(gym.Env):
 	}
 	
 	def __init__(self):
-		
 		self.width = 640
 		self.height = 480
 		self.show = 'hide'
@@ -151,7 +150,7 @@ class Tennis3DEnv(gym.Env):
 
 		if mode == 'rgb_array':
 			return self.img
-		elif mode is 'human':
+		elif mode == 'human':
 			pass
 			
 	def __del__(self):

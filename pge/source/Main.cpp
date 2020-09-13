@@ -23,10 +23,12 @@ int main(int argc, char *argv[]) {
 
 	std::shared_ptr<pge::SceneObject> entryPoint;
 
-	bool show = false;
+	entryPoint.reset(new SceneObjectEntryPointCartPole());
+        
+	bool show = true;
 
 	// Command line arguments
-	if (argc != 5) {
+	/*if (argc != 5) {
 		std::cerr << "Invalid number of command line arguments. Requires 4 arguments." << std::endl;
 
 		return 1;
@@ -69,7 +71,7 @@ int main(int argc, char *argv[]) {
 
 		width = std::stoi(s3);
 		height = std::stoi(s4);
-	}
+	}*/
 
 	sf::Window window;
 	sf::ContextSettings settings;

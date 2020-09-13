@@ -10,24 +10,20 @@ from gym.envs.registration import registry, register, make, spec
 
 register(
     id='BlockGame-v0',
-    entry_point='pypge.BlockGameInterface:BlockGameEnv',
-    timestep_limit=1000
+    entry_point='pypge.BlockGameInterface:BlockGameEnv'
 )
 
 register(
     id='CartPole3D-v0',
-    entry_point='pypge.CartPole3DInterface:CartPole3DEnv',
-    timestep_limit=600
+    entry_point='pypge.CartPole3DInterface:CartPole3DEnv'
 )
 
 register(
     id='Quadruped3D-v0',
-    entry_point='pypge.Quadruped3DInterface:Quadruped3DEnv',
-    timestep_limit=600
+    entry_point='pypge.Quadruped3DInterface:Quadruped3DEnv'
 )
 
 register(
     id='Tennis3D-v0',
-    entry_point='pypge.Tennis3DInterface:Tennis3DEnv',
-    timestep_limit=600
+    entry_point='pypge.Tennis3DInterface:Tennis3DEnv'
 )

@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import gym
+import gym.wrappers
 import pypge
 
 if __name__ == '__main__':
