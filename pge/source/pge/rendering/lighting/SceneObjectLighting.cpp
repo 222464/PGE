@@ -199,6 +199,8 @@ void SceneObjectLighting::postRender() {
 		getRenderScene()->renderNormalizedQuad();
 	}
 
+	glEnable(GL_DEPTH_TEST);
+
 	// --------------------------------------- Render all directional lights ---------------------------------------
 
 	directionalLightShader->bind();
@@ -234,8 +236,6 @@ void SceneObjectLighting::postRender() {
 
 		PGE_GL_ERROR_CHECK();
 	}
-
-	glEnable(GL_DEPTH_TEST);
 
 	// ------------------------------------------- Render all point lights -------------------------------------------
 

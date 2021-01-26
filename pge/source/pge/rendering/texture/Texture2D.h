@@ -35,7 +35,7 @@ namespace pge {
 		}
 
 		void bind() const {
-			sf::Texture::bind(&texture);
+			glBindTexture(GL_TEXTURE_2D, textureID);
 		}
 
 		unsigned int getWidth() const {

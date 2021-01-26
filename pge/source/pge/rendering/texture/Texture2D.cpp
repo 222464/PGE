@@ -31,11 +31,9 @@ bool Texture2D::createAsset(const std::string &name) {
 			discardSoftwareImage();
 	}
 
-	bind();
+	textureID = texture.getNativeHandle();
 
-	GLint textureID;
-	glGetIntegerv(GL_TEXTURE_BINDING_2D, &textureID);
-	textureID = static_cast<GLuint>(textureID);
+	bind();
 
 	// Default settings
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

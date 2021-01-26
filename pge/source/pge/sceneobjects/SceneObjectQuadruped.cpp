@@ -145,16 +145,6 @@ bool SceneObjectQuadruped::create() {
 
 	reset();
 
-	capture = false;
-
-	capBytes = std::make_shared<std::vector<char>>(getRenderScene()->gBuffer.getWidth() * getRenderScene()->gBuffer.getHeight() * 3, 0);
-
-	show = getRenderScene()->renderingEnabled;
-
-	socket = std::make_shared<sf::TcpSocket>();
-
-	socket->connect(sf::IpAddress::LocalHost, port, sf::seconds(5.0f));
-
 	doneLastFrame = false;
 
 	action.fill(0.0f);
@@ -306,65 +296,6 @@ void SceneObjectQuadruped::synchronousUpdate(float dt) {
 	if (ticks >= ticksPerAction || !getRenderScene()->renderingEnabled) {
 		ticks = 0;
 
-		std::array<char, maxBatchSize> buffer;
-
-		std::array<char, 1 + 4 * 27> msg;
-
-		size_t received = 0;
-		size_t totalReceived = 0;
-
-		while (totalReceived < msg.size()) {
-			socket->receive(buffer.data(), msg.size() - totalReceived, received);
-
-			for (int i = 0; i < received; i++)
-				msg[totalReceived + i] = buffer[i];
-
-			totalReceived += received;
-		}
-
-		if (msg[0] == 'A') { // Action
-			for (int i = 0; i < 27; i++) {
-				action[i] = *reinterpret_cast<float*>(&msg[1 + 4 * i]);
-			}
-		}
-		else if (msg[0] == 'R') { // Reset
-			for (int i = 0; i < 27; i++) {
-				action[i] = *reinterpret_cast<float*>(&msg[1 + 4 * i]);
-			}
-			reset();
-		}
-		else if (msg[0] == 'C') { // Capture + action
-			for (int i = 0; i < 27; i++) {
-				action[i] = *reinterpret_cast<float*>(&msg[1 + 4 * i]);
-			}
-			capture = true;
-
-			if (!getRenderScene()->renderingEnabled) {
-				getRenderScene()->getRenderWindow()->setFramerateLimit(60);
-				getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(true);
-			}
-
-			getRenderScene()->renderingEnabled = true;
-		}
-		else if (msg[0] == 'S') { // Stop capture + action
-			for (int i = 0; i < 27; i++) {
-				action[i] = *reinterpret_cast<float*>(&msg[1 + 4 * i]);
-			}
-			capture = false;
-
-			if (!show) {
-				if (getRenderScene()->renderingEnabled) {
-					getRenderScene()->getRenderWindow()->setFramerateLimit(0);
-					getRenderScene()->getRenderWindow()->setVerticalSyncEnabled(false);
-				}
-
-				getRenderScene()->renderingEnabled = false;
-			}
-		}
-		else if (msg[0] == 'X') { // Exit
-			getRenderScene()->close = true;
-		}
-
 		act(dt);
 
 		// Give state and reward (+ capture if is on)
@@ -413,69 +344,7 @@ void SceneObjectQuadruped::synchronousUpdate(float dt) {
 		for (int i = 0; i < 4; i++)
 			legs[i].pGhostLower->setWorldTransform(legs[i].lower.pRigidBody->getWorldTransform());
 
-		// First add reward
-		int index = 0;
-
-		*reinterpret_cast<float*>(&buffer[index]) = reward;
-
-		index += sizeof(float);
-
-		for (int i = 0; i < obs.size(); i++) {
-			*reinterpret_cast<float*>(&buffer[index]) = obs[i];
-
-			index += sizeof(float);
-		}
-
-		// Reset flag
-		*reinterpret_cast<int*>(&buffer[index]) = static_cast<int>(doneLastFrame);
-
 		doneLastFrame = false;
-
-		index += sizeof(int);
-
-		// Submit number of batches of maxBatchSize
-		int numBatches = capBytes->size() / maxBatchSize + ((capBytes->size() % maxBatchSize) == 0 ? 0 : 1);
-
-		// No batches if not capturing
-		if (!capture)
-			numBatches = 0;
-
-		*reinterpret_cast<int*>(&buffer[index]) = numBatches;
-
-		index += sizeof(int);
-
-		socket->send(buffer.data(), index);
-
-		if (capture) {
-			std::vector<char> reorganized(capBytes->size());
-
-			int reorgIndex = 0;
-
-			for (int y = 0; y < getRenderScene()->gBuffer.getHeight(); y++)
-				for (int x = 0; x < getRenderScene()->gBuffer.getWidth(); x++) {
-					int start = 3 * (x + (getRenderScene()->gBuffer.getHeight() - 1 - y) * getRenderScene()->gBuffer.getWidth());
-
-					reorganized[reorgIndex++] = (*capBytes)[start + 0];
-					reorganized[reorgIndex++] = (*capBytes)[start + 1];
-					reorganized[reorgIndex++] = (*capBytes)[start + 2];
-				}
-
-			int total = 0;
-
-			for (int i = 0; i < numBatches; i++) {
-				// Submit batch
-				size_t count = 0;
-
-				for (int j = 0; j < maxBatchSize && total < capBytes->size(); j++) {
-					buffer[j] = reorganized[total++];
-
-					count++;
-				}
-
-				socket->send(buffer.data(), count);
-			}
-		}
-
 	}
 	else
 		ticks++;
@@ -532,13 +401,10 @@ void SceneObjectQuadruped::deferredRender() {
 
 void SceneObjectQuadruped::postRender() {
 	// Get data from effect buffer
-	glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
+	//glReadPixels(0, 0, getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, capBytes->data());
 }
 
 void SceneObjectQuadruped::onDestroy() {
-	if (socket != nullptr)
-		socket->disconnect();
-
 	if (physicsWorld.isAlive()) {
 		pge::SceneObjectPhysicsWorld* pPhysicsWorld = static_cast<pge::SceneObjectPhysicsWorld*>(physicsWorld.get());
 

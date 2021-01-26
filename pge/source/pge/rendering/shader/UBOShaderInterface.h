@@ -63,9 +63,9 @@ namespace pge {
 			glBufferSubData(GL_UNIFORM_BUFFER, uniformNameToOffset[name], size, param);
 		}
 
-		void setUniformi(const std::string &name, GLshort param) {
+		void setUniformi(const std::string &name, GLint param) {
 			assert(uniformNameToOffset.find(name) != uniformNameToOffset.end());
-			glBufferSubData(GL_UNIFORM_BUFFER, uniformNameToOffset[name], sizeof(GLshort), &param);
+			glBufferSubData(GL_UNIFORM_BUFFER, uniformNameToOffset[name], sizeof(GLint), &param);
 		}
 
 		void setUniformf(const std::string &name, float param) {
@@ -106,6 +106,10 @@ namespace pge {
 
 		void setUniform(int paramLoc, GLsizei size, GLvoid* param) {
 			glBufferSubData(GL_UNIFORM_BUFFER, paramLoc, size, param);
+		}
+
+		void setUniformi(int paramLoc, GLint param) {
+			glBufferSubData(GL_UNIFORM_BUFFER, paramLoc, sizeof(GLint), &param);
 		}
 
 		void setUniformf(int paramLoc, float param) {

@@ -1,10 +1,6 @@
 #include "pge/scene/RenderScene.h"
 
-#include "pge/sceneobjects/SceneObjectEntryPointBlockGame.h"
-#include "pge/sceneobjects/SceneObjectEntryPointSurf.h"
-#include "pge/sceneobjects/SceneObjectEntryPointCartPole.h"
-#include "pge/sceneobjects/SceneObjectEntryPointQuadruped.h"
-#include "pge/sceneobjects/SceneObjectEntryPointTennis.h"
+#include "pge/sceneobjects/SceneObjectEntryPoint.h"
 
 #include "pge/sceneobjects/input/SceneObjectBufferedInput.h"
 
@@ -20,58 +16,9 @@
 int main(int argc, char *argv[]) {
 	int width = 640;
 	int height = 480;
-
-	std::shared_ptr<pge::SceneObject> entryPoint;
-
-	entryPoint.reset(new SceneObjectEntryPointCartPole());
-        
 	bool show = true;
 
-	// Command line arguments
-	/*if (argc != 5) {
-		std::cerr << "Invalid number of command line arguments. Requires 4 arguments." << std::endl;
-
-		return 1;
-	}
-	else {
-		std::string s1 = argv[1];
-		
-		if (s1 == "BlockGame-v0") {
-			entryPoint.reset(new SceneObjectEntryPointBlockGame());
-		}
-		else if (s1 == "CartPole3D-v0") {
-			entryPoint.reset(new SceneObjectEntryPointCartPole());
-		}
-		else if (s1 == "Quadruped3D-v0") {
-			entryPoint.reset(new SceneObjectEntryPointQuadruped());
-		}
-		else if (s1 == "Surf-v0") {
-			entryPoint.reset(new SceneObjectEntryPointSurf());
-		}
-		else if (s1 == "Tennis3D-v0") {
-			entryPoint.reset(new SceneObjectEntryPointTennis());
-		}
-		else {
-			std::cerr << "Invalid environment name (\"" << s1 << "\" given)" << std::endl;
-
-			return 1;
-		}
-
-		std::string s2 = argv[2];
-
-		if (s2 == "show") {
-			show = true;
-		}
-		else if (s2 == "hide") {
-			show = false;
-		}
-
-		std::string s3 = argv[3];
-		std::string s4 = argv[4];
-
-		width = std::stoi(s3);
-		height = std::stoi(s4);
-	}*/
+	std::shared_ptr<pge::SceneObject> entryPoint(new SceneObjectEntryPoint());
 
 	sf::Window window;
 	sf::ContextSettings settings;
@@ -80,7 +27,7 @@ int main(int argc, char *argv[]) {
 	settings.minorVersion = 1; // was 4
 	settings.stencilBits = 0;
 	settings.antialiasingLevel = 0;
-    //settings.attributeFlags = sf::ContextSettings::Core;
+        settings.attributeFlags = sf::ContextSettings::Core;
 
 	window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
 

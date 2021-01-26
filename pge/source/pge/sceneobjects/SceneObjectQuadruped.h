@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SFML/Network.hpp>
-
 #include "../scene/RenderScene.h"
 
 #include "SceneObjectProp.h"
@@ -72,26 +70,13 @@ private:
 
 	float prevDist;
 
-	bool show;
-
 	bool doneLastFrame;
 
 	std::mt19937 rng;
 
-	bool capture;
-	std::shared_ptr<std::vector<char>> capBytes;
-
-	std::shared_ptr<sf::TcpSocket> socket;
-
 	void act(float dt);
 
 public:
-	static const unsigned short port = 54003;
-
-	static const unsigned int maxBatchSize = 16384;
-
-	static const unsigned int gameSeed = 1234;
-
 	SceneObjectQuadruped() {
 		renderMask = 0xffff;
 	}
