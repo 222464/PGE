@@ -24,20 +24,13 @@ int main(int argc, char *argv[]) {
 	sf::ContextSettings settings;
 
 	settings.majorVersion = 4; // was 4
-	settings.minorVersion = 1; // was 4
-	settings.stencilBits = 0;
-	settings.antialiasingLevel = 0;
+	settings.minorVersion = 4; // was 4
         settings.attributeFlags = sf::ContextSettings::Core;
 
 	window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
 
 	window.setVerticalSyncEnabled(false);
 	window.setFramerateLimit(0);
-
-	if (ogl_LoadFunctions() == ogl_LOAD_FAILED) {
-		std::cerr << "Could not load OpenGL extensions!" << std::endl;
-		abort();
-	}
 
 	// -------------------------------- OpenGL Setup --------------------------------
     

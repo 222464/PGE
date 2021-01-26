@@ -22,12 +22,13 @@ bool pge::checkForGLError() {
 }
 
 void pge::sfmloglSetup() {
+        GLenum err = glewInit();
+
+        if (GLEW_OK != err)
+            fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+
 	glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
-
-	glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
-	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
-	glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 	glFrontFace(GL_CCW);
 

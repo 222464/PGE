@@ -116,7 +116,7 @@ bool Shader::checkLog(GLuint id) {
 		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &logLength);
 
 		if(logLength <= 0) {
-			std::cerr << "Unable to compile shader: Error: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
+			std::cout << "Warning: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
 
 			return false;
 		}
@@ -152,9 +152,9 @@ bool Shader::link(GLuint id) {
 		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &logLength);
 
 		if (logLength <= 0) {
-			std::cerr << "Unable to link program: Error: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
+			std::cout << "Warning: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
 
-			return false;
+			return true;
 		}
 
 		// Allocate the string
@@ -189,7 +189,7 @@ bool Shader::validate(GLuint id) {
 		glGetProgramiv(id, GL_INFO_LOG_LENGTH, &logLength);
 
 		if(logLength <= 0) {
-			std::cerr << "Unable to validate program: Error: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
+			std::cout << "Warning: Invalid log length \"" << logLength << "\": Could not retrieve error log!" << std::endl;
 
 			return true;
 		}

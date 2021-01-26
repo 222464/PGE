@@ -31,7 +31,7 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 		Vec3f worldPos(static_cast<float>(x + start.x), static_cast<float>(y + start.y), static_cast<float>(z + start.z));
 
 		//float value = clamp((worldPos - centerf).magnitude() - 20.0f, -1.0f, 1.0f);
-		float value = clamp(1.0f * ((generator.perlinNoise3D(worldPos.x * 0.01f, worldPos.y * 0.01f, worldPos.z * 0.01f, 6, 0.6f, 0.7f)) + 12.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::chunkSize)), -1.0f, 1.0f);
+		float value = clamp(1.0f * ((generator.perlinNoise3D(worldPos.x * 0.01f, worldPos.y * 0.01f, worldPos.z * 0.01f, 6, 0.6f, 0.7f)) + 6.0f * worldPos.y / static_cast<float>(chunk.getTerrain()->getSize().y * VoxelChunk::chunkSize)), -1.0f, 1.0f);
 
 		chunk.setVoxel(Point3i(x, y, z), static_cast<voxelType>(value * 127.0f));
 	}
@@ -202,79 +202,79 @@ void pge::terrainGenerator0(VoxelChunk &chunk, int seed) {
 			}
 
 			// Randomly spawn tree
-			if (uniformDist(chunk.getScene()->randomGenerator) < 0.015f) {
-				std::shared_ptr<SceneObjectPropLOD> tree(new SceneObjectPropLOD());
+			//if (uniformDist(chunk.getScene()->randomGenerator) < 0.015f) {
+			//	std::shared_ptr<SceneObjectPropLOD> tree(new SceneObjectPropLOD());
 
-				chunk.getScene()->add(tree, true);
+			//	chunk.getScene()->add(tree, true);
 
-				std::vector<std::string> fileNames;
+			//	std::vector<std::string> fileNames;
 
-				fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod0.obj");
-				fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod1.obj");
-				fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod2.obj");
+			//	fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod0.obj");
+			//	fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod1.obj");
+			//	fileNames.push_back("resources/models/trees/tree1ab/tree1a_lod2.obj");
 
-				tree->create(fileNames);
+			//	tree->create(fileNames);
 
-				Vec3f p;
+			//	Vec3f p;
 
-				p.x = worldPosf.x + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
-				p.z = worldPosf.z + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
+			//	p.x = worldPosf.x + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
+			//	p.z = worldPosf.z + voxelDist(chunk.getScene()->randomGenerator) - chunk.getTerrain()->voxelSize;
 
-				// Ray cast on plane
-				Vec3f rO(p.x, 0.0f, p.z);
+			//	// Ray cast on plane
+			//	Vec3f rO(p.x, 0.0f, p.z);
 
-				Vec3f pL = intersections[1] - rO;
-				float d = pL.dot(normal) / denom;
+			//	Vec3f pL = intersections[1] - rO;
+			//	float d = pL.dot(normal) / denom;
 
-				p.y = d;
+			//	p.y = d;
 
-				tree->transform = Matrix4x4f::translateMatrix(p);
+			//	tree->transform = Matrix4x4f::translateMatrix(p);
 
-				tree->calculateAABB();
-			}
+			//	tree->calculateAABB();
+			//}
 		}
 	}
 
-	if (!grassPositions.empty()) {
-		std::shared_ptr<TerrainGrass> grass(new TerrainGrass());
+	//if (!grassPositions.empty()) {
+	//	std::shared_ptr<TerrainGrass> grass(new TerrainGrass());
 
-		chunk.getScene()->add(grass, true);
+	//	chunk.getScene()->add(grass, true);
 
-		SceneObjectRef grassBatcher = chunk.getScene()->getNamedCheckQueue("grassBatcher");
+	//	SceneObjectRef grassBatcher = chunk.getScene()->getNamedCheckQueue("grassBatcher");
 
-		// Make sure the grass batcher was added to the scene
-		if (grassBatcher == nullptr) {
-			std::shared_ptr<TerrainGrassBatcher> batcher(new TerrainGrassBatcher());
+	//	// Make sure the grass batcher was added to the scene
+	//	if (grassBatcher == nullptr) {
+	//		std::shared_ptr<TerrainGrassBatcher> batcher(new TerrainGrassBatcher());
 
-			chunk.getScene()->addNamed(batcher, "grassBatcher");
+	//		chunk.getScene()->addNamed(batcher, "grassBatcher");
 
-			std::shared_ptr<Asset> assetGrassDiffuse;
+	//		std::shared_ptr<Asset> assetGrassDiffuse;
 
-			chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/grassTileSetDiffuse.png", assetGrassDiffuse);
+	//		chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/grassTileSetDiffuse.png", assetGrassDiffuse);
 
-			std::shared_ptr<Asset> assetGrassNormal;
+	//		std::shared_ptr<Asset> assetGrassNormal;
 
-			chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/grassTileSetNormal.png", assetGrassNormal);
+	//		chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/grassTileSetNormal.png", assetGrassNormal);
 
-			std::shared_ptr<Asset> assetNoise;
+	//		std::shared_ptr<Asset> assetNoise;
 
-			chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/noise.bmp", assetNoise);
+	//		chunk.getScene()->getAssetManager("tex2D", Texture2D::assetFactory)->getAsset("resources/textures/noise.bmp", assetNoise);
 
-			std::shared_ptr<Shader> grassRenderShader(new Shader());
+	//		std::shared_ptr<Shader> grassRenderShader(new Shader());
 
-			grassRenderShader->createAsset("NONE resources/shaders/voxel/gBufferRenderGrass.vert resources/shaders/voxel/gBufferRenderGrass.frag");
+	//		grassRenderShader->createAsset("NONE resources/shaders/voxel/gBufferRenderGrass.vert resources/shaders/voxel/gBufferRenderGrass.frag");
 
-			std::shared_ptr<Shader> depthRenderShader(new Shader());
+	//		std::shared_ptr<Shader> depthRenderShader(new Shader());
 
-			depthRenderShader->createAsset("NONE resources/shaders/voxel/depthRenderGrass.vert resources/shaders/voxel/depthRenderGrass.frag");
+	//		depthRenderShader->createAsset("NONE resources/shaders/voxel/depthRenderGrass.vert resources/shaders/voxel/depthRenderGrass.frag");
 
-			batcher->create(std::static_pointer_cast<Texture2D>(assetGrassDiffuse), std::static_pointer_cast<Texture2D>(assetGrassNormal), std::static_pointer_cast<Texture2D>(assetNoise), grassRenderShader, depthRenderShader);
+	//		batcher->create(std::static_pointer_cast<Texture2D>(assetGrassDiffuse), std::static_pointer_cast<Texture2D>(assetGrassNormal), std::static_pointer_cast<Texture2D>(assetNoise), grassRenderShader, depthRenderShader);
 
-			grassBatcher = batcher.get();
-		}
+	//		grassBatcher = batcher.get();
+	//	}
 
-		grass->create(grassPositions, startf, grassBatcher, 4, 1, 4, 0.7f);
-	}
+	//	grass->create(grassPositions, startf, grassBatcher, 4, 1, 4, 0.7f);
+	//}
 }
 
 void pge::terrainGeneratorFlatlands(VoxelChunk &chunk, int seed) {

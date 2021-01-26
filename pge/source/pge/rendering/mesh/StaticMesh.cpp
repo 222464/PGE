@@ -27,6 +27,10 @@ void StaticMesh::updateBuffers() {
 void StaticMesh::renderFromBuffers() {
 	interleavedBuffer.bind(GL_ARRAY_BUFFER);
 
+        glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
+	glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
+
 	glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(PGE_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const GLvoid*>(sizeof(Vec3f)));
 	glVertexAttribPointer(PGE_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const GLvoid*>(sizeof(Vec3f) + sizeof(Vec3f)));
@@ -50,6 +54,10 @@ void StaticMesh::renderFromArrays() {
 void StaticMesh::setAttributes() {
 	if (hasBuffer()) {
 		interleavedBuffer.bind(GL_ARRAY_BUFFER);
+
+                glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+                glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
+                glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 		glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 		glVertexAttribPointer(PGE_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<const GLvoid*>(sizeof(Vec3f)));

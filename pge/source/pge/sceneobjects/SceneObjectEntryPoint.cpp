@@ -7,7 +7,7 @@
 
 #include "../rendering/voxel/VoxelTerrain.h"
 #include "../rendering/voxel/TerrainGenerator.h"
-#include "../rendering/lighting/SceneObjectDirectionalLightShadowed.h"
+#include "../rendering/lighting/SceneObjectDirectionalLight.h"
 #include "../rendering/lighting/SceneObjectPointLightShadowed.h"
 
 #include "../rendering/imageeffects/SceneObjectEffectBuffer.h"
@@ -56,11 +56,50 @@ void SceneObjectEntryPoint::onAdd() {
 
 	// Control
 
-	std::shared_ptr<SceneObjectOrbitCamera> camera(new SceneObjectOrbitCamera());
+	std::shared_ptr<SceneObjectFloatingCamera> camera(new SceneObjectFloatingCamera());
 
-	camera->distance = 7.0f;
+	getRenderScene()->addNamed(camera, "flycam", false);
 
-	getRenderScene()->addNamed(camera, "orbcam", false);
+        // Terrain
+        //std::shared_ptr<pge::VoxelTerrain> terrain(new pge::VoxelTerrain());
+
+        //getScene()->add(terrain, false);
+
+	//std::shared_ptr<pge::Asset> assetTerrainGBufferRenderShader;
+
+	//getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderBumpVoxel.vert resources/shaders/voxel/gBufferRenderBumpVoxel.frag", assetTerrainGBufferRenderShader);
+
+	//std::shared_ptr<pge::Shader> terrainGBufferRenderShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderShader);
+
+	//std::shared_ptr<pge::Asset> assetTerrainGBufferRenderDepthShader;
+
+	//getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderVoxelDepth.vert resources/shaders/voxel/gBufferRenderVoxelDepth.frag", assetTerrainGBufferRenderDepthShader);
+
+	//std::shared_ptr<pge::Shader> terrainGBufferRenderDepthShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderDepthShader);
+
+        //std::shared_ptr<pge::Texture2DArray> diffuseArray(new pge::Texture2DArray());
+
+        //diffuseArray->createAsset(
+        //    "resources/textures/dirt.png "
+        //    "resources/textures/dirt.png "
+        //    "resources/textures/dirt.png "
+        //);
+
+        //diffuseArray->genMipMaps();
+
+        //std::shared_ptr<pge::Texture2DArray> normalArray(new pge::Texture2DArray());
+
+        //normalArray->createAsset(
+        //    "resources/textures/dirt_normal.png "
+        //    "resources/textures/dirt_normal.png "
+        //    "resources/textures/dirt_normal.png "
+        //);
+
+        //normalArray->genMipMaps();
+
+        //terrain->create(pge::Point3i(4, 4, 4), terrainGBufferRenderShader, terrainGBufferRenderDepthShader, diffuseArray, normalArray);
+
+        //terrain->generate(&pge::terrainGenerator0, 1234);
 
 	// Map
 
@@ -80,31 +119,23 @@ void SceneObjectEntryPoint::onAdd() {
 
 	prop->calculateAABB();
 
-	std::shared_ptr<SceneObjectQuadruped> quadruped(new SceneObjectQuadruped());
+	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 
-	getRenderScene()->add(quadruped, false);
+	getScene()->add(sky, true);
 
-	quadruped->create();
+	sky->create("resources/models/skybox1.obj");
 
-	quadruped->layer = 100.0f;
+	sky->transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
 
-	//std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
+	sky->calculateAABB();
 
-	//getScene()->add(sky, true);
-
-	//sky->create("resources/models/skybox1.obj");
-
-	//sky->transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
-
-	//sky->calculateAABB();
-
-	std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
+	std::shared_ptr<pge::SceneObjectDirectionalLight> directionalLight(new pge::SceneObjectDirectionalLight());
 
 	getScene()->add(directionalLight);
 
-	directionalLight->create(pLighting, 3, 2048, 0.2f, 100.0f, 0.6f);
+	directionalLight->create(pLighting);
 
-	directionalLight->setDirection(pge::Vec3f(-0.2523f, -0.9423f, -0.424f).normalized());
+	directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 
 	directionalLight->setColor(pge::Vec3f(0.7f, 0.7f, 0.7f));
 

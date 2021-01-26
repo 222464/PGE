@@ -8,7 +8,7 @@ smooth in vec3 viewNormal;
 smooth in vec3 worldPosition;
 smooth in vec3 worldNormal;
 
-uniform float pgeSpecular = 1.0;
+uniform float pgeSpecular = 0.0;
 uniform float pgeShininess = 1.0;
 uniform float pgeTextureStretchScalar = 0.3;
 

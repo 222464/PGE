@@ -25,19 +25,17 @@ void StaticPositionMesh::updateBuffers() {
 }
 
 void StaticPositionMesh::renderFromBuffers() {
-	glDisableVertexAttribArray(PGE_ATTRIB_NORMAL);
-	glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
-
 	positionBuffer.bind(GL_ARRAY_BUFFER);
 
 	glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0);
 
 	indexBuffer.bind(GL_ELEMENT_ARRAY_BUFFER);
 
-	glDrawElements(GL_TRIANGLES, numIndices, PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM, nullptr);
+        glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+	glDisableVertexAttribArray(PGE_ATTRIB_NORMAL);
+	glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
-	glEnableVertexAttribArray(PGE_ATTRIB_NORMAL);
-	glEnableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
+	glDrawElements(GL_TRIANGLES, numIndices, PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM, nullptr);
 }
 
 void StaticPositionMesh::renderFromArrays() {
@@ -58,6 +56,10 @@ void StaticPositionMesh::renderFromArrays() {
 void StaticPositionMesh::setAttributes() {
 	if (hasBuffer()) {
 		positionBuffer.bind(GL_ARRAY_BUFFER);
+
+                glEnableVertexAttribArray(PGE_ATTRIB_POSITION);
+                glDisableVertexAttribArray(PGE_ATTRIB_NORMAL);
+                glDisableVertexAttribArray(PGE_ATTRIB_TEXCOORD);
 
 		glVertexAttribPointer(PGE_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), 0);
 

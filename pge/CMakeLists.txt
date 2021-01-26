@@ -10,7 +10,6 @@ file(GLOB_RECURSE SOURCES
     "source/*.h"
     "source/*.cpp"
 )
-list(APPEND SOURCES "source/gl_core_4_4.c")
  
 add_executable(pge ${SOURCES})
 include_directories("${PROJECT_SOURCE_DIR}/source")
@@ -33,6 +32,10 @@ if(OPENGL_XMESA_FOUND)
 endif()
 include_directories(${OPENGL_INCLUDE_DIR})
 target_link_libraries(pge ${OPENGL_LIBRARIES})
+
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIR})
+target_link_libraries(pge ${GLEW_LIBRARIES})
 
 find_package(Bullet REQUIRED)
 message(STATUS "Bullet incs: " ${BULLET_INCLUDE_DIR})
