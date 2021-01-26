@@ -48,7 +48,7 @@ void main() {
 	vec3 viewPosition = texture(pgeGBufferPosition, texCoord).xyz;
 
 	for (int i = 0; i < pgeNumCascades; i++) {
-		if (-viewPosition.z > pgeSplitDistances[i].x) {
+		if (-viewPosition.z < pgeSplitDistances[i].x) {
 			// Perform shadowed lighting
 			vec4 shadowCoord = pgeLightBiasViewProjections[i] * vec4(viewPosition, 1.0);
 			shadowCoord.xy /= shadowCoord.w;
