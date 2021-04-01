@@ -69,12 +69,7 @@ void SceneObjectDirectionalLightShadowed::updateUniformBuffer() {
 		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", color);
 		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformi("pgeNumCascades", static_cast<GLint>(cascades.size()));
 
-		std::vector<Vec4f> splitDistancesVec4fs(splitDistances.size());
-
-		for (size_t i = 0; i < splitDistancesVec4fs.size(); i++)
-			splitDistancesVec4fs[i] = Vec4f(splitDistances[i], splitDistances[i], splitDistances[i], splitDistances[i]);
-
-		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(Vec4f) * splitDistancesVec4fs.size(), &splitDistancesVec4fs[0]);
+		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(float) * splitDistances.size(), &splitDistances[0]);
 
 		needsUniformBufferUpdate = false;
 	}
@@ -214,7 +209,4 @@ void SceneObjectDirectionalLightShadowed::deferredRender() {
 void SceneObjectDirectionalLightShadowed::setCascadeShadowMaps(Shader* pShader) {
 	for (int i = 0; i < cascades.size(); i++)
 		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", cascades[i]->getDepthTextureID(), GL_TEXTURE_2D);
-
-	for (int i = cascades.size(); i < 3; i++)
-		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", 0, GL_TEXTURE_2D);
 }

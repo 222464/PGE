@@ -14,8 +14,8 @@
 #define PGE_FIXED_TIMESTEP 0.017f
 
 int main(int argc, char *argv[]) {
-	int width = 640;
-	int height = 480;
+	int width = 1200;
+	int height = 720;
 	bool show = true;
 
 	std::shared_ptr<pge::SceneObject> entryPoint(new SceneObjectEntryPoint());

@@ -7,7 +7,7 @@
 
 #include "../rendering/voxel/VoxelTerrain.h"
 #include "../rendering/voxel/TerrainGenerator.h"
-#include "../rendering/lighting/SceneObjectDirectionalLight.h"
+#include "../rendering/lighting/SceneObjectDirectionalLightShadowed.h"
 #include "../rendering/lighting/SceneObjectPointLightShadowed.h"
 
 #include "../rendering/imageeffects/SceneObjectEffectBuffer.h"
@@ -129,15 +129,15 @@ void SceneObjectEntryPoint::onAdd() {
 
 	sky->calculateAABB();
 
-	std::shared_ptr<pge::SceneObjectDirectionalLight> directionalLight(new pge::SceneObjectDirectionalLight());
+	std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
 
 	getScene()->add(directionalLight);
 
-	directionalLight->create(pLighting);
+	directionalLight->create(pLighting, 2, 1024, 1.0f, 100.0f, 1.0f);
 
 	directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 
-	directionalLight->setColor(pge::Vec3f(0.7f, 0.7f, 0.7f));
+	directionalLight->setColor(pge::Vec3f(1.0f, 1.0f, 1.0f));
 
 	// ------------------------------------------- Image Effects -------------------------------------------
 
