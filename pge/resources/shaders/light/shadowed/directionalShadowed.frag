@@ -20,7 +20,7 @@ layout(std140) uniform pgeDirectionalLightShadowed {
 
 uniform vec2 pgeGBufferSizeInv;
 
-const int pgeNumSamples = 4;
+const int pgeNumSamples = 8;
 const float pgeNumSamplesInv = 1.0 / pgeNumSamples;
 const float pgeSampleOffset = 0.002;
 
@@ -51,7 +51,7 @@ void main() {
 			// Perform shadowed lighting
 			vec4 shadowCoord = pgeLightBiasViewProjections[i] * vec4(viewPosition, 1.0);
 			shadowCoord.xy /= shadowCoord.w;
-			shadowCoord.z -= 0.0006 + i * 0.0006; // Increase bias with distance (cascade)
+			shadowCoord.z -= 0.0005 + i * 0.0005; // Increase bias with distance (cascade)
 
 			shadowFactor = 0.0;
 
@@ -60,7 +60,7 @@ void main() {
 					
 			shadowFactor *= pgeNumSamplesInv;
 
-			break;
+			i = pgeNumCascades;
 		}
 	}
 
