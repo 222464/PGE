@@ -143,7 +143,7 @@ void SceneObjectEntryPoint::onAdd() {
 
 	getScene()->add(directionalLight, false);
 
-	directionalLight->create(pLighting, 2, 2048, 1.0f, 100.0f, 1.0f);
+	directionalLight->create(pLighting, 3, 1024, 1.0f, 300.0f, 2.0f);
 
 	directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 

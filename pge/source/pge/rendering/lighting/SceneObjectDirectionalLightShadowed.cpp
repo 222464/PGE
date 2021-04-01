@@ -9,7 +9,7 @@ needsUniformBufferUpdate(true),
 enabled(true),
 downwardsRangeExtension(32.0f),
 upwardsRangeExtension(256.0f),
-sidewaysRangeExtensionMultiplier(2.0f)
+sidewaysRangeExtensionMultiplier(1.5f)
 {
 	renderMask = 0xffff;
 }
