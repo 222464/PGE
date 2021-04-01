@@ -14,7 +14,7 @@ layout(std140) uniform pgeDirectionalLightShadowed {
 	vec3 pgeDirectionalLightColor;
 	vec3 pgeDirectionalLightDirection;
 	int pgeNumCascades;
-	float pgeSplitDistances[maxNumCascades];
+	vec4 pgeSplitDistances[maxNumCascades];
 	mat4 pgeLightBiasViewProjections[maxNumCascades];
 };
 
@@ -47,7 +47,7 @@ void main() {
 	vec3 viewPosition = texture(pgeGBufferPosition, texCoord).xyz;
 
 	for (int i = 0; i < pgeNumCascades; i++) {
-		if (-viewPosition.z < pgeSplitDistances[i]) {
+		if (-viewPosition.z < pgeSplitDistances[i].x) {
 			// Perform shadowed lighting
 			vec4 shadowCoord = pgeLightBiasViewProjections[i] * vec4(viewPosition, 1.0);
 			shadowCoord.xy /= shadowCoord.w;

@@ -34,20 +34,20 @@ void VBO::destroy() {
 void VBO::bind(GLuint usage) {
 	this->usage = usage;
 
-	/*switch (usage) {
+	switch (usage) {
 	case GL_ARRAY_BUFFER:
-		if (currentArrayBuffer != ID) {
+		//if (currentArrayBuffer != ID) {
 			currentArrayBuffer = ID;
 			glBindBuffer(usage, ID);
-		}
+		//}
 
 		break;
 
 	case GL_ELEMENT_ARRAY_BUFFER:
-		if (currentElementArrayBuffer != ID) {
+		//if (currentElementArrayBuffer != ID) {
 			currentElementArrayBuffer = ID;
 			glBindBuffer(usage, ID);
-		}
+		//}
 
 		break;
 
@@ -55,9 +55,9 @@ void VBO::bind(GLuint usage) {
 		glBindBuffer(usage, ID);
 
 		break;
-	}*/
+	}
 
-	glBindBuffer(usage, ID);
+	//glBindBuffer(usage, ID);
 }
 
 void VBO::forceBind(GLuint usage) {

@@ -14,7 +14,7 @@ sidewaysRangeExtensionMultiplier(2.0f)
 	renderMask = 0xffff;
 }
 
-void SceneObjectDirectionalLightShadowed::create(SceneObjectLighting* pLighting, int numCascades, unsigned int cascadeResolution, float zNear, float zFar, float lambda) {
+void SceneObjectDirectionalLightShadowed::create(SceneObjectLighting* pLighting, int numCascades, unsigned int cascadeResolution, float zNear, float zFar, float gamma) {
 	assert(numCascades <= 3); // At most 3 cascades
 
 	lighting = pLighting;
@@ -34,9 +34,8 @@ void SceneObjectDirectionalLightShadowed::create(SceneObjectLighting* pLighting,
 
 	for (int i = 0; i < numCascades; i++) {
 		float cascadeRatio = static_cast<float>(i + 1) / static_cast<float>(numCascades);
-		float zNext = std::pow(cascadeRatio, lambda) * (zFar - zNext) + zNear;
 
-		splitDistances[i] = zNext;
+		splitDistances[i].x = std::pow(cascadeRatio, gamma) * (zFar - zNear) + zNear;
 
 		cascades[i].reset(new DepthRT());
 		cascades[i]->create(cascadeResolution, cascadeResolution, DepthRT::_16);
@@ -69,7 +68,7 @@ void SceneObjectDirectionalLightShadowed::updateUniformBuffer() {
 		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", color);
 		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformi("pgeNumCascades", static_cast<GLint>(cascades.size()));
 
-		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(float) * splitDistances.size(), &splitDistances[0]);
+		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(Vec4f) * splitDistances.size(), &splitDistances[0]);
 
 		needsUniformBufferUpdate = false;
 	}
@@ -104,7 +103,7 @@ void SceneObjectDirectionalLightShadowed::preRender() {
 		getFrustumCornerPoints(zNear, previousPoints);
 
 		for (size_t i = 0; i < cascades.size(); i++) {
-			float dist = splitDistances[i];
+			float dist = splitDistances[i].x;
 	
 			std::array<Vec3f, 4> points;
 

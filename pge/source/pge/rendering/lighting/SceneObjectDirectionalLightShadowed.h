@@ -17,7 +17,7 @@ namespace pge {
 
 		std::shared_ptr<VBO> uniformBuffer;
 
-		std::vector<float> splitDistances;
+		std::vector<Vec4f> splitDistances;
 		std::vector<Matrix4x4f> lightBiasViewProjections;
 		std::vector<std::shared_ptr<DepthRT>> cascades;
 
@@ -37,7 +37,7 @@ namespace pge {
 
 		SceneObjectDirectionalLightShadowed();
 
-		void create(SceneObjectLighting* pLighting, int numCascades, unsigned int cascadeResolution, float zNear, float zFar, float lambda);
+		void create(SceneObjectLighting* pLighting, int numCascades, unsigned int cascadeResolution, float zNear, float zFar, float gamma);
 
 		// Inherited from SceneObject
 		void preRender();
