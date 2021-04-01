@@ -31,7 +31,12 @@ void main() {
 	vec2 coord = gl_FragCoord.xy * pgeSizeInv;
 
 	// Samples
-	float specular = texture(pgeGBufferColor, coord).a;
+	//float specular = texture(pgeGBufferColor, coord).a;
+
+	//if(specular == 0.0) {
+	//	pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
+	//	return;
+	//}
 
 	vec3 color = vec3(0.0);
 
@@ -119,5 +124,6 @@ void main() {
 	vec3 baseColor = texture(pgeGBufferColor, coord).rgb;
 
 	// Get color
+	//pgeOutputColor = vec4(specular * baseColor * color * pgeSamplesInv, 1.0);
 	pgeOutputColor = vec4(baseColor * color * pgeSamplesInv, 1.0);
 }
