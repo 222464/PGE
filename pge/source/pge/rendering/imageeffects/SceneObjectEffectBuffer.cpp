@@ -11,8 +11,8 @@ void SceneObjectEffectBuffer::create(float downsampleRatio) {
 	ping.reset(new TextureRT());
 	pong.reset(new TextureRT());
 
-	ping->create(downsampleWidth, downsampleHeight, false, GL_RGB16F, GL_RGB, GL_FLOAT);
-	pong->create(downsampleWidth, downsampleHeight, false, GL_RGB16F, GL_RGB, GL_FLOAT);
+	ping->create(downsampleWidth, downsampleHeight, false, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
+	pong->create(downsampleWidth, downsampleHeight, false, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
 	glBindTexture(GL_TEXTURE_2D, ping->getTextureID());
 
