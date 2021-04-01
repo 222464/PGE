@@ -209,4 +209,8 @@ void SceneObjectDirectionalLightShadowed::deferredRender() {
 void SceneObjectDirectionalLightShadowed::setCascadeShadowMaps(Shader* pShader) {
 	for (int i = 0; i < cascades.size(); i++)
 		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", cascades[i]->getDepthTextureID(), GL_TEXTURE_2D);
+
+        // Set unused remainder to 0
+        for (int i = cascades.size(); i < 3; i++)
+		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", 0, GL_TEXTURE_2D);
 }

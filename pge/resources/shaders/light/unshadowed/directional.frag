@@ -10,7 +10,6 @@ layout(shared) uniform pgeDirectionalLight {
 };
 
 uniform vec2 pgeGBufferSizeInv;
-uniform vec3 pgeAttenuation;
 
 out vec4 pgeOutputColor;
 

@@ -148,7 +148,7 @@ void SceneObjectLighting::create(const std::shared_ptr<Shader> &ambientLightShad
 	
 	emissiveRenderShader->setUniformv2f("pgeGBufferSizeInv", gBufferSizeInv);
 
-	depthRenderShader->bind();
+	//depthRenderShader->bind();
 }
 
 void SceneObjectLighting::add(SceneObjectPointLight &light) {
@@ -204,9 +204,6 @@ void SceneObjectLighting::postRender() {
 	directionalLightShader->bind();
 	directionalLightShader->bindShaderTextures();
 
-	if (needsAttenuationUpdate)
-		directionalLightShader->setUniformv3f("pgeAttenuation", attenuation);
-
 	for (std::list<SceneObjectRef>::iterator it = directionalLights.begin(); it != directionalLights.end(); it++) {
 		SceneObjectDirectionalLight* pDirectionalLight = static_cast<SceneObjectDirectionalLight*>((*it).get());
 
@@ -220,9 +217,6 @@ void SceneObjectLighting::postRender() {
 	}
 
 	directionalLightShadowedShader->bind();
-
-	if (needsAttenuationUpdate)
-		directionalLightShadowedShader->setUniformv3f("pgeAttenuation", attenuation);
 
 	for (std::list<SceneObjectRef>::iterator it = shadowedDirectionalLights.begin(); it != shadowedDirectionalLights.end(); it++) {
 		SceneObjectDirectionalLightShadowed* pDirectionalLightShadowed = static_cast<SceneObjectDirectionalLightShadowed*>((*it).get());

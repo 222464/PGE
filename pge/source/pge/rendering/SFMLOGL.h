@@ -9,8 +9,6 @@
 #define PGE_ATTRIB_NORMAL 1
 #define PGE_ATTRIB_TEXCOORD 2
 
-#define PGE_DEBUG
-
 // So only runs debug function when in debug mode
 #ifdef PGE_DEBUG
 #define PGE_GL_ERROR_CHECK() pge::checkForGLError()

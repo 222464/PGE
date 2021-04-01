@@ -141,9 +141,9 @@ void SceneObjectEntryPoint::onAdd() {
 
 	std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
 
-	getScene()->add(directionalLight);
+	getScene()->add(directionalLight, false);
 
-	directionalLight->create(pLighting, 2, 1024, 1.0f, 100.0f, 1.0f);
+	directionalLight->create(pLighting, 2, 2048, 1.0f, 100.0f, 1.0f);
 
 	directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 

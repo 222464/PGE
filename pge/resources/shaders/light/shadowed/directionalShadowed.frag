@@ -19,7 +19,6 @@ layout(std140) uniform pgeDirectionalLightShadowed {
 };
 
 uniform vec2 pgeGBufferSizeInv;
-uniform vec3 pgeAttenuation;
 
 const int pgeNumSamples = 4;
 const float pgeNumSamplesInv = 1.0 / pgeNumSamples;
