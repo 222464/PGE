@@ -119,6 +119,16 @@ void SceneObjectEntryPoint::onAdd() {
 
 	prop->calculateAABB();
 
+	std::shared_ptr<SceneObjectProp> prop2(new SceneObjectProp());
+
+	getScene()->add(prop2, false);
+
+	prop2->create("resources/models/block.obj");
+
+	prop2->calculateAABB();
+
+        prop2->transform = pge::Matrix4x4f::translateMatrix(pge::Vec3f(5.0f, 0.0f, 5.0f));
+
 	std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 
 	getScene()->add(sky, true);
@@ -129,15 +139,25 @@ void SceneObjectEntryPoint::onAdd() {
 
 	sky->calculateAABB();
 
-	std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
+	//std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
 
-	getScene()->add(directionalLight);
+	//getScene()->add(directionalLight);
 
-	directionalLight->create(pLighting, 2, 1024, 1.0f, 100.0f, 1.0f);
+	//directionalLight->create(pLighting, 2, 1024, 1.0f, 100.0f, 1.0f);
 
-	directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
+	//directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 
-	directionalLight->setColor(pge::Vec3f(1.0f, 1.0f, 1.0f));
+	//directionalLight->setColor(pge::Vec3f(1.0f, 1.0f, 1.0f));
+
+	std::shared_ptr<pge::SceneObjectPointLightShadowed> pointLight(new pge::SceneObjectPointLightShadowed());
+
+	getScene()->add(pointLight);
+
+        pointLight->setPosition(pge::Vec3f(0.0f, 10.0f, 0.0f));
+        pointLight->create(pLighting, 512);
+
+	pointLight->setRange(100.0f);
+
 
 	// ------------------------------------------- Image Effects -------------------------------------------
 
