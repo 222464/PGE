@@ -33,11 +33,6 @@ void main() {
 	// Samples
 	float specular = texture(pgeGBufferColor, coord).a;
 
-	if(specular == 0.0) {
-		pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
-		return;
-	}
-
 	vec3 color = vec3(0.0);
 
 	for (int s = 0; s < pgeSamples; s++) {
@@ -101,7 +96,7 @@ void main() {
 					hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
 				}
 
-				break;
+				i = pgeMaxSteps;
 			}
 		}
 
@@ -124,5 +119,5 @@ void main() {
 	vec3 baseColor = texture(pgeGBufferColor, coord).rgb;
 
 	// Get color
-	pgeOutputColor = vec4(specular * baseColor * color * pgeSamplesInv, 1.0);
+	pgeOutputColor = vec4(baseColor * color * pgeSamplesInv, 1.0);
 }
