@@ -27,8 +27,8 @@ void SceneObjectEffectBuffer::create(float downsampleRatio) {
 	fullPing.reset(new TextureRT());
 	fullPong.reset(new TextureRT());
 
-	fullPing->create(getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), false, GL_RGB16F, GL_RGB, GL_FLOAT);
-	fullPong->create(getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), false, GL_RGB16F, GL_RGB, GL_FLOAT);
+	fullPing->create(getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), false, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
+	fullPong->create(getRenderScene()->gBuffer.getWidth(), getRenderScene()->gBuffer.getHeight(), false, GL_RGB16F, GL_RGB, GL_HALF_FLOAT);
 
 	glBindTexture(GL_TEXTURE_2D, fullPing->getTextureID());
 
