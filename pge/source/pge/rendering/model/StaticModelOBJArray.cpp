@@ -3,7 +3,7 @@
 using namespace pge;
 
 bool StaticModelOBJArray::createAsset(const std::string &fileName) {
-	textureManager.create(Texture2D::assetFactory);
+    textureManager.create(Texture2D::assetFactory);
 
-	return model.loadFromOBJ(fileName, textureManager, aabb, false, false);
+    return model.loadFromOBJ(fileName, textureManager, aabb, false, false);
 }

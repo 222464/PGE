@@ -3,43 +3,43 @@
 using namespace pge;
 
 const Point2i &Point2i::operator*=(int scale) {
-	x *= scale;
-	y *= scale;
+    x *= scale;
+    y *= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point2i &Point2i::operator/=(int scale) {
-	x /= scale;
-	y /= scale;
+    x /= scale;
+    y /= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point2i &Point2i::operator+=(const Point2i &other) {
-	x += other.x;
-	y += other.y;
+    x += other.x;
+    y += other.y;
 
-	return *this;
+    return *this;
 }
 
 const Point2i &Point2i::operator-=(const Point2i &other) {
-	x -= other.x;
-	y -= other.y;
+    x -= other.x;
+    y -= other.y;
 
-	return *this;
+    return *this;
 }
 
 const Point2i &Point2i::operator*=(const Point2i &other) {
-	x *= other.x;
-	y *= other.y;
+    x *= other.x;
+    y *= other.y;
 
-	return *this;
+    return *this;
 }
 
 const Point2i &Point2i::operator/=(const Point2i &other) {
-	x /= other.x;
-	y /= other.y;
+    x /= other.x;
+    y /= other.y;
 
-	return *this;
+    return *this;
 }

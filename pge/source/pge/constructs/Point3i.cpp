@@ -3,49 +3,49 @@
 using namespace pge;
 
 const Point3i &Point3i::operator*=(int scale) {
-	x *= scale;
-	y *= scale;
-	z *= scale;
+    x *= scale;
+    y *= scale;
+    z *= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point3i &Point3i::operator/=(int scale) {
-	x /= scale;
-	y /= scale;
-	z /= scale;
+    x /= scale;
+    y /= scale;
+    z /= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point3i &Point3i::operator+=(const Point3i &other) {
-	x += other.x;
-	y += other.y;
-	z += other.z;
+    x += other.x;
+    y += other.y;
+    z += other.z;
 
-	return *this;
+    return *this;
 }
 
 const Point3i &Point3i::operator-=(const Point3i &other) {
-	x -= other.x;
-	y -= other.y;
-	z -= other.z;
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
 
-	return *this;
+    return *this;
 }
 
 const Point3i &Point3i::operator*=(const Point3i &other) {
-	x *= other.x;
-	y *= other.y;
-	z *= other.z;
+    x *= other.x;
+    y *= other.y;
+    z *= other.z;
 
-	return *this;
+    return *this;
 }
 
 const Point3i &Point3i::operator/=(const Point3i &other) {
-	x /= other.x;
-	y /= other.y;
-	z /= other.z;
+    x /= other.x;
+    y /= other.y;
+    z /= other.z;
 
-	return *this;
+    return *this;
 }

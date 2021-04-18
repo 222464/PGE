@@ -11,205 +11,205 @@ downwardsRangeExtension(32.0f),
 upwardsRangeExtension(256.0f),
 sidewaysRangeExtensionMultiplier(1.5f)
 {
-	renderMask = 0xffff;
+    renderMask = 0xffff;
 }
 
 void SceneObjectDirectionalLightShadowed::create(SceneObjectLighting* pLighting, int numCascades, unsigned int cascadeResolution, float zNear, float zFar, float gamma) {
-	assert(numCascades <= 3); // At most 3 cascades
+    assert(numCascades <= 3); // At most 3 cascades
 
-	lighting = pLighting;
+    lighting = pLighting;
 
-	uniformBuffer.reset(new VBO());
-	uniformBuffer->create();
+    uniformBuffer.reset(new VBO());
+    uniformBuffer->create();
 
-	pLighting->directionalLightShadowedLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
+    pLighting->directionalLightShadowedLightUBOShaderInterface->setUpBuffer(*uniformBuffer);
 
-	// Create shadow cascades
-	this->zNear = zNear;
-	this->zFar = zFar;
+    // Create shadow cascades
+    this->zNear = zNear;
+    this->zFar = zFar;
 
-	splitDistances.resize(numCascades);
-	lightBiasViewProjections.resize(numCascades);
-	cascades.resize(numCascades);
+    splitDistances.resize(numCascades);
+    lightBiasViewProjections.resize(numCascades);
+    cascades.resize(numCascades);
 
-	for (int i = 0; i < numCascades; i++) {
-		float cascadeRatio = static_cast<float>(i + 1) / static_cast<float>(numCascades);
+    for (int i = 0; i < numCascades; i++) {
+        float cascadeRatio = static_cast<float>(i + 1) / static_cast<float>(numCascades);
 
-		splitDistances[i].x = std::pow(cascadeRatio, gamma) * (zFar - zNear) + zNear;
+        splitDistances[i].x = std::pow(cascadeRatio, gamma) * (zFar - zNear) + zNear;
 
-		cascades[i].reset(new DepthRT());
-		cascades[i]->create(cascadeResolution, cascadeResolution, DepthRT::_16);
-	}
+        cascades[i].reset(new DepthRT());
+        cascades[i]->create(cascadeResolution, cascadeResolution, DepthRT::_16);
+    }
 
-	updateUniformBuffer();
+    updateUniformBuffer();
 }
 
 void SceneObjectDirectionalLightShadowed::setColor(const Vec3f &color) {
-	this->color = color;
+    this->color = color;
 
-	needsUniformBufferUpdate = true;
+    needsUniformBufferUpdate = true;
 }
 
 void SceneObjectDirectionalLightShadowed::setDirection(const Vec3f &direction) {
-	this->direction = direction;
+    this->direction = direction;
 
-	needsUniformBufferUpdate = true;
+    needsUniformBufferUpdate = true;
 }
 
 void SceneObjectDirectionalLightShadowed::updateUniformBuffer() {
-	uniformBuffer->bind(GL_UNIFORM_BUFFER);
+    uniformBuffer->bind(GL_UNIFORM_BUFFER);
 
-	SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
+    SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-	pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightDirection", getRenderScene()->renderCamera.getNormalMatrix() * direction);
-	pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeLightBiasViewProjections", sizeof(float) * 16 * lightBiasViewProjections.size(), &lightBiasViewProjections[0]);
+    pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightDirection", getRenderScene()->renderCamera.getNormalMatrix() * direction);
+    pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeLightBiasViewProjections", sizeof(float) * 16 * lightBiasViewProjections.size(), &lightBiasViewProjections[0]);
 
-	if (needsUniformBufferUpdate) {
-		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", color);
-		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformi("pgeNumCascades", static_cast<GLint>(cascades.size()));
+    if (needsUniformBufferUpdate) {
+        pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformv3f("pgeDirectionalLightColor", color);
+        pLighting->directionalLightShadowedLightUBOShaderInterface->setUniformi("pgeNumCascades", static_cast<GLint>(cascades.size()));
 
-		pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(Vec4f) * splitDistances.size(), &splitDistances[0]);
+        pLighting->directionalLightShadowedLightUBOShaderInterface->setUniform("pgeSplitDistances", sizeof(Vec4f) * splitDistances.size(), &splitDistances[0]);
 
-		needsUniformBufferUpdate = false;
-	}
+        needsUniformBufferUpdate = false;
+    }
 
-	PGE_GL_ERROR_CHECK();
+    PGE_GL_ERROR_CHECK();
 }
 
 void SceneObjectDirectionalLightShadowed::getFrustumCornerPoints(float zDistance, std::array<Vec3f, 4> &points) {
-	float frustumSideLength = (getRenderScene()->renderCamera.frustum.getCorner(0) - getRenderScene()->renderCamera.frustum.getCorner(1)).magnitude();
+    float frustumSideLength = (getRenderScene()->renderCamera.frustum.getCorner(0) - getRenderScene()->renderCamera.frustum.getCorner(1)).magnitude();
 
-	float lerpFactor = zDistance / frustumSideLength;
+    float lerpFactor = zDistance / frustumSideLength;
 
-	points[0] = lerp(getRenderScene()->renderCamera.frustum.getCorner(0), getRenderScene()->renderCamera.frustum.getCorner(1), lerpFactor);
-	points[1] = lerp(getRenderScene()->renderCamera.frustum.getCorner(2), getRenderScene()->renderCamera.frustum.getCorner(3), lerpFactor);
-	points[2] = lerp(getRenderScene()->renderCamera.frustum.getCorner(4), getRenderScene()->renderCamera.frustum.getCorner(5), lerpFactor);
-	points[3] = lerp(getRenderScene()->renderCamera.frustum.getCorner(6), getRenderScene()->renderCamera.frustum.getCorner(7), lerpFactor);
+    points[0] = lerp(getRenderScene()->renderCamera.frustum.getCorner(0), getRenderScene()->renderCamera.frustum.getCorner(1), lerpFactor);
+    points[1] = lerp(getRenderScene()->renderCamera.frustum.getCorner(2), getRenderScene()->renderCamera.frustum.getCorner(3), lerpFactor);
+    points[2] = lerp(getRenderScene()->renderCamera.frustum.getCorner(4), getRenderScene()->renderCamera.frustum.getCorner(5), lerpFactor);
+    points[3] = lerp(getRenderScene()->renderCamera.frustum.getCorner(6), getRenderScene()->renderCamera.frustum.getCorner(7), lerpFactor);
 }
 
 void SceneObjectDirectionalLightShadowed::preRender() {
-	if (enabled) {
-		// ---------------------------- Update Projection ----------------------------
+    if (enabled) {
+        // ---------------------------- Update Projection ----------------------------
 
-		std::vector<Camera> cascadeCameras(cascades.size());
+        std::vector<Camera> cascadeCameras(cascades.size());
 
-		Vec3f viewForward(getRenderScene()->renderCamera.rotation * Vec3f(1.0f, 0.0f, 0.0f));
-		Vec3f viewUp(getRenderScene()->renderCamera.rotation * Vec3f(0.0f, 1.0f, 0.0f));
+        Vec3f viewForward(getRenderScene()->renderCamera.rotation * Vec3f(1.0f, 0.0f, 0.0f));
+        Vec3f viewUp(getRenderScene()->renderCamera.rotation * Vec3f(0.0f, 1.0f, 0.0f));
 
-		// Get frustum corner points
-		std::array<Vec3f, 4> previousPoints;
+        // Get frustum corner points
+        std::array<Vec3f, 4> previousPoints;
 
-		// Initial one
-		getFrustumCornerPoints(zNear, previousPoints);
+        // Initial one
+        getFrustumCornerPoints(zNear, previousPoints);
 
-		for (size_t i = 0; i < cascades.size(); i++) {
-			float dist = splitDistances[i].x;
-	
-			std::array<Vec3f, 4> points;
+        for (size_t i = 0; i < cascades.size(); i++) {
+            float dist = splitDistances[i].x;
+    
+            std::array<Vec3f, 4> points;
 
-			getFrustumCornerPoints(dist, points);
+            getFrustumCornerPoints(dist, points);
 
-			// Get average position for center of light camera
-			Vec3f averagePosition(0.0f, 0.0f, 0.0f);
+            // Get average position for center of light camera
+            Vec3f averagePosition(0.0f, 0.0f, 0.0f);
 
-			for (size_t j = 0; j < 4; j++) {
-				averagePosition += previousPoints[j];
-				averagePosition += points[j];
-			}
+            for (size_t j = 0; j < 4; j++) {
+                averagePosition += previousPoints[j];
+                averagePosition += points[j];
+            }
 
-			averagePosition *= 0.125f;
+            averagePosition *= 0.125f;
 
-			cascadeCameras[i].position = averagePosition;
-			cascadeCameras[i].rotation = Quaternion::getFromMatrix(Matrix4x4f::cameraDirectionMatrix(direction, viewForward));
+            cascadeCameras[i].position = averagePosition;
+            cascadeCameras[i].rotation = Quaternion::getFromMatrix(Matrix4x4f::cameraDirectionMatrix(direction, viewForward));
 
-			cascadeCameras[i].updateViewMatrix();
+            cascadeCameras[i].updateViewMatrix();
 
-			// Project and find bounds
-			// First one is done manually
-			AABB3D bounds;
-			bounds.lowerBound = bounds.upperBound = cascadeCameras[i].getViewMatrix() * points[0];
+            // Project and find bounds
+            // First one is done manually
+            AABB3D bounds;
+            bounds.lowerBound = bounds.upperBound = cascadeCameras[i].getViewMatrix() * points[0];
 
-			for (size_t j = 1; j < 4; j++) {
-				// Expand AABB
-				Vec3f projectedPoint(cascadeCameras[i].getViewMatrix() * points[j]);
+            for (size_t j = 1; j < 4; j++) {
+                // Expand AABB
+                Vec3f projectedPoint(cascadeCameras[i].getViewMatrix() * points[j]);
 
-				bounds.expand(projectedPoint);
-			}
+                bounds.expand(projectedPoint);
+            }
 
-			// Go over previous points as well (TODO: DON'T RECALCULATE PROJECTION FOR PREVIOUS POINTS!)
-			for (size_t j = 0; j < 4; j++) {
-				Vec3f projectedPoint(cascadeCameras[i].getViewMatrix() * previousPoints[j]);
+            // Go over previous points as well (TODO: DON'T RECALCULATE PROJECTION FOR PREVIOUS POINTS!)
+            for (size_t j = 0; j < 4; j++) {
+                Vec3f projectedPoint(cascadeCameras[i].getViewMatrix() * previousPoints[j]);
 
-				// Expand AABB
-				bounds.expand(projectedPoint);
-			}
+                // Expand AABB
+                bounds.expand(projectedPoint);
+            }
 
-			bounds.calculateHalfDims();
-			bounds.calculateCenter();
+            bounds.calculateHalfDims();
+            bounds.calculateCenter();
 
-			// Use bounds to find cascade projection matrix
-			cascadeCameras[i].projectionMatrix = Matrix4x4f::orthoMatrix(bounds.lowerBound.x * sidewaysRangeExtensionMultiplier, bounds.upperBound.x * sidewaysRangeExtensionMultiplier, // Projection
-				bounds.lowerBound.y * sidewaysRangeExtensionMultiplier, bounds.upperBound.y * sidewaysRangeExtensionMultiplier,
-				bounds.lowerBound.z - downwardsRangeExtension, bounds.upperBound.z + upwardsRangeExtension); // Extend range a bit (especially upwards) to include out of view occluders
+            // Use bounds to find cascade projection matrix
+            cascadeCameras[i].projectionMatrix = Matrix4x4f::orthoMatrix(bounds.lowerBound.x * sidewaysRangeExtensionMultiplier, bounds.upperBound.x * sidewaysRangeExtensionMultiplier, // Projection
+                bounds.lowerBound.y * sidewaysRangeExtensionMultiplier, bounds.upperBound.y * sidewaysRangeExtensionMultiplier,
+                bounds.lowerBound.z - downwardsRangeExtension, bounds.upperBound.z + upwardsRangeExtension); // Extend range a bit (especially upwards) to include out of view occluders
 
-			cascadeCameras[i].fullUpdate();
+            cascadeCameras[i].fullUpdate();
 
-			previousPoints = points;
-		}
+            previousPoints = points;
+        }
 
-		// ---------------------------- Render to cascades ----------------------------
+        // ---------------------------- Render to cascades ----------------------------
 
-		SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
+        SceneObjectLighting* pLighting = static_cast<SceneObjectLighting*>(lighting.get());
 
-		getRenderScene()->useShader(pLighting->depthRenderShader.get());
+        getRenderScene()->useShader(pLighting->depthRenderShader.get());
 
-		getRenderScene()->shaderSwitchesEnabled = false;
-		getRenderScene()->renderingShadows = true;
+        getRenderScene()->shaderSwitchesEnabled = false;
+        getRenderScene()->renderingShadows = true;
 
-		Camera oldCamera = getRenderScene()->renderCamera;
-	
-		for (size_t i = 0; i < cascades.size(); i++) {
-			// Bind the depth map FBO
-			cascades[i]->bind();
+        Camera oldCamera = getRenderScene()->renderCamera;
+    
+        for (size_t i = 0; i < cascades.size(); i++) {
+            // Bind the depth map FBO
+            cascades[i]->bind();
 
-			cascades[i]->setViewport();
+            cascades[i]->setViewport();
 
-			getRenderScene()->renderCamera = cascadeCameras[i];
-			getRenderScene()->updateShaderUniforms();
+            getRenderScene()->renderCamera = cascadeCameras[i];
+            getRenderScene()->updateShaderUniforms();
 
-			glClearDepth(1.0f);
-			glClear(GL_DEPTH_BUFFER_BIT);
+            glClearDepth(1.0f);
+            glClear(GL_DEPTH_BUFFER_BIT);
 
-			getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
+            getRenderScene()->setTransform(Matrix4x4f::identityMatrix());
 
-			getRenderScene()->renderShadow();
+            getRenderScene()->renderShadow();
 
-			lightBiasViewProjections[i] = (getBiasMatrix() * cascadeCameras[i].getProjectionViewMatrix()) * oldCamera.getViewInverseMatrix();
-		}
+            lightBiasViewProjections[i] = (getBiasMatrix() * cascadeCameras[i].getProjectionViewMatrix()) * oldCamera.getViewInverseMatrix();
+        }
 
-		Shader::unbind();
-		DepthRT::unbind();
+        Shader::unbind();
+        DepthRT::unbind();
 
-		getRenderScene()->renderCamera = oldCamera;
-		getRenderScene()->updateShaderUniforms();
+        getRenderScene()->renderCamera = oldCamera;
+        getRenderScene()->updateShaderUniforms();
 
-		getRenderScene()->shaderSwitchesEnabled = true;
-		getRenderScene()->renderingShadows = false;
+        getRenderScene()->shaderSwitchesEnabled = true;
+        getRenderScene()->renderingShadows = false;
 
-		PGE_GL_ERROR_CHECK();
-	}
+        PGE_GL_ERROR_CHECK();
+    }
 }
 
 void SceneObjectDirectionalLightShadowed::deferredRender() {
-	if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
-		static_cast<SceneObjectLighting*>(lighting.get())->shadowedDirectionalLights.push_back(*this);
+    if (enabled && !getRenderScene()->renderingShadows && getRenderScene()->shaderSwitchesEnabled)
+        static_cast<SceneObjectLighting*>(lighting.get())->shadowedDirectionalLights.push_back(*this);
 }
 
 void SceneObjectDirectionalLightShadowed::setCascadeShadowMaps(Shader* pShader) {
-	for (int i = 0; i < cascades.size(); i++)
-		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", cascades[i]->getDepthTextureID(), GL_TEXTURE_2D);
+    for (int i = 0; i < cascades.size(); i++)
+        pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", cascades[i]->getDepthTextureID(), GL_TEXTURE_2D);
 
         // Set unused remainder to 0
         for (int i = cascades.size(); i < 3; i++)
-		pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", 0, GL_TEXTURE_2D);
+        pShader->setShaderTexture("pgeCascadeShadowMaps[" + std::to_string(i) + "]", 0, GL_TEXTURE_2D);
 }

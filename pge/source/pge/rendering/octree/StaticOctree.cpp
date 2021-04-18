@@ -7,15 +7,15 @@
 using namespace pge;
 
 void StaticOctree::add(const SceneObjectRef &oc) {
-	std::unique_lock<std::recursive_mutex> lock(mutex);
+    std::unique_lock<std::recursive_mutex> lock(mutex);
 
-	assert(created());
+    assert(created());
 
-	setOctree(oc);
+    setOctree(oc);
 
-	// If the occupant fits in the root node
-	if(pRootNode->getRegion().contains(oc->getAABB()))
-		pRootNode->add(oc);
-	else
-		outsideRoot.insert(oc);
+    // If the occupant fits in the root node
+    if(pRootNode->getRegion().contains(oc->getAABB()))
+        pRootNode->add(oc);
+    else
+        outsideRoot.insert(oc);
 }

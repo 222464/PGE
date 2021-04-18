@@ -3,51 +3,51 @@
 #include "Octree.h"
 
 namespace pge {
-	class DynamicOctree : public Octree {
-	private:
-		void expand();
-		void contract();
+    class DynamicOctree : public Octree {
+    private:
+        void expand();
+        void contract();
 
-	public:
-		size_t minOutsideRoot;
-		size_t maxOutsideRoot;
+    public:
+        size_t minOutsideRoot;
+        size_t maxOutsideRoot;
 
-		DynamicOctree()
-			: minOutsideRoot(1), maxOutsideRoot(8)
-		{}
+        DynamicOctree()
+            : minOutsideRoot(1), maxOutsideRoot(8)
+        {}
 
-		DynamicOctree(const AABB3D &rootRegion)
-			: minOutsideRoot(1), maxOutsideRoot(8)
-		{
-			pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
-		}
+        DynamicOctree(const AABB3D &rootRegion)
+            : minOutsideRoot(1), maxOutsideRoot(8)
+        {
+            pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
+        }
 
-		DynamicOctree(const DynamicOctree &other) {
-			*this = other;
-		}
+        DynamicOctree(const DynamicOctree &other) {
+            *this = other;
+        }
 
-		void operator=(const DynamicOctree &other);
+        void operator=(const DynamicOctree &other);
 
-		void create(const AABB3D &rootRegion) {
-			pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
-		}
+        void create(const AABB3D &rootRegion) {
+            pRootNode.reset(new OctreeNode(rootRegion, 0, nullptr, this));
+        }
 
-		// Inherited from Octree
-		void add(const SceneObjectRef &oc);
+        // Inherited from Octree
+        void add(const SceneObjectRef &oc);
 
-		void clear() {
-			pRootNode.reset();
-		}
+        void clear() {
+            pRootNode.reset();
+        }
 
-		// Resizes Octree
-		void trim();
+        // Resizes Octree
+        void trim();
 
-		bool created() const {
-			return pRootNode != nullptr;
-		}
+        bool created() const {
+            return pRootNode != nullptr;
+        }
 
-		const AABB3D &getRootRegion() const {
-			return pRootNode->getRegion();
-		}
-	};
+        const AABB3D &getRootRegion() const {
+            return pRootNode->getRegion();
+        }
+    };
 }

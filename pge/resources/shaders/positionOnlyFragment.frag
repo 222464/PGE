@@ -3,5 +3,5 @@
 out vec4 pgeOutputColor;
 
 void main() {
-	pgeOutputColor = vec4(1.0);
+    pgeOutputColor = vec4(1.0);
 }

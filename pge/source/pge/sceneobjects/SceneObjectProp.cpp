@@ -5,37 +5,37 @@
 #include "../rendering/shader/Shader.h"
 
 bool SceneObjectProp::create(const std::string &fileName) {
-	assert(getScene() != nullptr);
+    assert(getScene() != nullptr);
 
-	std::shared_ptr<pge::Asset> asset;
+    std::shared_ptr<pge::Asset> asset;
 
-	if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset(fileName, asset))
-		return false;
+    if (!getScene()->getAssetManager("MOBJ", pge::StaticModelOBJ::assetFactory)->getAsset(fileName, asset))
+        return false;
 
-	pModelOBJ = static_cast<pge::StaticModelOBJ*>(asset.get());
+    pModelOBJ = static_cast<pge::StaticModelOBJ*>(asset.get());
 
-	pModelOBJ->model.genMipMaps();
+    pModelOBJ->model.genMipMaps();
 
-	transform = pge::Matrix4x4f::identityMatrix();
+    transform = pge::Matrix4x4f::identityMatrix();
 
-	return true;
+    return true;
 }
 
 void SceneObjectProp::calculateAABB() {
-	aabb = pModelOBJ->getAABB().getTransformedAABB(transform);
+    aabb = pModelOBJ->getAABB().getTransformedAABB(transform);
 
-	if (getScene() != nullptr)
-		updateAABB();
+    if (getScene() != nullptr)
+        updateAABB();
 }
 
 void SceneObjectProp::onAdd() {
-	batcherRef = getScene()->getNamed("smb");
+    batcherRef = getScene()->getNamed("smb");
 
-	assert(batcherRef.isAlive());
+    assert(batcherRef.isAlive());
 }
 
 void SceneObjectProp::deferredRender() {
-	pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
+    pge::SceneObjectStaticModelBatcher* pBatcher = static_cast<pge::SceneObjectStaticModelBatcher*>(batcherRef.get());
 
-	pModelOBJ->render(pBatcher, transform);
+    pModelOBJ->render(pBatcher, transform);
 }

@@ -6,63 +6,63 @@
 using namespace pge;
 
 SceneObjectRef::~SceneObjectRef() {
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.erase(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.erase(this);
+    }
 }
 
 void SceneObjectRef::operator=(SceneObject &sceneObject) {
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.erase(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.erase(this);
+    }
 
-	pSceneObject = &sceneObject;
+    pSceneObject = &sceneObject;
 
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.insert(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.insert(this);
+    }
 }
 
 void SceneObjectRef::operator=(SceneObject* pSceneObject) {
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.erase(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.erase(this);
+    }
 
-	this->pSceneObject = pSceneObject;
+    this->pSceneObject = pSceneObject;
 
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.insert(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.insert(this);
+    }
 }
 
 void SceneObjectRef::operator=(const SceneObjectRef &other) {
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.erase(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.erase(this);
+    }
 
-	pSceneObject = other.pSceneObject;
+    pSceneObject = other.pSceneObject;
 
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.insert(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.insert(this);
+    }
 }
 
 void SceneObjectRef::operator=(std::nullptr_t) {
-	if (pSceneObject != nullptr) {
-		std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
-		pSceneObject->pReferences.erase(this);
-	}
+    if (pSceneObject != nullptr) {
+        std::lock_guard<std::recursive_mutex> lock(*pSceneObject->mutex);
+        pSceneObject->pReferences.erase(this);
+    }
 
-	pSceneObject = nullptr;
+    pSceneObject = nullptr;
 }
 
 size_t SceneObjectRef::operator()(const SceneObjectRef &reference) const {
-	return reinterpret_cast<size_t>(this) / sizeof(SceneObjectRef);
+    return reinterpret_cast<size_t>(this) / sizeof(SceneObjectRef);
 }

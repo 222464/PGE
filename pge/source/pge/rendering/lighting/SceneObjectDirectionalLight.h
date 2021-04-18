@@ -7,44 +7,44 @@
 #include "../../constructs/Vec3f.h"
 
 namespace pge {
-	class SceneObjectDirectionalLight : public SceneObject {
-	private:
-		SceneObjectRef lighting;
+    class SceneObjectDirectionalLight : public SceneObject {
+    private:
+        SceneObjectRef lighting;
 
-		Vec3f color;
-		Vec3f direction;
+        Vec3f color;
+        Vec3f direction;
 
-		std::shared_ptr<VBO> uniformBuffer;
+        std::shared_ptr<VBO> uniformBuffer;
 
-		bool needsUniformBufferUpdate;
+        bool needsUniformBufferUpdate;
 
-	public:
-		bool enabled;
+    public:
+        bool enabled;
 
-		SceneObjectDirectionalLight();
+        SceneObjectDirectionalLight();
 
-		void create(SceneObjectLighting* pLighting);
+        void create(SceneObjectLighting* pLighting);
 
-		// Inherited from SceneObject
-		void deferredRender();
+        // Inherited from SceneObject
+        void deferredRender();
 
-		void setColor(const Vec3f &color);
-		void setDirection(const Vec3f &direction);
+        void setColor(const Vec3f &color);
+        void setDirection(const Vec3f &direction);
 
-		const Vec3f &getColor() const {
-			return color;
-		}
+        const Vec3f &getColor() const {
+            return color;
+        }
 
-		const Vec3f getDirection() const {
-			return direction;
-		}
+        const Vec3f getDirection() const {
+            return direction;
+        }
 
-		void updateUniformBuffer();
+        void updateUniformBuffer();
 
-		SceneObject* copyFactory() {
-			return new SceneObjectDirectionalLight(*this);
-		}
+        SceneObject* copyFactory() {
+            return new SceneObjectDirectionalLight(*this);
+        }
 
-		friend SceneObjectLighting;
-	};
+        friend SceneObjectLighting;
+    };
 }

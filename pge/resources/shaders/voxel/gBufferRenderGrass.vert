@@ -21,20 +21,20 @@ smooth out float normalLength;
 smooth out float fadeFactor;
 
 void main() {
-	vec3 position = positionIn;
+    vec3 position = positionIn;
 
-	position.xz += vec2(sin(pgeWaveTime + position.x * pgeAirWavDistMultInv), cos(pgeWaveTime + position.z * pgeAirWavDistMultInv)) * pgeWaveDistance * texCoordIn.y;
+    position.xz += vec2(sin(pgeWaveTime + position.x * pgeAirWavDistMultInv), cos(pgeWaveTime + position.z * pgeAirWavDistMultInv)) * pgeWaveDistance * texCoordIn.y;
 
-	viewPosition = (pgeViewModel * vec4(position, 1.0)).xyz;
-	viewNormal = normalize(pgeNormal * normalIn);
-	texCoord = texCoordIn;
+    viewPosition = (pgeViewModel * vec4(position, 1.0)).xyz;
+    viewNormal = normalize(pgeNormal * normalIn);
+    texCoord = texCoordIn;
 
-	normalLength = length(normalIn);
+    normalLength = length(normalIn);
 
-	gl_Position = pgeProjectionViewModel * vec4(position, 1.0);
+    gl_Position = pgeProjectionViewModel * vec4(position, 1.0);
 
-	// Distance from camera
-	float dist = length(viewPosition);
+    // Distance from camera
+    float dist = length(viewPosition);
 
-	fadeFactor = max(0.0, (dist - pgeCompletelyVisibleDistance) * pgeInvFadeRange);
+    fadeFactor = max(0.0, (dist - pgeCompletelyVisibleDistance) * pgeInvFadeRange);
 }

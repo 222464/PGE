@@ -19,27 +19,27 @@ const float pgeFalloffScalar = 800.0;
 out vec4 pgeOutputColor;
 
 void main() {
-	vec2 coord = gl_FragCoord.xy * pgeSizeInv;
+    vec2 coord = gl_FragCoord.xy * pgeSizeInv;
 
-	vec2 sampleCoord = pgeLightProjectedPosition.xy / pgeLightProjectedPosition.w * 0.5 + 0.5;
+    vec2 sampleCoord = pgeLightProjectedPosition.xy / pgeLightProjectedPosition.w * 0.5 + 0.5;
 
-	vec2 deltaCoord = (coord - sampleCoord) * normalize(1.0 / pgeSizeInv);
+    vec2 deltaCoord = (coord - sampleCoord) * normalize(1.0 / pgeSizeInv);
 
-	deltaCoord /= float(pgeSteps);
+    deltaCoord /= float(pgeSteps);
 
-	float illum = 1.0;
+    float illum = 1.0;
 
-	float strength = 0.0;
+    float strength = 0.0;
 
-	for (int i = 0; i < pgeSteps; i++) {
-		sampleCoord += deltaCoord;
+    for (int i = 0; i < pgeSteps; i++) {
+        sampleCoord += deltaCoord;
 
-		float depth = -texture(pgeGBufferPosition, sampleCoord).z;
+        float depth = -texture(pgeGBufferPosition, sampleCoord).z;
 
-		strength +=  depth > -pgeLightViewPosition.z ? illum : 0.0;
+        strength +=  depth > -pgeLightViewPosition.z ? illum : 0.0;
 
-		illum *= pgeDecay;
-	}
+        illum *= pgeDecay;
+    }
 
-	pgeOutputColor = vec4(vec3(strength * pgeStrengthScalar / (1.0 + length(deltaCoord) * pgeFalloffScalar)) * pgeColor, 1.0);
+    pgeOutputColor = vec4(vec3(strength * pgeStrengthScalar / (1.0 + length(deltaCoord) * pgeFalloffScalar)) * pgeColor, 1.0);
 }

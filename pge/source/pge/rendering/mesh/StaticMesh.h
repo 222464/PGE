@@ -7,56 +7,56 @@
 #include "../bufferobjects/VBO.h"
 #include "../material/Material.h"
 
-#define PGE_STATIC_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#define PGE_STATIC_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_INT
 
 namespace pge {
-	typedef GLushort staticMeshIndexType;
+    typedef GLuint staticMeshIndexType;
 
-	class StaticMesh {
-	public:
-		struct Vertex {
-			Vec3f position;
-			Vec3f normal;
-			Vec2f texCoord;
-		};
-	private:
-		VBO interleavedBuffer;
-		VBO indexBuffer;
+    class StaticMesh {
+    public:
+        struct Vertex {
+            Vec3f position;
+            Vec3f normal;
+            Vec2f texCoord;
+        };
+    private:
+        VBO interleavedBuffer;
+        VBO indexBuffer;
 
-	public:
-		std::vector<Vertex> vertices;
-		std::vector<staticMeshIndexType> indices;
+    public:
+        std::vector<Vertex> vertices;
+        std::vector<staticMeshIndexType> indices;
 
-		size_t numIndices;
+        size_t numIndices;
 
-		StaticMesh()
-			: numIndices(0)
-		{}
+        StaticMesh()
+            : numIndices(0)
+        {}
 
-		void create(bool useBuffer = true);
+        void create(bool useBuffer = true);
 
-		void updateBuffers();
+        void updateBuffers();
 
-		void clearArrays() {
-			vertices.clear();
-			indices.clear();
-		}
+        void clearArrays() {
+            vertices.clear();
+            indices.clear();
+        }
 
-		void renderFromBuffers();
-		void renderFromArrays();
+        void renderFromBuffers();
+        void renderFromArrays();
 
-		void setAttributes();
-		void renderFromAttributes();
+        void setAttributes();
+        void renderFromAttributes();
 
-		void render() {
-			if (hasBuffer())
-				renderFromBuffers();
-			else
-				renderFromArrays();
-		}
+        void render() {
+            if (hasBuffer())
+                renderFromBuffers();
+            else
+                renderFromArrays();
+        }
 
-		bool hasBuffer() const {
-			return interleavedBuffer.created();
-		}
-	};
+        bool hasBuffer() const {
+            return interleavedBuffer.created();
+        }
+    };
 }

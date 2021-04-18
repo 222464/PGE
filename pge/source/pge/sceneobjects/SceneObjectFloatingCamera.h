@@ -6,28 +6,28 @@
 
 class SceneObjectFloatingCamera : public pge::SceneObject {
 private:
-	pge::SceneObjectRef input;
+    pge::SceneObjectRef input;
 
 public:
-	float sensitivity;
-	float acceleration;
-	float deceleration;
+    float sensitivity;
+    float acceleration;
+    float deceleration;
 
-	float runMultiplier;
+    float runMultiplier;
 
-	float angleX, angleY;
+    float angleX, angleY;
 
-	pge::Vec3f velocity;
+    pge::Vec3f velocity;
 
-	bool acceptingInput;
+    bool acceptingInput;
 
-	SceneObjectFloatingCamera();
+    SceneObjectFloatingCamera();
 
-	// Inherited from SceneObject
-	void onAdd();
-	void update(float dt);
+    // Inherited from SceneObject
+    void onAdd();
+    void update(float dt);
 
-	SceneObject* copyFactory() {
-		return new SceneObjectFloatingCamera(*this);
-	}
+    SceneObject* copyFactory() {
+        return new SceneObjectFloatingCamera(*this);
+    }
 };

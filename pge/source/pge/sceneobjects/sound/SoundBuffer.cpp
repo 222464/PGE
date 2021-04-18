@@ -3,8 +3,8 @@
 using namespace pge;
 
 bool SoundBuffer::createAsset(const std::string &name) {
-	if (!buffer.loadFromFile(name))
-		return false;
+    if (!buffer.loadFromFile(name))
+        return false;
 
-	return true;
+    return true;
 }

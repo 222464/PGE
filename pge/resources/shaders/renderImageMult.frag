@@ -7,6 +7,6 @@ uniform vec2 pgeGBufferSizeInv;
 out vec4 pgeOutputColor;
 
 void main() {
-	vec2 coord = gl_FragCoord.xy * pgeGBufferSizeInv;
-	pgeOutputColor = texture(pgeColor, coord) * texture(pgeScene, coord);
+    vec2 coord = gl_FragCoord.xy * pgeGBufferSizeInv;
+    pgeOutputColor = texture(pgeColor, coord) * texture(pgeScene, coord);
 }

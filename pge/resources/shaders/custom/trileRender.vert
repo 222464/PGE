@@ -14,22 +14,22 @@ smooth out vec3 viewBitangent;
 smooth out vec3 texVec;
 
 void main() {
-	viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
+    viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
 
-	if (normalIn.y > 0.95 || normalIn.y < -0.95) {
-		viewNormal = normalize(pgeNormal * normalIn);
-		viewTangent = normalize(pgeNormal * cross(normalIn, vec3(1.0, 0.0, 0.0)));
-		viewBitangent = normalize(cross(viewTangent, viewNormal));
-	}
-	else {
-		viewNormal = normalize(pgeNormal * normalIn);
-		viewTangent = normalize(pgeNormal * cross(normalIn, vec3(0.0, 1.0, 0.0)));
-		viewBitangent = normalize(cross(viewTangent, viewNormal));
-	}
+    if (normalIn.y > 0.95 || normalIn.y < -0.95) {
+        viewNormal = normalize(pgeNormal * normalIn);
+        viewTangent = normalize(pgeNormal * cross(normalIn, vec3(1.0, 0.0, 0.0)));
+        viewBitangent = normalize(cross(viewTangent, viewNormal));
+    }
+    else {
+        viewNormal = normalize(pgeNormal * normalIn);
+        viewTangent = normalize(pgeNormal * cross(normalIn, vec3(0.0, 1.0, 0.0)));
+        viewBitangent = normalize(cross(viewTangent, viewNormal));
+    }
 
-	vec3 notFollowingNormalAxes = vec3(1.0, 1.0, 1.0) - abs(normalIn);
+    vec3 notFollowingNormalAxes = vec3(1.0, 1.0, 1.0) - abs(normalIn);
 
-	texVec = positionIn * notFollowingNormalAxes + normalIn * 0.5;
+    texVec = positionIn * notFollowingNormalAxes + normalIn * 0.5;
 
-	gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
+    gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
 }

@@ -6,40 +6,40 @@
 #include "TerrainGrass.h"
 
 namespace pge {
-	class TerrainGrassBatcher : public SceneObject {
-	private:
-		std::list<SceneObjectRef> grassObjects;
+    class TerrainGrassBatcher : public SceneObject {
+    private:
+        std::list<SceneObjectRef> grassObjects;
 
-		std::shared_ptr<Shader> grassRenderShader;
+        std::shared_ptr<Shader> grassRenderShader;
 
-		std::shared_ptr<Shader> depthRenderShader;
+        std::shared_ptr<Shader> depthRenderShader;
 
-		std::shared_ptr<Texture2D> grassTileSetDiffuse;
-		std::shared_ptr<Texture2D> grassTileSetNormal;
-		std::shared_ptr<Texture2D> noiseMap;
+        std::shared_ptr<Texture2D> grassTileSetDiffuse;
+        std::shared_ptr<Texture2D> grassTileSetNormal;
+        std::shared_ptr<Texture2D> noiseMap;
 
-		float waveTimer;
+        float waveTimer;
 
-	public:
-		float completelyVisibleDistance;
-		float completelyInvisibleDistance;
+    public:
+        float completelyVisibleDistance;
+        float completelyInvisibleDistance;
 
-		float waveRate;
+        float waveRate;
 
-		bool renderShadows;
+        bool renderShadows;
 
-		TerrainGrassBatcher();
+        TerrainGrassBatcher();
 
-		void create(const std::shared_ptr<Texture2D> &grassTileSetDiffuse, const std::shared_ptr<Texture2D> &grassTileSetNormal, const std::shared_ptr<Texture2D> &noiseMap, const std::shared_ptr<Shader> &grassRenderShader, const std::shared_ptr<Shader> &depthRenderShader);
+        void create(const std::shared_ptr<Texture2D> &grassTileSetDiffuse, const std::shared_ptr<Texture2D> &grassTileSetNormal, const std::shared_ptr<Texture2D> &noiseMap, const std::shared_ptr<Shader> &grassRenderShader, const std::shared_ptr<Shader> &depthRenderShader);
 
-		// Inherited from SceneObject
-		void update(float dt);
-		void batchRender();
+        // Inherited from SceneObject
+        void update(float dt);
+        void batchRender();
 
-		SceneObject* copyFactory() {
-			return new TerrainGrassBatcher(*this);
-		}
+        SceneObject* copyFactory() {
+            return new TerrainGrassBatcher(*this);
+        }
 
-		friend TerrainGrass;
-	};
+        friend TerrainGrass;
+    };
 }

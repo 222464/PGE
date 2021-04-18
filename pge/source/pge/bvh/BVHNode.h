@@ -5,60 +5,60 @@
 #include <memory>
 
 namespace pge {
-	class BVHNode : public Uncopyable {
-	public:
-		struct CoordAndIsMin {
-			float coord;
-			bool isMin;
+    class BVHNode : public Uncopyable {
+    public:
+        struct CoordAndIsMin {
+            float coord;
+            bool isMin;
 
-			bool operator<(const CoordAndIsMin &other) const {
-				return coord < other.coord;
-			}
-		};
-	private:
-		class BVHTree* pTree;
-		BVHNode* pParent;
+            bool operator<(const CoordAndIsMin &other) const {
+                return coord < other.coord;
+            }
+        };
+    private:
+        class BVHTree* pTree;
+        BVHNode* pParent;
 
-		AABB3D aabb;
+        AABB3D aabb;
 
-		std::shared_ptr<BVHNode> pLeft, pRight;
+        std::shared_ptr<BVHNode> pLeft, pRight;
 
-		unsigned int numOccupantsBelow;
+        unsigned int numOccupantsBelow;
 
-		std::vector<FormTriangle> occupants;
+        std::vector<FormTriangle> occupants;
 
-		float getCostSAH(const Vec3f &splitPos, int axis);
+        float getCostSAH(const Vec3f &splitPos, int axis);
 
-		// Returns if should split
-		bool findSplitPosSAH(float &pos, int &axis, size_t &splitIndex);
+        // Returns if should split
+        bool findSplitPosSAH(float &pos, int &axis, size_t &splitIndex);
 
-	public:
-		static const float traverseCost;
-		static const float intersectCost;
+    public:
+        static const float traverseCost;
+        static const float intersectCost;
 
-		bool collapseMarker;
+        bool collapseMarker;
 
-		BVHNode(class BVHTree* pTree, BVHNode* pParent);
+        BVHNode(class BVHTree* pTree, BVHNode* pParent);
 
-		void add(const FormTriangle &triangle, const AABB3D &triangleAABB);
-		void split(int numSplitsAfterNoTriangleReduction);
+        void add(const FormTriangle &triangle, const AABB3D &triangleAABB);
+        void split(int numSplitsAfterNoTriangleReduction);
 
-		const AABB3D &getAABB() const {
-			return aabb;
-		}
+        const AABB3D &getAABB() const {
+            return aabb;
+        }
 
-		const BVHNode* getLeft() const {
-			return pLeft.get();
-		}
+        const BVHNode* getLeft() const {
+            return pLeft.get();
+        }
 
-		const BVHNode* getRight() const {
-			return pRight.get();
-		}
+        const BVHNode* getRight() const {
+            return pRight.get();
+        }
 
-		const std::vector<FormTriangle> &getTriangles() const {
-			return occupants;
-		}
+        const std::vector<FormTriangle> &getTriangles() const {
+            return occupants;
+        }
 
-		friend class BVHTree;
-	};
+        friend class BVHTree;
+    };
 }

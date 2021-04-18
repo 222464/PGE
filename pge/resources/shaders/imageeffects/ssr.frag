@@ -28,102 +28,102 @@ uniform mat3 pgeNormalMatrixInv;
 out vec4 pgeOutputColor;
 
 void main() {
-	vec2 coord = gl_FragCoord.xy * pgeSizeInv;
+    vec2 coord = gl_FragCoord.xy * pgeSizeInv;
 
-	// Samples
-	//float specular = texture(pgeGBufferColor, coord).a;
+    // Samples
+    //float specular = texture(pgeGBufferColor, coord).a;
 
-	//if(specular == 0.0) {
-	//	pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
-	//	return;
-	//}
+    //if(specular == 0.0) {
+    //	pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
+    //	return;
+    //}
 
-	vec3 color = vec3(0.0);
+    vec3 color = vec3(0.0);
 
-	for (int s = 0; s < pgeSamples; s++) {
-		vec3 position = texture(pgeGBufferPosition, coord).xyz;
-		vec4 normalAndShininess = texture(pgeGBufferNormal, coord);
-		vec3 normal = normalize(normalAndShininess.xyz);
+    for (int s = 0; s < pgeSamples; s++) {
+        vec3 position = texture(pgeGBufferPosition, coord).xyz;
+        vec4 normalAndShininess = texture(pgeGBufferNormal, coord);
+        vec3 normal = normalize(normalAndShininess.xyz);
 
-		// Reflection vector
-		vec3 reflected = normalize(reflect(normalize(position), normal));
+        // Reflection vector
+        vec3 reflected = normalize(reflect(normalize(position), normal));
 
-		// Perturb reflection
-		reflected += (texture(pgeNoiseMap, coord * 532.4323 + vec2(float(s) * 31.0162)).xyz * 2.0 - 1.0) / normalAndShininess.w;
+        // Perturb reflection
+        reflected += (texture(pgeNoiseMap, coord * 532.4323 + vec2(float(s) * 31.0162)).xyz * 2.0 - 1.0) / normalAndShininess.w;
 
-		reflected = normalize(reflected);
+        reflected = normalize(reflected);
 
-		vec3 positionStep = reflected * pgeRayStep;// * (1.0 + pgeZAlignedExtraLength * abs(dot(reflected, vec3(0.0, 0.0, 1.0)))) * -position.z;
+        vec3 positionStep = reflected * pgeRayStep;// * (1.0 + pgeZAlignedExtraLength * abs(dot(reflected, vec3(0.0, 0.0, 1.0)))) * -position.z;
 
-		float distance = length(positionStep) * pgeMaxSteps;
+        float distance = length(positionStep) * pgeMaxSteps;
 
-		float error = pgeError * length(positionStep);
+        float error = pgeError * length(positionStep);
 
-		// Ray cast
-		vec3 hitPos = position;
+        // Ray cast
+        vec3 hitPos = position;
 
-		vec4 projectedHitPos;
-		vec2 hitCoord;
+        vec4 projectedHitPos;
+        vec2 hitCoord;
 
-		for (int i = 0; i < pgeMaxSteps; i++) {
-			hitPos += positionStep;
-			projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
-			hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
+        for (int i = 0; i < pgeMaxSteps; i++) {
+            hitPos += positionStep;
+            projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
+            hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
 
-			float depth = texture(pgeGBufferPosition, hitCoord).z;
-			//vec3 hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
+            float depth = texture(pgeGBufferPosition, hitCoord).z;
+            //vec3 hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
 
-			// && dot(-reflected, hitNormal) > 0.0
+            // && dot(-reflected, hitNormal) > 0.0
 
-			if (hitPos.z < depth && abs(depth - hitPos.z) < error) {
-				// Binary search
-				positionStep *= 0.5;
+            if (hitPos.z < depth && abs(depth - hitPos.z) < error) {
+                // Binary search
+                positionStep *= 0.5;
 
-				hitPos -= positionStep;
-				projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
-				hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
+                hitPos -= positionStep;
+                projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
+                hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
 
-				for (int j = 0; j < pgeNumBinarySearchSteps; j++) {
-					depth = texture(pgeGBufferPosition, hitCoord).z;
-					//hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
+                for (int j = 0; j < pgeNumBinarySearchSteps; j++) {
+                    depth = texture(pgeGBufferPosition, hitCoord).z;
+                    //hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
 
-					// && dot(-reflected, hitNormal) > 0.0
-					if (!(hitPos.z < depth && depth - hitPos.z < error)) {
-						hitPos += positionStep;
-						projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
-						hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
-					}
+                    // && dot(-reflected, hitNormal) > 0.0
+                    if (!(hitPos.z < depth && depth - hitPos.z < error)) {
+                        hitPos += positionStep;
+                        projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
+                        hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
+                    }
 
-					positionStep *= 0.5;
+                    positionStep *= 0.5;
 
-					hitPos -= positionStep;
-					projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
-					hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
-				}
+                    hitPos -= positionStep;
+                    projectedHitPos = pgeProjectionMatrix * vec4(hitPos, 1.0);
+                    hitCoord = projectedHitPos.xy / projectedHitPos.w * 0.5 + 0.5;
+                }
 
-				i = pgeMaxSteps;
-			}
-		}
+                i = pgeMaxSteps;
+            }
+        }
 
-		vec2 dCoords = 2.0 * abs(vec2(0.5, 0.5) - hitCoord);
+        vec2 dCoords = 2.0 * abs(vec2(0.5, 0.5) - hitCoord);
 
-		float screenEdgefactor = pow(clamp(1.0 - dCoords.x, 0.0, 1.0) * clamp(1.0 - dCoords.y, 0.0, 1.0), pgeScreenEdgePower);
+        float screenEdgefactor = pow(clamp(1.0 - dCoords.x, 0.0, 1.0) * clamp(1.0 - dCoords.y, 0.0, 1.0), pgeScreenEdgePower);
 
-		vec3 hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
+        vec3 hitNormal = normalize(texture(pgeGBufferNormal, hitCoord).xyz);
 
-		float ssrStrength;
-		
-		//if (dot(-reflected, hitNormal) < 0.0)
-		//	ssrStrength = 0.0;
-		//else
-			ssrStrength = pow(clamp(((distance - length(hitPos - position)) / distance) * (1.0 - reflected.z) * screenEdgefactor * max(0.0, dot(hitNormal, -reflected)), 0.0, 1.0), pgeEnvMapPower);
+        float ssrStrength;
+        
+        //if (dot(-reflected, hitNormal) < 0.0)
+        //	ssrStrength = 0.0;
+        //else
+            ssrStrength = pow(clamp(((distance - length(hitPos - position)) / distance) * (1.0 - reflected.z) * screenEdgefactor * max(0.0, dot(hitNormal, -reflected)), 0.0, 1.0), pgeEnvMapPower);
 
-		color += texture(pgeGBufferEffect, hitCoord).rgb * ssrStrength + texture(pgeCubeMap, pgeNormalMatrixInv * reflected).rgb * (1.0 - ssrStrength) * pgeEnvMapIntensity;
-	}
+        color += texture(pgeGBufferEffect, hitCoord).rgb * ssrStrength + texture(pgeCubeMap, pgeNormalMatrixInv * reflected).rgb * (1.0 - ssrStrength) * pgeEnvMapIntensity;
+    }
 
-	vec3 baseColor = texture(pgeGBufferColor, coord).rgb;
+    vec3 baseColor = texture(pgeGBufferColor, coord).rgb;
 
-	// Get color
-	//pgeOutputColor = vec4(specular * baseColor * color * pgeSamplesInv, 1.0);
-	pgeOutputColor = vec4(baseColor * color * pgeSamplesInv, 1.0);
+    // Get color
+    //pgeOutputColor = vec4(specular * baseColor * color * pgeSamplesInv, 1.0);
+    pgeOutputColor = vec4(baseColor * color * pgeSamplesInv, 1.0);
 }

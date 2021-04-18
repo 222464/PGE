@@ -14,11 +14,11 @@ smooth out vec2 texCoord;
 smooth out float normalLength;
 
 void main() {
-	viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
-	viewNormal = normalize(pgeNormal * normalIn);
-	texCoord = texCoordIn;
+    viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
+    viewNormal = normalize(pgeNormal * normalIn);
+    texCoord = texCoordIn;
 
-	normalLength = length(normalIn);
+    normalLength = length(normalIn);
 
-	gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
+    gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
 }

@@ -6,50 +6,50 @@
 #include "../SFMLOGL.h"
 #include "../bufferobjects/VBO.h"
 
-#define PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_SHORT
+#define PGE_STATIC_POSITION_MESH_INDEX_TYPE_ENUM GL_UNSIGNED_INT
 
 namespace pge {
-	typedef GLushort staticPositionMeshIndexType;
+    typedef GLuint staticPositionMeshIndexType;
 
-	class StaticPositionMesh {
-	private:
-		VBO positionBuffer;
-		VBO indexBuffer;
+    class StaticPositionMesh {
+    private:
+        VBO positionBuffer;
+        VBO indexBuffer;
 
-	public:
-		std::vector<Vec3f> vertices;
-		std::vector<staticPositionMeshIndexType> indices;
+    public:
+        std::vector<Vec3f> vertices;
+        std::vector<staticPositionMeshIndexType> indices;
 
-		size_t numIndices;
+        size_t numIndices;
 
-		StaticPositionMesh()
-			: numIndices(0)
-		{}
+        StaticPositionMesh()
+            : numIndices(0)
+        {}
 
-		void create(bool useBuffer = true);
+        void create(bool useBuffer = true);
 
-		void updateBuffers();
+        void updateBuffers();
 
-		void clearArrays() {
-			vertices.clear();
-			indices.clear();
-		}
+        void clearArrays() {
+            vertices.clear();
+            indices.clear();
+        }
 
-		void renderFromBuffers();
-		void renderFromArrays();
+        void renderFromBuffers();
+        void renderFromArrays();
 
-		void setAttributes();
-		void renderFromAttributes();
+        void setAttributes();
+        void renderFromAttributes();
 
-		void render() {
-			if (hasBuffer())
-				renderFromBuffers();
-			else
-				renderFromArrays();
-		}
+        void render() {
+            if (hasBuffer())
+                renderFromBuffers();
+            else
+                renderFromArrays();
+        }
 
-		bool hasBuffer() const {
-			return positionBuffer.created();
-		}
-	};
+        bool hasBuffer() const {
+            return positionBuffer.created();
+        }
+    };
 }

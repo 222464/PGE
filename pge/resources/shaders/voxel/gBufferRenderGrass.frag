@@ -33,18 +33,18 @@ mat3 calculateBasis() {
 }
 
 void main() {
-	float noise = (texture(pgeNoiseMap, texCoord * 2.0).r + 1.0) * fadeFactor;
+    float noise = (texture(pgeNoiseMap, texCoord * 2.0).r + 1.0) * fadeFactor;
 
-	if(noise > 0.9)
-		discard;
+    if(noise > 0.9)
+        discard;
 
-	// Alpha testing
-	vec4 diffuseTexColor = texture(pgeDiffuseMap, texCoord);
+    // Alpha testing
+    vec4 diffuseTexColor = texture(pgeDiffuseMap, texCoord);
 
-	if(diffuseTexColor.a < 0.5)
-		discard;
+    if(diffuseTexColor.a < 0.5)
+        discard;
 
-	pgeOutputPosition = vec4(viewPosition, 0.0);
-	pgeOutputNormal = vec4(normalLength * normalize(calculateBasis() * (texture(pgeNormalMap, texCoord).rgb * 2.0 - 1.0)), pgeShininess);
-	pgeOutputColor = vec4(diffuseTexColor.rgb, 0.0);
+    pgeOutputPosition = vec4(viewPosition, 0.0);
+    pgeOutputNormal = vec4(normalLength * normalize(calculateBasis() * (texture(pgeNormalMap, texCoord).rgb * 2.0 - 1.0)), pgeShininess);
+    pgeOutputColor = vec4(diffuseTexColor.rgb, 0.0);
 }

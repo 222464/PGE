@@ -3,55 +3,55 @@
 using namespace pge;
 
 const Point4i &Point4i::operator*=(int scale) {
-	x *= scale;
-	y *= scale;
-	z *= scale;
-	w *= scale;
+    x *= scale;
+    y *= scale;
+    z *= scale;
+    w *= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point4i &Point4i::operator/=(int scale) {
-	x /= scale;
-	y /= scale;
-	z /= scale;
-	w /= scale;
+    x /= scale;
+    y /= scale;
+    z /= scale;
+    w /= scale;
 
-	return *this;
+    return *this;
 }
 
 const Point4i &Point4i::operator+=(const Point4i &other) {
-	x += other.x;
-	y += other.y;
-	z += other.z;
-	w += other.w;
+    x += other.x;
+    y += other.y;
+    z += other.z;
+    w += other.w;
 
-	return *this;
+    return *this;
 }
 
 const Point4i &Point4i::operator-=(const Point4i &other) {
-	x -= other.x;
-	y -= other.y;
-	z -= other.z;
-	w -= other.w;
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
+    w -= other.w;
 
-	return *this;
+    return *this;
 }
 
 const Point4i &Point4i::operator*=(const Point4i &other) {
-	x *= other.x;
-	y *= other.y;
-	z *= other.z;
-	w *= other.w;
+    x *= other.x;
+    y *= other.y;
+    z *= other.z;
+    w *= other.w;
 
-	return *this;
+    return *this;
 }
 
 const Point4i &Point4i::operator/=(const Point4i &other) {
-	x /= other.x;
-	y /= other.y;
-	z /= other.z;
-	w /= other.w;
+    x /= other.x;
+    y /= other.y;
+    z /= other.z;
+    w /= other.w;
 
-	return *this;
+    return *this;
 }

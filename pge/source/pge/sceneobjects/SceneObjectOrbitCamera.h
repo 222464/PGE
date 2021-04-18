@@ -6,25 +6,25 @@
 
 class SceneObjectOrbitCamera : public pge::SceneObject {
 private:
-	pge::SceneObjectRef input;
+    pge::SceneObjectRef input;
 
 public:
-	pge::Vec3f focusPoint;
+    pge::Vec3f focusPoint;
 
-	float distance;
-	float tilt;
+    float distance;
+    float tilt;
 
-	float angle;
+    float angle;
 
-	float angularVelocity;
+    float angularVelocity;
 
-	SceneObjectOrbitCamera();
+    SceneObjectOrbitCamera();
 
-	// Inherited from SceneObject
-	void onAdd();
-	void update(float dt);
+    // Inherited from SceneObject
+    void onAdd();
+    void update(float dt);
 
-	SceneObject* copyFactory() {
-		return new SceneObjectOrbitCamera(*this);
-	}
+    SceneObject* copyFactory() {
+        return new SceneObjectOrbitCamera(*this);
+    }
 };

@@ -34,32 +34,32 @@ mat3 calculateBasis(vec2 texCoord) {
 }
 
 void main() {
-	// Blend factors
-	vec2 coord1 = (worldPosition.xz * pgeTextureStretchScalar);
-	vec2 coord2 = (worldPosition.xy * pgeTextureStretchScalar);
-	vec2 coord3 = (worldPosition.yz * pgeTextureStretchScalar);
+    // Blend factors
+    vec2 coord1 = (worldPosition.xz * pgeTextureStretchScalar);
+    vec2 coord2 = (worldPosition.xy * pgeTextureStretchScalar);
+    vec2 coord3 = (worldPosition.yz * pgeTextureStretchScalar);
 
-	vec4 blend = vec4(
-		pow(max(0.0, dot(worldNormal, vec3(0.0, 1.0, 0.0))), pgeSideSeparationExponent), // Top
-		pow(abs(dot(worldNormal, vec3(1.0, 0.0, 0.0))), pgeSideSeparationExponent), // XY
-		pow(abs(dot(worldNormal, vec3(0.0, 0.0, 1.0))), pgeSideSeparationExponent), // ZY
-		pow(max(0.0, dot(worldNormal, vec3(0.0, -1.0, 0.0))), pgeSideSeparationExponent) // Bottom
-	);
-	
-	blend = normalize(blend);
+    vec4 blend = vec4(
+        pow(max(0.0, dot(worldNormal, vec3(0.0, 1.0, 0.0))), pgeSideSeparationExponent), // Top
+        pow(abs(dot(worldNormal, vec3(1.0, 0.0, 0.0))), pgeSideSeparationExponent), // XY
+        pow(abs(dot(worldNormal, vec3(0.0, 0.0, 1.0))), pgeSideSeparationExponent), // ZY
+        pow(max(0.0, dot(worldNormal, vec3(0.0, -1.0, 0.0))), pgeSideSeparationExponent) // Bottom
+    );
+    
+    blend = normalize(blend);
 
-	pgeOutputPosition = vec4(viewPosition, 0.0);
+    pgeOutputPosition = vec4(viewPosition, 0.0);
 
-	pgeOutputNormal = vec4(normalize(
-		blend.x * calculateBasis(coord1) * (texture(pgeNormalMapArray, vec3(coord1, 0)).rgb * 2.0 - 1.0) +
-		blend.y * calculateBasis(coord3) * (texture(pgeNormalMapArray, vec3(coord3, 1)).rgb * 2.0 - 1.0) +
-		blend.z * calculateBasis(coord2) * (texture(pgeNormalMapArray, vec3(coord2, 1)).rgb * 2.0 - 1.0) +
-		blend.w * calculateBasis(coord1) * (texture(pgeNormalMapArray, vec3(coord1, 2)).rgb * 2.0 - 1.0)), pgeShininess);
+    pgeOutputNormal = vec4(normalize(
+        blend.x * calculateBasis(coord1) * (texture(pgeNormalMapArray, vec3(coord1, 0)).rgb * 2.0 - 1.0) +
+        blend.y * calculateBasis(coord3) * (texture(pgeNormalMapArray, vec3(coord3, 1)).rgb * 2.0 - 1.0) +
+        blend.z * calculateBasis(coord2) * (texture(pgeNormalMapArray, vec3(coord2, 1)).rgb * 2.0 - 1.0) +
+        blend.w * calculateBasis(coord1) * (texture(pgeNormalMapArray, vec3(coord1, 2)).rgb * 2.0 - 1.0)), pgeShininess);
 
-	pgeOutputColor = vec4((
-		blend.x * texture(pgeDiffuseMapArray, vec3(coord1, 0)).rgb + 
-		blend.y * texture(pgeDiffuseMapArray, vec3(coord3, 1)).rgb +
-		blend.z * texture(pgeDiffuseMapArray, vec3(coord2, 1)).rgb +
-		blend.w * texture(pgeDiffuseMapArray, vec3(coord1, 2)).rgb),
-		pgeSpecular);
+    pgeOutputColor = vec4((
+        blend.x * texture(pgeDiffuseMapArray, vec3(coord1, 0)).rgb + 
+        blend.y * texture(pgeDiffuseMapArray, vec3(coord3, 1)).rgb +
+        blend.z * texture(pgeDiffuseMapArray, vec3(coord2, 1)).rgb +
+        blend.w * texture(pgeDiffuseMapArray, vec3(coord1, 2)).rgb),
+        pgeSpecular);
 }

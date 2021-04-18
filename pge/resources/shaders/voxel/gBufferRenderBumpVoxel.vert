@@ -13,11 +13,11 @@ smooth out vec3 worldPosition;
 smooth out vec3 worldNormal;
 
 void main() {
-	viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
-	viewNormal = normalize(pgeNormal * normalIn);
+    viewPosition = (pgeViewModel * vec4(positionIn, 1.0)).xyz;
+    viewNormal = normalize(pgeNormal * normalIn);
 
-	worldPosition = positionIn;
-	worldNormal = normalIn;
+    worldPosition = positionIn;
+    worldNormal = normalIn;
 
-	gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
+    gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
 }

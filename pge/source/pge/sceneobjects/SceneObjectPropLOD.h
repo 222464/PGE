@@ -10,30 +10,30 @@
 
 class SceneObjectPropLOD : public pge::SceneObject {
 private:
-	std::vector<pge::StaticModelOBJ*> pModelsOBJ;
+    std::vector<pge::StaticModelOBJ*> pModelsOBJ;
 
-	pge::SceneObjectRef batcherRef;
+    pge::SceneObjectRef batcherRef;
 
 public:
-	pge::Matrix4x4f transform;
+    pge::Matrix4x4f transform;
 
-	float lodSwitchDistance;
+    float lodSwitchDistance;
 
-	SceneObjectPropLOD()
-		: lodSwitchDistance(20.0f)
-	{
-		renderMask = 0xffff;
-	}
+    SceneObjectPropLOD()
+        : lodSwitchDistance(20.0f)
+    {
+        renderMask = 0xffff;
+    }
 
-	bool create(const std::vector<std::string> &fileNames);
+    bool create(const std::vector<std::string> &fileNames);
 
-	void calculateAABB();
+    void calculateAABB();
 
-	// Inherited from SceneObject
-	void onAdd();
-	void deferredRender();
+    // Inherited from SceneObject
+    void onAdd();
+    void deferredRender();
 
-	SceneObject* copyFactory() {
-		return new SceneObjectPropLOD(*this);
-	}
+    SceneObject* copyFactory() {
+        return new SceneObjectPropLOD(*this);
+    }
 };

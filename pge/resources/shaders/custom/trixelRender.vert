@@ -8,8 +8,8 @@ out vec4 rotationToGeom;
 out vec3 colorToGeom;
 
 void main() {
-	rotationToGeom = rotationIn;
-	colorToGeom = colorIn;
+    rotationToGeom = rotationIn;
+    colorToGeom = colorIn;
 
-	gl_Position = vec4(positionIn, 1.0);
+    gl_Position = vec4(positionIn, 1.0);
 }

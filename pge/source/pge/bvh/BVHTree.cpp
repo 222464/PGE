@@ -9,20 +9,20 @@ BVHTree::BVHTree()
 {}
 
 void BVHTree::create(const AABB3D &rootRegion) {
-	pRootNode.reset(new BVHNode(this, nullptr));
-	pRootNode->aabb = rootRegion;
+    pRootNode.reset(new BVHNode(this, nullptr));
+    pRootNode->aabb = rootRegion;
 }
 
 void BVHTree::add(FormTriangle &triangle) {
-	assert(pRootNode != nullptr);
+    assert(pRootNode != nullptr);
 
-	pRootNode->add(triangle, triangle.getAABB());
+    pRootNode->add(triangle, triangle.getAABB());
 }
 
 bool BVHTree::rayTrace(const Vec3f &origin, const Vec3f &direction,
-	FormTriangle &triangle, Vec3f &point, Vec3f &normal)
+    FormTriangle &triangle, Vec3f &point, Vec3f &normal)
 {
-	// Implement me!
+    // Implement me!
 
-	return false;
+    return false;
 }

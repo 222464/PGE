@@ -9,7 +9,7 @@ layout (location = 1) out vec4 pgeOutputNormal;
 layout (location = 2) out vec4 pgeOutputColor;
 
 void main() {
-	pgeOutputPosition = vec4(viewPosition, 0.15);
-	pgeOutputNormal = vec4(viewNormal, 96.0);
-	pgeOutputColor = vec4(color, 0.0);
+    pgeOutputPosition = vec4(viewPosition, 0.15);
+    pgeOutputNormal = vec4(viewNormal, 96.0);
+    pgeOutputColor = vec4(color, 0.0);
 }

@@ -7,8 +7,8 @@ smooth in vec2 texCoord;
 out vec4 pgeOutputColor;
 
 void main() {
-	if (texture(pgeDiffuseMap, texCoord).a < 0.5)
-		discard;
+    if (texture(pgeDiffuseMap, texCoord).a < 0.5)
+        discard;
 
-	pgeOutputColor = vec4(1.0);
+    pgeOutputColor = vec4(1.0);
 }

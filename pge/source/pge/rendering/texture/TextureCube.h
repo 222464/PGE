@@ -9,33 +9,33 @@
 #include <string>
 
 namespace pge {
-	class TextureCube : public Asset {
-	private:
-		GLuint textureID;
+    class TextureCube : public Asset {
+    private:
+        GLuint textureID;
 
-		unsigned int size;
+        unsigned int size;
 
-	public:
-		// Inherited from the Asset
-		bool createAsset(const std::string &name);
+    public:
+        // Inherited from the Asset
+        bool createAsset(const std::string &name);
 
-		void genMipMaps();
+        void genMipMaps();
 
-		void bind() const {
-			glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-		}
+        void bind() const {
+            glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+        }
 
-		unsigned int getSize() const {
-			return size;
-		}
+        unsigned int getSize() const {
+            return size;
+        }
 
-		GLuint getTextureID() const {
-			return textureID;
-		}
+        GLuint getTextureID() const {
+            return textureID;
+        }
 
-		// Asset factory
-		static Asset* assetFactory() {
-			return new TextureCube();
-		}
-	};
+        // Asset factory
+        static Asset* assetFactory() {
+            return new TextureCube();
+        }
+    };
 }

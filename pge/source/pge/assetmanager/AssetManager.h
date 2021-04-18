@@ -15,36 +15,36 @@ Stuff returned by GetAsset functions may be casted to the derived class
 */
 
 namespace pge {
-	class AssetManager : public Uncopyable {
-	private:
-		std::unordered_map<std::string, std::shared_ptr<Asset>> assets;
+    class AssetManager : public Uncopyable {
+    private:
+        std::unordered_map<std::string, std::shared_ptr<Asset>> assets;
 
-		// Factory function pointer
-		Asset* (*assetFactory)();
+        // Factory function pointer
+        Asset* (*assetFactory)();
 
-		std::mutex mutex;
+        std::mutex mutex;
 
-	public:
-		AssetManager()
-			: assetFactory(nullptr)
-		{}
+    public:
+        AssetManager()
+            : assetFactory(nullptr)
+        {}
 
-		void create(Asset* (*assetFactory)()) {
-			this->assetFactory = assetFactory;
-		}
+        void create(Asset* (*assetFactory)()) {
+            this->assetFactory = assetFactory;
+        }
 
-		bool created() const {
-			return assetFactory != nullptr;
-		}
+        bool created() const {
+            return assetFactory != nullptr;
+        }
 
-		bool getAsset(const std::string &name);
-		bool getAsset(const std::string &name, std::shared_ptr<Asset> &asset);
-		bool getAsset(const std::string &name, void* pData);
-		bool getAsset(const std::string &name, std::shared_ptr<Asset> &asset, void* pData);
-		void destroyAsset(const std::string &name);
+        bool getAsset(const std::string &name);
+        bool getAsset(const std::string &name, std::shared_ptr<Asset> &asset);
+        bool getAsset(const std::string &name, void* pData);
+        bool getAsset(const std::string &name, std::shared_ptr<Asset> &asset, void* pData);
+        void destroyAsset(const std::string &name);
 
-		void clearAssets() {
-			assets.clear();
-		}
-	};
+        void clearAssets() {
+            assets.clear();
+        }
+    };
 }

@@ -7,55 +7,55 @@
 #include "../../constructs/Vec3f.h"
 
 namespace pge {
-	class SceneObjectPointLight : public SceneObject {
-	private:
-		SceneObjectRef lighting;
+    class SceneObjectPointLight : public SceneObject {
+    private:
+        SceneObjectRef lighting;
 
-		Vec3f position;
-		Vec3f color;
+        Vec3f position;
+        Vec3f color;
 
-		float range;
+        float range;
 
-		std::shared_ptr<VBO> uniformBuffer;
+        std::shared_ptr<VBO> uniformBuffer;
 
-		bool needsUniformBufferUpdate;
+        bool needsUniformBufferUpdate;
 
-	public:
-		bool enabled;
+    public:
+        bool enabled;
 
-		SceneObjectPointLight();
+        SceneObjectPointLight();
 
-		void create(SceneObjectLighting* pLighting);
+        void create(SceneObjectLighting* pLighting);
 
-		// Inherited from SceneObject
-		void deferredRender();
+        // Inherited from SceneObject
+        void deferredRender();
 
-		void setPosition(const Vec3f &position);
-		void setColor(const Vec3f &color);
-		void setRange(float range);
+        void setPosition(const Vec3f &position);
+        void setColor(const Vec3f &color);
+        void setRange(float range);
 
-		const Vec3f &getPosition() const {
-			return position;
-		}
-		
-		const Vec3f &getColor() const {
-			return color;
-		}
+        const Vec3f &getPosition() const {
+            return position;
+        }
+        
+        const Vec3f &getColor() const {
+            return color;
+        }
 
-		float getRange() const {
-			return range;
-		}
+        float getRange() const {
+            return range;
+        }
 
-		void updateUniformBuffer();
+        void updateUniformBuffer();
 
-		void setTransform(RenderScene* pRenderScene) {
-			pRenderScene->setTransform(Matrix4x4f::translateMatrix(position) * Matrix4x4f::scaleMatrix(Vec3f(range, range, range)));
-		}
+        void setTransform(RenderScene* pRenderScene) {
+            pRenderScene->setTransform(Matrix4x4f::translateMatrix(position) * Matrix4x4f::scaleMatrix(Vec3f(range, range, range)));
+        }
 
-		SceneObject* copyFactory() {
-			return new SceneObjectPointLight(*this);
-		}
+        SceneObject* copyFactory() {
+            return new SceneObjectPointLight(*this);
+        }
 
-		friend SceneObjectLighting;
-	};
+        friend SceneObjectLighting;
+    };
 }

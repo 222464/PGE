@@ -7,5 +7,5 @@ uniform mat3 pgeNormal;
 layout(location = 0) in vec3 positionIn;
 
 void main() {
-	gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
+    gl_Position = pgeProjectionViewModel * vec4(positionIn, 1.0);
 }

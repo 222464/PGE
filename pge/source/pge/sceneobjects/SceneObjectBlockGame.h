@@ -8,60 +8,60 @@
 
 class SceneObjectBlockGame : public pge::SceneObject {
 private:
-	// Rendering
-	pge::StaticModelOBJ* pBlockModel;
-	pge::StaticModelOBJ* pAgentModel;
+    // Rendering
+    pge::StaticModelOBJ* pBlockModel;
+    pge::StaticModelOBJ* pAgentModel;
 
-	pge::SceneObjectRef batcherRef;
+    pge::SceneObjectRef batcherRef;
 
-	int action;
+    int action;
 
-	int ticksPerAction;
-	int ticks;
+    int ticksPerAction;
+    int ticks;
 
-	int size;
-	int numStartBlocks;
-	int agentPosition;
+    int size;
+    int numStartBlocks;
+    int agentPosition;
 
-	float reward;
+    float reward;
 
-	bool show;
+    bool show;
 
-	std::vector<int> blocks;
+    std::vector<int> blocks;
 
-	std::mt19937 rng;
+    std::mt19937 rng;
 
-	bool capture;
-	std::shared_ptr<std::vector<char>> capBytes;
+    bool capture;
+    std::shared_ptr<std::vector<char>> capBytes;
 
-	std::shared_ptr<sf::TcpSocket> socket;
+    std::shared_ptr<sf::TcpSocket> socket;
 
-	void act();
+    void act();
 
 public:
-	static const unsigned short port = 54003;
+    static const unsigned short port = 54003;
 
-	static const unsigned int maxBatchSize = 16384;
+    static const unsigned int maxBatchSize = 16384;
 
-	static const unsigned int gameSeed = 1234;
+    static const unsigned int gameSeed = 1234;
 
-	SceneObjectBlockGame() {
-		renderMask = 0xffff;
-	}
+    SceneObjectBlockGame() {
+        renderMask = 0xffff;
+    }
 
-	bool create(int size, int numStartBlocks);
+    bool create(int size, int numStartBlocks);
 
-	// Inherited from SceneObject
-	void onAdd();
-	void synchronousUpdate(float dt);
-	void deferredRender();
-	void onDestroy();
-	void postRender();
+    // Inherited from SceneObject
+    void onAdd();
+    void synchronousUpdate(float dt);
+    void deferredRender();
+    void onDestroy();
+    void postRender();
 
-	void reset();
+    void reset();
 
-	SceneObjectBlockGame* copyFactory() {
-		return new SceneObjectBlockGame(*this);
-	}
+    SceneObjectBlockGame* copyFactory() {
+        return new SceneObjectBlockGame(*this);
+    }
 };
 

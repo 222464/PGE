@@ -4,22 +4,22 @@
 #include "StaticPositionModel.h"
 
 namespace pge {
-	class SceneObjectStaticPositionModelBatcher : public SceneObject {
-	private:
-		std::unordered_map<StaticPositionModel*, std::list<Matrix4x4f>> modelTransforms;
+    class SceneObjectStaticPositionModelBatcher : public SceneObject {
+    private:
+        std::unordered_map<StaticPositionModel*, std::list<Matrix4x4f>> modelTransforms;
 
-	public:
-		SceneObjectStaticPositionModelBatcher() {
-			renderMask = 0xffff;
-		}
+    public:
+        SceneObjectStaticPositionModelBatcher() {
+            renderMask = 0xffff;
+        }
 
-		// Inherited from SceneObject
-		void batchRender();
+        // Inherited from SceneObject
+        void batchRender();
 
-		SceneObjectStaticPositionModelBatcher* copyFactory() {
-			return new SceneObjectStaticPositionModelBatcher(*this);
-		}
+        SceneObjectStaticPositionModelBatcher* copyFactory() {
+            return new SceneObjectStaticPositionModelBatcher(*this);
+        }
 
-		friend class StaticModel;
-	};
+        friend class StaticModel;
+    };
 }

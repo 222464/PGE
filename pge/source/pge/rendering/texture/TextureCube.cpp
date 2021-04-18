@@ -10,42 +10,42 @@ using namespace pge;
 
 bool TextureCube::createAsset(const std::string &name) {
 
-	std::istringstream fromString(name);
+    std::istringstream fromString(name);
 
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-	for (size_t i = 0; i < 6; i++) {
-		std::string subName;
+    for (size_t i = 0; i < 6; i++) {
+        std::string subName;
 
-		fromString >> subName;
+        fromString >> subName;
 
-		sf::Image img;
+        sf::Image img;
 
-		if (!img.loadFromFile(subName))
-			return false;
+        if (!img.loadFromFile(subName))
+            return false;
 
-		size = img.getSize().x;
+        size = img.getSize().x;
 
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
-	}
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0, GL_RGBA8, size, size, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getPixelsPtr());
+    }
 
-	// Default settings
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Default settings
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	PGE_GL_ERROR_CHECK();
+    PGE_GL_ERROR_CHECK();
 
-	return true;
+    return true;
 }
 
 void TextureCube::genMipMaps() {
-	bind();
+    bind();
 
-	// Only min filter, since mipmapping is only for when zoomed out a lot
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    // Only min filter, since mipmapping is only for when zoomed out a lot
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 }

@@ -9,16 +9,16 @@ using namespace pge;
 GLuint pge::vaoID = 0;
 
 bool pge::checkForGLError() {
-	GLuint errorCode = glGetError();
+    GLuint errorCode = glGetError();
 
-	if (errorCode != GL_NO_ERROR) {
-		std::cerr << gluErrorString(errorCode) << std::endl;
-		abort();
+    if (errorCode != GL_NO_ERROR) {
+        std::cerr << gluErrorString(errorCode) << std::endl;
+        abort();
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 void pge::sfmloglSetup() {
@@ -27,16 +27,16 @@ void pge::sfmloglSetup() {
         if (GLEW_OK != err)
             fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
 
-	glGenVertexArrays(1, &vaoID);
+    glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
 
-	glFrontFace(GL_CCW);
+    glFrontFace(GL_CCW);
 
-	glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
-	glClearDepth(1.0f);
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
 }

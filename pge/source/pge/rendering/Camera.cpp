@@ -3,16 +3,16 @@
 using namespace pge;
 
 void Camera::extractFrustum() {
-	frustum.extractFromMatrix(projectionViewMatrix);
-	frustum.calculateCorners(projectionViewInverseMatrix);
+    frustum.extractFromMatrix(projectionViewMatrix);
+    frustum.calculateCorners(projectionViewInverseMatrix);
 }
 
 void Camera::fullUpdate() {
-	updateViewMatrix();
-	updateViewInverseMatrix();
-	updateNormalMatrix();
-	updateProjectionViewMatrix();
-	updateProjectionViewInverseMatrix();
+    updateViewMatrix();
+    updateViewInverseMatrix();
+    updateNormalMatrix();
+    updateProjectionViewMatrix();
+    updateProjectionViewInverseMatrix();
 
-	extractFrustum();
+    extractFrustum();
 }

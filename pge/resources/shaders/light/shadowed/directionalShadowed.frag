@@ -11,68 +11,68 @@ uniform sampler2D pgeNoiseMap;
 uniform sampler2DShadow pgeCascadeShadowMaps[maxNumCascades];
 
 layout(std140) uniform pgeDirectionalLightShadowed {
-	vec3 pgeDirectionalLightColor;
-	vec3 pgeDirectionalLightDirection;
-	int pgeNumCascades;
-	vec4 pgeSplitDistances[maxNumCascades];
-	mat4 pgeLightBiasViewProjections[maxNumCascades];
+    vec3 pgeDirectionalLightColor;
+    vec3 pgeDirectionalLightDirection;
+    int pgeNumCascades;
+    vec4 pgeSplitDistances[maxNumCascades];
+    mat4 pgeLightBiasViewProjections[maxNumCascades];
 };
 
 uniform vec2 pgeGBufferSizeInv;
 
-const int pgeNumSamples = 8;
+const int pgeNumSamples = 16;
 const float pgeNumSamplesInv = 1.0 / pgeNumSamples;
-const float pgeSampleOffset = 0.002;
+const float pgeSampleOffset = 0.001;
 
 out vec4 pgeOutputColor;
 
 void main() {
-	vec2 texCoord = gl_FragCoord.xy * pgeGBufferSizeInv;
+    vec2 texCoord = gl_FragCoord.xy * pgeGBufferSizeInv;
 
-	vec4 viewNormal = texture(pgeGBufferNormal, texCoord);
+    vec4 viewNormal = texture(pgeGBufferNormal, texCoord);
 
-	float normalLength = length(viewNormal.xyz);
+    float normalLength = length(viewNormal.xyz);
 
-	float lambert = dot(-pgeDirectionalLightDirection, viewNormal.xyz) * normalLength + 1.0 - normalLength;
+    float lambert = dot(-pgeDirectionalLightDirection, viewNormal.xyz) * normalLength + 1.0 - normalLength;
 
-	viewNormal.xyz /= normalLength;
+    viewNormal.xyz /= normalLength;
 
-	if (lambert <= 0.0) {
-		pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
-		return;
-	}
+    if (lambert <= 0.0) {
+        pgeOutputColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
 
-	float shadowFactor = 1.0;
+    float shadowFactor = 1.0;
 
-	vec3 viewPosition = texture(pgeGBufferPosition, texCoord).xyz;
+    vec3 viewPosition = texture(pgeGBufferPosition, texCoord).xyz;
 
-	for (int i = 0; i < pgeNumCascades; i++) {
-		if (-viewPosition.z < pgeSplitDistances[i].x) {
-			// Perform shadowed lighting
-			vec4 shadowCoord = pgeLightBiasViewProjections[i] * vec4(viewPosition, 1.0);
-			shadowCoord.xy /= shadowCoord.w;
-			shadowCoord.z -= 0.0005 + i * 0.0005; // Increase bias with distance (cascade)
+    for (int i = 0; i < pgeNumCascades; i++) {
+        if (-viewPosition.z < pgeSplitDistances[i].x) {
+            // Perform shadowed lighting
+            vec4 shadowCoord = pgeLightBiasViewProjections[i] * vec4(viewPosition, 1.0);
+            shadowCoord.xy /= shadowCoord.w;
+            shadowCoord.z -= 0.0007 + i * 0.0007; // Increase bias with distance (cascade)
 
-			shadowFactor = 0.0;
+            shadowFactor = 0.0;
 
-			for(int j = 0; j < pgeNumSamples; j++)
-				shadowFactor += texture(pgeCascadeShadowMaps[i], vec3(shadowCoord.xy + pgeSampleOffset * (texture(pgeNoiseMap, vec2(j * 0.8475)).xy * 2.0 - 1.0), shadowCoord.z));
-					
-			shadowFactor *= pgeNumSamplesInv;
+            for(int j = 0; j < pgeNumSamples; j++)
+                shadowFactor += texture(pgeCascadeShadowMaps[i], vec3(shadowCoord.xy + pgeSampleOffset * (texture(pgeNoiseMap, vec2(j * 0.8475)).xy * 2.0 - 1.0), shadowCoord.z));
+                    
+            shadowFactor *= pgeNumSamplesInv;
 
-			i = pgeNumCascades;
-		}
-	}
+            i = pgeNumCascades;
+        }
+    }
 
-	vec4 color = texture(pgeGBufferColor, texCoord);
+    vec4 color = texture(pgeGBufferColor, texCoord);
 
-	// Specular
-	if(color.a == 0.0) // No specular
-		pgeOutputColor = vec4(color.rgb * lambert * shadowFactor * pgeDirectionalLightColor, 1.0);
-	else { // Specular
-		vec3 lightRay = reflect(pgeDirectionalLightDirection, viewNormal.xyz);
-		float specularIntensity = pow(max(0.0, dot(lightRay, normalize(-viewPosition))), viewNormal.a);
+    // Specular
+    if(color.a == 0.0) // No specular
+        pgeOutputColor = vec4(color.rgb * lambert * shadowFactor * pgeDirectionalLightColor, 1.0);
+    else { // Specular
+        vec3 lightRay = reflect(pgeDirectionalLightDirection, viewNormal.xyz);
+        float specularIntensity = pow(max(0.0, dot(lightRay, normalize(-viewPosition))), viewNormal.a);
 
-		pgeOutputColor = vec4(color.rgb * lambert * shadowFactor * pgeDirectionalLightColor + color.a * specularIntensity * pgeDirectionalLightColor, 1.0);
-	}
+        pgeOutputColor = vec4(color.rgb * lambert * shadowFactor * pgeDirectionalLightColor + color.a * specularIntensity * pgeDirectionalLightColor, 1.0);
+    }
 }

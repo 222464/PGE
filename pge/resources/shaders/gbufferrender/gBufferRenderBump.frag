@@ -7,11 +7,11 @@ uniform sampler2D pgeEmissiveMap;
 uniform sampler2D pgeNormalMap;
 
 layout(shared) uniform pgeMaterial {
-	vec3 pgeDiffuseColor;
-	float pgeSpecularColor;
-	float pgeShininess;
-	float pgeEmissiveColor;
-	float pgeHeightMapScale;
+    vec3 pgeDiffuseColor;
+    float pgeSpecularColor;
+    float pgeShininess;
+    float pgeEmissiveColor;
+    float pgeHeightMapScale;
 };
 
 smooth in vec3 viewPosition;
@@ -39,13 +39,13 @@ mat3 calculateBasis() {
 }
 
 void main() {
-	// Alpha testing
-	vec4 diffuseTexColor = texture(pgeDiffuseMap, texCoord);
+    // Alpha testing
+    vec4 diffuseTexColor = texture(pgeDiffuseMap, texCoord);
 
-	if(diffuseTexColor.a < 0.5)
-		discard;
+    if(diffuseTexColor.a < 0.5)
+        discard;
 
-	pgeOutputPosition = vec4(viewPosition, texture(pgeEmissiveMap, texCoord).r * pgeEmissiveColor);
-	pgeOutputNormal = vec4(normalLength * normalize(calculateBasis() * (texture(pgeNormalMap, texCoord).rgb * 2.0 - 1.0)), pgeShininess * texture(pgeShininessMap, texCoord).r);
-	pgeOutputColor = vec4(diffuseTexColor.rgb * pgeDiffuseColor, pgeSpecularColor * texture(pgeSpecularMap, texCoord).r);
+    pgeOutputPosition = vec4(viewPosition, texture(pgeEmissiveMap, texCoord).r * pgeEmissiveColor);
+    pgeOutputNormal = vec4(normalLength * normalize(calculateBasis() * (texture(pgeNormalMap, texCoord).rgb * 2.0 - 1.0)), pgeShininess * texture(pgeShininessMap, texCoord).r);
+    pgeOutputColor = vec4(diffuseTexColor.rgb * pgeDiffuseColor, pgeSpecularColor * texture(pgeSpecularMap, texCoord).r);
 }

@@ -37,74 +37,74 @@ layout(rgba16f) uniform writeonly image2D pgeOutputTexture;
 uniform int pgeNumLights;
 
 struct Material {
-	vec3 _diffuseColor;
-	float _specularColor;
-	float _shininess;
-	float _emissiveColor;
+    vec3 _diffuseColor;
+    float _specularColor;
+    float _shininess;
+    float _emissiveColor;
 
-	// An index of 0 means unused
-	int _diffuseMapIndexPlusOne;
-	int _specularMapIndexPlusOne;
-	int _shininessMapIndexPlusOne;
-	int _emissiveMapIndexPlusOne;
+    // An index of 0 means unused
+    int _diffuseMapIndexPlusOne;
+    int _specularMapIndexPlusOne;
+    int _shininessMapIndexPlusOne;
+    int _emissiveMapIndexPlusOne;
 
-	// Special
-	int _normalMapIndexPlusOne;
+    // Special
+    int _normalMapIndexPlusOne;
 };
 
 struct Vertex {
-	vec3 _position;
-	vec3 _normal;
-	vec2 _texCoord;
+    vec3 _position;
+    vec3 _normal;
+    vec2 _texCoord;
 };
 
 struct Triangle {
-	Vertex _v0;
-	Vertex _v1;
-	Vertex _v2;
+    Vertex _v0;
+    Vertex _v1;
+    Vertex _v2;
 
-	int _materialIndex;
+    int _materialIndex;
 };
 
 struct TreeNode {
-	vec3 _minBounds;
-	vec3 _maxBounds;
+    vec3 _minBounds;
+    vec3 _maxBounds;
 
-	int _parentIndexPlusOne;
+    int _parentIndexPlusOne;
 
-	int _childIndexPlusOne0;
-	int _childIndexPlusOne1;
+    int _childIndexPlusOne0;
+    int _childIndexPlusOne1;
 
-	int _trianglesStartIndex;
-	int _numTriangles;
+    int _trianglesStartIndex;
+    int _numTriangles;
 };
 
 struct Light {
-	int _type;
-	vec3 _position;
-	vec3 _color;
-	vec3 _direction;
-	float _range;
-	float _rangeInv;
-	float _lightSpreadAngleCos;
-	float _lightSpreadAngleCosFlipInv;
-	float _lightExponent;
+    int _type;
+    vec3 _position;
+    vec3 _color;
+    vec3 _direction;
+    float _range;
+    float _rangeInv;
+    float _lightSpreadAngleCos;
+    float _lightSpreadAngleCosFlipInv;
+    float _lightExponent;
 };
 
 layout(shared, binding = 1) buffer TreeBuffer {
-	TreeNode tree[];
+    TreeNode tree[];
 };
 
 layout(shared, binding = 2) buffer TriangleBuffer {
-	Triangle triangles[];
+    Triangle triangles[];
 };
 
 layout(shared, binding = 3) buffer MaterialBuffer {
-	Material materials[];
+    Material materials[];
 };
 
 layout(shared, binding = 4) buffer LightBuffer {
-	Light lights[];
+    Light lights[];
 };
 
 float rand(vec2 co) {
@@ -112,385 +112,385 @@ float rand(vec2 co) {
 }
 
 vec3 rand3(vec2 co) {
-	co *= 223.2132f;
-	return vec3(rand(co), rand(co + vec2(165.2328f, 972.7544f)), rand(co - vec2(113.2328f, 482.3551f)));
+    co *= 223.2132f;
+    return vec3(rand(co), rand(co + vec2(165.2328f, 972.7544f)), rand(co - vec2(113.2328f, 482.3551f)));
 }
 
 bool intersectsTriangle(vec3 p1, vec3 p2, vec3 p3, vec3 start, vec3 dir, out float t) {
-	vec3 e1 = p2 - p1;
-	vec3 e2 = p3 - p1;
+    vec3 e1 = p2 - p1;
+    vec3 e2 = p3 - p1;
 
-	vec3 h = cross(dir, e2);
-	float a = dot(e1, h);
+    vec3 h = cross(dir, e2);
+    float a = dot(e1, h);
 
-	if (abs(a) < 0.001f)
-		return false;
+    if (abs(a) < 0.001f)
+        return false;
 
-	float f = 1.0f / a;
+    float f = 1.0f / a;
 
-	vec3 s = start - p1;
+    vec3 s = start - p1;
 
-	float u = f * dot(s, h);
+    float u = f * dot(s, h);
 
-	if (u < 0.0f || u > 1.0f)
-		return false;
+    if (u < 0.0f || u > 1.0f)
+        return false;
 
-	vec3 q = cross(s, e1);
+    vec3 q = cross(s, e1);
 
-	float v = f * dot(dir, q);
+    float v = f * dot(dir, q);
 
-	if (v < 0.0f || u + v > 1.0f)
-		return false;
+    if (v < 0.0f || u + v > 1.0f)
+        return false;
 
-	float tV = f * dot(e2, q);
+    float tV = f * dot(e2, q);
 
-	if (tV > 0.001f) {
-		t = tV;
-		
-		return true;
-	}
+    if (tV > 0.001f) {
+        t = tV;
+        
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 vec3 getBarycentricCoords(vec3 p1, vec3 p2, vec3 p3, vec3 hitPos) {
-	// Find barycentric coordinates (area-weighted coordinates of (*hitPos))
-	vec3 f0 = p1 - hitPos;
-	vec3 f1 = p2 - hitPos;
-	vec3 f2 = p3 - hitPos;
+    // Find barycentric coordinates (area-weighted coordinates of (*hitPos))
+    vec3 f0 = p1 - hitPos;
+    vec3 f1 = p2 - hitPos;
+    vec3 f2 = p3 - hitPos;
 
-	vec3 vecArea = cross(p1 - p2, p1 - p3);
-	vec3 vecArea0 = cross(f1, f2);
-	vec3 vecArea1 = cross(f2, f0);
-	vec3 vecArea2 = cross(f0, f1);
+    vec3 vecArea = cross(p1 - p2, p1 - p3);
+    vec3 vecArea0 = cross(f1, f2);
+    vec3 vecArea1 = cross(f2, f0);
+    vec3 vecArea2 = cross(f0, f1);
 
-	float areaInv = 1.0f / length(vecArea);
-	float area0 = length(vecArea0) * areaInv * (dot(vecArea, vecArea0) > 0.0f ? 1.0f : -1.0f);
-	float area1 = length(vecArea1) * areaInv * (dot(vecArea, vecArea1) > 0.0f ? 1.0f : -1.0f);
-	float area2 = length(vecArea2) * areaInv * (dot(vecArea, vecArea2) > 0.0f ? 1.0f : -1.0f);
+    float areaInv = 1.0f / length(vecArea);
+    float area0 = length(vecArea0) * areaInv * (dot(vecArea, vecArea0) > 0.0f ? 1.0f : -1.0f);
+    float area1 = length(vecArea1) * areaInv * (dot(vecArea, vecArea1) > 0.0f ? 1.0f : -1.0f);
+    float area2 = length(vecArea2) * areaInv * (dot(vecArea, vecArea2) > 0.0f ? 1.0f : -1.0f);
 
-	return vec3(area0, area1, area2);
+    return vec3(area0, area1, area2);
 }
 
 bool aabbContainsPoint(vec3 lower, vec3 upper, vec3 p) {
-	return p.x > lower.x && p.y > lower.y && p.z > lower.z && p.x < upper.x && p.y < upper.y && p.z < upper.z;
+    return p.x > lower.x && p.y > lower.y && p.z > lower.z && p.x < upper.x && p.y < upper.y && p.z < upper.z;
 }
 
 bool aabbIntersectionPoints(vec3 start, vec3 direction, vec3 minBounds, vec3 maxBounds, out float t0, out float t1) {
-	vec3 directionInv = 1.0f / direction;
+    vec3 directionInv = 1.0f / direction;
 
-	float tx1 = (minBounds.x - start.x) * directionInv.x;
-	float tx2 = (maxBounds.x - start.x) * directionInv.x;
+    float tx1 = (minBounds.x - start.x) * directionInv.x;
+    float tx2 = (maxBounds.x - start.x) * directionInv.x;
 
-	t0 = min(tx1, tx2);
-	t1 = max(tx1, tx2);
+    t0 = min(tx1, tx2);
+    t1 = max(tx1, tx2);
 
-	float ty1 = (minBounds.y - start.y) * directionInv.y;
-	float ty2 = (maxBounds.y - start.y) * directionInv.y;
+    float ty1 = (minBounds.y - start.y) * directionInv.y;
+    float ty2 = (maxBounds.y - start.y) * directionInv.y;
 
-	t0 = max(t0, min(ty1, ty2));
-	t1 = min(t1, max(ty1, ty2));
+    t0 = max(t0, min(ty1, ty2));
+    t1 = min(t1, max(ty1, ty2));
 
-	float tz1 = (minBounds.z - start.z) * directionInv.z;
-	float tz2 = (maxBounds.z - start.z) * directionInv.z;
+    float tz1 = (minBounds.z - start.z) * directionInv.z;
+    float tz2 = (maxBounds.z - start.z) * directionInv.z;
 
-	t0 = max(t0, min(tz1, tz2));
-	t1 = min(t1, max(tz1, tz2));
+    t0 = max(t0, min(tz1, tz2));
+    t1 = min(t1, max(tz1, tz2));
 
-	return t1 >= t0;
+    return t1 >= t0;
 }
 
 bool rayCast(vec3 start, vec3 dir, out vec3 hitPos, out vec3 hitNormal, out int materialIndex) {
-	float minT = 99999.0f;
-	int minTriangleIndex;
+    float minT = 99999.0f;
+    int minTriangleIndex;
 
-	// Find initial query point
-	vec3 currentLower = tree[0]._minBounds;
-	vec3 currentUpper = tree[0]._maxBounds;
+    // Find initial query point
+    vec3 currentLower = tree[0]._minBounds;
+    vec3 currentUpper = tree[0]._maxBounds;
 
-	vec3 queryPoint = start;
+    vec3 queryPoint = start;
 
-	int currentNodeIndex = 0;
+    int currentNodeIndex = 0;
 
-	bool hit = false;
-	
-	// Safety counter
-	for (int s = 0; s < maxKDSteps; s++) {
-		int childIndex1 = int(tree[currentNodeIndex]._childIndexPlusOne0) - 1;
-		int childIndex2 = int(tree[currentNodeIndex]._childIndexPlusOne1) - 1;
-		
-		// Go through child containing the query point if it has children. If not (and no triangles were previously hit), find a new query point
-		if (childIndex1 != -1) {
-			vec3 lower1 = tree[childIndex1]._minBounds;
-			vec3 upper1 = tree[childIndex1]._maxBounds;
+    bool hit = false;
+    
+    // Safety counter
+    for (int s = 0; s < maxKDSteps; s++) {
+        int childIndex1 = int(tree[currentNodeIndex]._childIndexPlusOne0) - 1;
+        int childIndex2 = int(tree[currentNodeIndex]._childIndexPlusOne1) - 1;
+        
+        // Go through child containing the query point if it has children. If not (and no triangles were previously hit), find a new query point
+        if (childIndex1 != -1) {
+            vec3 lower1 = tree[childIndex1]._minBounds;
+            vec3 upper1 = tree[childIndex1]._maxBounds;
 
-			if (aabbContainsPoint(lower1, upper1, queryPoint)) {
-				// Continue search from this node
-				currentNodeIndex = childIndex1;
-				currentLower = lower1;
-				currentUpper = upper1;
-			}
-			else {
-				vec3 lower2 = tree[childIndex2]._minBounds;
-				vec3 upper2 = tree[childIndex2]._maxBounds;
+            if (aabbContainsPoint(lower1, upper1, queryPoint)) {
+                // Continue search from this node
+                currentNodeIndex = childIndex1;
+                currentLower = lower1;
+                currentUpper = upper1;
+            }
+            else {
+                vec3 lower2 = tree[childIndex2]._minBounds;
+                vec3 upper2 = tree[childIndex2]._maxBounds;
 
-				if (aabbContainsPoint(lower2, upper2, queryPoint)) {
-					// Continue search from this node
-					currentNodeIndex = childIndex2;
-					currentLower = lower2;
-					currentUpper = upper2;
-				}
-				else
-					break;
-			}
-		}
-		else {
-			int trianglesStartIndex = tree[currentNodeIndex]._trianglesStartIndex;
-			int numTriangles = tree[currentNodeIndex]._numTriangles;
-			
-			// Query all triangles in current node
-			for (int i = 0; i < numTriangles && i < maxTriangles; i++) {
-				int j = trianglesStartIndex + i;
+                if (aabbContainsPoint(lower2, upper2, queryPoint)) {
+                    // Continue search from this node
+                    currentNodeIndex = childIndex2;
+                    currentLower = lower2;
+                    currentUpper = upper2;
+                }
+                else
+                    break;
+            }
+        }
+        else {
+            int trianglesStartIndex = tree[currentNodeIndex]._trianglesStartIndex;
+            int numTriangles = tree[currentNodeIndex]._numTriangles;
+            
+            // Query all triangles in current node
+            for (int i = 0; i < numTriangles && i < maxTriangles; i++) {
+                int j = trianglesStartIndex + i;
 
-				vec3 pt1 = triangles[j]._v0._position;
-				vec3 pt2 = triangles[j]._v1._position;
-				vec3 pt3 = triangles[j]._v2._position;
+                vec3 pt1 = triangles[j]._v0._position;
+                vec3 pt2 = triangles[j]._v1._position;
+                vec3 pt3 = triangles[j]._v2._position;
 
-				float t;
+                float t;
 
-				if (intersectsTriangle(pt1, pt2, pt3, start, dir, t)) {
-					if (t < minT) {
-						minT = t;
-						minTriangleIndex = j;
-					}
+                if (intersectsTriangle(pt1, pt2, pt3, start, dir, t)) {
+                    if (t < minT) {
+                        minT = t;
+                        minTriangleIndex = j;
+                    }
 
-					hit = true;
-				}
-			}
+                    hit = true;
+                }
+            }
 
-			if (hit)
-				break;
+            if (hit)
+                break;
 
-			// Still no hits, continue search
-			// Ray cast aabb to find new point
-			float ct0, ct1;
+            // Still no hits, continue search
+            // Ray cast aabb to find new point
+            float ct0, ct1;
 
-			aabbIntersectionPoints(start, dir, currentLower, currentUpper, ct0, ct1);
+            aabbIntersectionPoints(start, dir, currentLower, currentUpper, ct0, ct1);
 
-			queryPoint = start + dir * (ct1 + queryOffset);
-			//queryPoint = (currentLower + currentUpper) * 0.5 + dir * length(currentUpper - currentLower) * 0.5;
+            queryPoint = start + dir * (ct1 + queryOffset);
+            //queryPoint = (currentLower + currentUpper) * 0.5 + dir * length(currentUpper - currentLower) * 0.5;
 
-			// Go up to continue search
-			currentNodeIndex = 0;
+            // Go up to continue search
+            currentNodeIndex = 0;
 
-			currentLower = tree[currentNodeIndex]._minBounds;
-			currentUpper = tree[currentNodeIndex]._maxBounds;
+            currentLower = tree[currentNodeIndex]._minBounds;
+            currentUpper = tree[currentNodeIndex]._maxBounds;
 
-			if (!aabbContainsPoint(currentLower, currentUpper, queryPoint))
-				break;
-		}
-	}
+            if (!aabbContainsPoint(currentLower, currentUpper, queryPoint))
+                break;
+        }
+    }
 
-	if (hit) {
-		hitPos = start + dir * minT;
+    if (hit) {
+        hitPos = start + dir * minT;
 
-		/*vec3 p1 = triangles[minTriangleIndex]._v0._position;
-		vec3 p2 = triangles[minTriangleIndex]._v1._position;
-		vec3 p3 = triangles[minTriangleIndex]._v2._position;
+        /*vec3 p1 = triangles[minTriangleIndex]._v0._position;
+        vec3 p2 = triangles[minTriangleIndex]._v1._position;
+        vec3 p3 = triangles[minTriangleIndex]._v2._position;
 
-		vec3 bary = getBarycentricCoords(p1, p2, p3, hitPos);
+        vec3 bary = getBarycentricCoords(p1, p2, p3, hitPos);
 
-		hitNormal = normalize(
-			(triangles[minTriangleIndex]._v0._normal) * bary.x + 
-			(triangles[minTriangleIndex]._v1._normal) * bary.y + 
-			(triangles[minTriangleIndex]._v2._normal) * bary.z);*/
-			
-		hitNormal = triangles[minTriangleIndex]._v0._normal;
+        hitNormal = normalize(
+            (triangles[minTriangleIndex]._v0._normal) * bary.x + 
+            (triangles[minTriangleIndex]._v1._normal) * bary.y + 
+            (triangles[minTriangleIndex]._v2._normal) * bary.z);*/
+            
+        hitNormal = triangles[minTriangleIndex]._v0._normal;
 
-		materialIndex = triangles[minTriangleIndex]._materialIndex;
-	}
+        materialIndex = triangles[minTriangleIndex]._materialIndex;
+    }
 
-	return hit;
+    return hit;
 }
 
 bool rayCastShadow(vec3 start, vec3 dir, float refDistance) {
-	// Find initial query point
-	vec3 currentLower = tree[0]._minBounds;
-	vec3 currentUpper = tree[0]._maxBounds;
+    // Find initial query point
+    vec3 currentLower = tree[0]._minBounds;
+    vec3 currentUpper = tree[0]._maxBounds;
 
-	float rootT0, rootT1;
+    float rootT0, rootT1;
 
-	if (!aabbIntersectionPoints(start, dir, currentLower, currentUpper, rootT0, rootT1))
-		return false;
+    if (!aabbIntersectionPoints(start, dir, currentLower, currentUpper, rootT0, rootT1))
+        return false;
 
-	vec3 queryPoint = start + dir * (rootT0 + testOffset);
+    vec3 queryPoint = start + dir * (rootT0 + testOffset);
 
-	int currentNodeIndex = 0;
+    int currentNodeIndex = 0;
 
-	// Safety counter
-	for (int s = 0; s < maxKDSteps; s++) {
-		int childIndex1 = int(tree[currentNodeIndex]._childIndexPlusOne0) - 1;
-		int childIndex2 = int(tree[currentNodeIndex]._childIndexPlusOne1) - 1;
+    // Safety counter
+    for (int s = 0; s < maxKDSteps; s++) {
+        int childIndex1 = int(tree[currentNodeIndex]._childIndexPlusOne0) - 1;
+        int childIndex2 = int(tree[currentNodeIndex]._childIndexPlusOne1) - 1;
 
-		// Go through child containing the query point if it has children. If not (and no triangles were previously hit), find a new query point
-		if (childIndex1 != -1) {
-			vec3 lower1 = tree[childIndex1]._minBounds;
-			vec3 upper1 = tree[childIndex1]._maxBounds;
+        // Go through child containing the query point if it has children. If not (and no triangles were previously hit), find a new query point
+        if (childIndex1 != -1) {
+            vec3 lower1 = tree[childIndex1]._minBounds;
+            vec3 upper1 = tree[childIndex1]._maxBounds;
 
-			if (aabbContainsPoint(lower1, upper1, queryPoint)) {
-				// Continue search from this node
-				currentNodeIndex = childIndex1;
-				currentLower = lower1;
-				currentUpper = upper1;
-			}
-			else {
-				vec3 lower2 = tree[childIndex2]._minBounds;
-				vec3 upper2 = tree[childIndex2]._maxBounds;
+            if (aabbContainsPoint(lower1, upper1, queryPoint)) {
+                // Continue search from this node
+                currentNodeIndex = childIndex1;
+                currentLower = lower1;
+                currentUpper = upper1;
+            }
+            else {
+                vec3 lower2 = tree[childIndex2]._minBounds;
+                vec3 upper2 = tree[childIndex2]._maxBounds;
 
-				if (aabbContainsPoint(lower2, upper2, queryPoint)) {
-					// Continue search from this node
-					currentNodeIndex = childIndex2;
-					currentLower = lower2;
-					currentUpper = upper2;
-				}
-				else
-					return false;
-			}
-		}
-		else {
-			int trianglesStartIndex = tree[currentNodeIndex]._trianglesStartIndex;
-			int numTriangles = tree[currentNodeIndex]._numTriangles;
-			
-			// Query all triangles in current node
-			for (int i = 0; i < numTriangles && i < maxTriangles; i++) {
-				int j = trianglesStartIndex + i;
+                if (aabbContainsPoint(lower2, upper2, queryPoint)) {
+                    // Continue search from this node
+                    currentNodeIndex = childIndex2;
+                    currentLower = lower2;
+                    currentUpper = upper2;
+                }
+                else
+                    return false;
+            }
+        }
+        else {
+            int trianglesStartIndex = tree[currentNodeIndex]._trianglesStartIndex;
+            int numTriangles = tree[currentNodeIndex]._numTriangles;
+            
+            // Query all triangles in current node
+            for (int i = 0; i < numTriangles && i < maxTriangles; i++) {
+                int j = trianglesStartIndex + i;
 
-				vec3 pt1 = triangles[j]._v0._position;
-				vec3 pt2 = triangles[j]._v1._position;
-				vec3 pt3 = triangles[j]._v2._position;
+                vec3 pt1 = triangles[j]._v0._position;
+                vec3 pt2 = triangles[j]._v1._position;
+                vec3 pt3 = triangles[j]._v2._position;
 
-				float t;
+                float t;
 
-				if (intersectsTriangle(pt1, pt2, pt3, start, dir, t))
-					if (t < refDistance)
-						return true;
-			}
+                if (intersectsTriangle(pt1, pt2, pt3, start, dir, t))
+                    if (t < refDistance)
+                        return true;
+            }
 
-			// Still no hits, continue search
-			// Ray cast aabb to find new point
-			float ct0, ct1;
+            // Still no hits, continue search
+            // Ray cast aabb to find new point
+            float ct0, ct1;
 
-			aabbIntersectionPoints(start, dir, currentLower, currentUpper, ct0, ct1);
+            aabbIntersectionPoints(start, dir, currentLower, currentUpper, ct0, ct1);
 
-			queryPoint = start + dir * (ct1 + queryOffset);
+            queryPoint = start + dir * (ct1 + queryOffset);
 
-			currentNodeIndex = 0;
-		}
-	}
+            currentNodeIndex = 0;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 vec3 quaternionTransform(vec4 quat, vec3 vec) {
-	vec3 quatVec = vec3(quat.x, quat.y, quat.z);
-	vec3 uv = cross(quatVec, vec);
-	vec3 uuv = cross(quatVec, uv);
-	uv *= 2.0 * quat.w;
-	uuv *= 2.0;
+    vec3 quatVec = vec3(quat.x, quat.y, quat.z);
+    vec3 uv = cross(quatVec, vec);
+    vec3 uuv = cross(quatVec, uv);
+    uv *= 2.0 * quat.w;
+    uuv *= 2.0;
 
-	return vec + uv + uuv;
+    return vec + uv + uuv;
 }
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 void main() {
-	uvec2 pixelPos = gl_GlobalInvocationID.xy;
-	
-	if (pixelPos.x >= pgeTargetSize.x || pixelPos.y >= pgeTargetSize.y)
-		return;
-	
-	/*
-	if (pixelPos.x % 2 == 0 || (pixelPos.y + 1) % 2 == 0)
-	{
-		imageStore(pgeOutputTexture, ivec2(pixelPos), vec4(1.0f, 0.0f, 1.0f, 1.0f));
-		return;
-	}
-	*/
-	vec2 gTexCoord = vec2(float(pixelPos.x) * pgeTargetSizeInv.x, float(pixelPos.y) * pgeTargetSizeInv.y);
+    uvec2 pixelPos = gl_GlobalInvocationID.xy;
+    
+    if (pixelPos.x >= pgeTargetSize.x || pixelPos.y >= pgeTargetSize.y)
+        return;
+    
+    /*
+    if (pixelPos.x % 2 == 0 || (pixelPos.y + 1) % 2 == 0)
+    {
+        imageStore(pgeOutputTexture, ivec2(pixelPos), vec4(1.0f, 0.0f, 1.0f, 1.0f));
+        return;
+    }
+    */
+    vec2 gTexCoord = vec2(float(pixelPos.x) * pgeTargetSizeInv.x, float(pixelPos.y) * pgeTargetSizeInv.y);
 
-	vec4 normalAndShininess = texture(pgeGBufferNormal, gTexCoord);
-	vec3 hitNormal = normalize(pgeNormalMatrixInv * normalAndShininess.xyz);
+    vec4 normalAndShininess = texture(pgeGBufferNormal, gTexCoord);
+    vec3 hitNormal = normalize(pgeNormalMatrixInv * normalAndShininess.xyz);
 
-	vec3 hitPos = (pgeViewMatrixInv * vec4(texture(pgeGBufferPosition, gTexCoord).xyz, 1.0)).xyz;
+    vec3 hitPos = (pgeViewMatrixInv * vec4(texture(pgeGBufferPosition, gTexCoord).xyz, 1.0)).xyz;
 
-	vec3 reflected = hitNormal;
+    vec3 reflected = hitNormal;
 
-	vec4 diffAndSpec = texture(pgeGBufferColor, gTexCoord);
-	vec3 diffuseColor = vec3(1.0f, 1.0f, 1.0f);
-	vec3 materialData = vec3(diffAndSpec.w, normalAndShininess.w, 1.0f);
+    vec4 diffAndSpec = texture(pgeGBufferColor, gTexCoord);
+    vec3 diffuseColor = vec3(1.0f, 1.0f, 1.0f);
+    vec3 materialData = vec3(diffAndSpec.w, normalAndShininess.w, 1.0f);
 
-	vec3 color = vec3(0.0f, 0.0f, 0.0f);
+    vec3 color = vec3(0.0f, 0.0f, 0.0f);
 
-	// Samples
-	for (int i = 0; i < numPathSamples; i++) {
-		vec3 prevColor = diffuseColor;
-		vec3 subColor = vec3(0.0f, 0.0f, 0.0f);
+    // Samples
+    for (int i = 0; i < numPathSamples; i++) {
+        vec3 prevColor = diffuseColor;
+        vec3 subColor = vec3(0.0f, 0.0f, 0.0f);
 
-		vec3 bounceHitPos;
-		vec3 bounceHitNormal;
-		int bounceMaterialIndex;
+        vec3 bounceHitPos;
+        vec3 bounceHitNormal;
+        int bounceMaterialIndex;
 
-		vec3 bounceDiffuseColor = diffuseColor;
-		vec3 bounceMaterialData = materialData;
+        vec3 bounceDiffuseColor = diffuseColor;
+        vec3 bounceMaterialData = materialData;
 
-		float bounceInfluence = bounceMaterialData.x;
-			
-		for (int j = 0; j < numAdditionalBounces; j++) {
-			vec3 dir = normalize(reflected + normalize(texture(pgeNoiseTex, (gTexCoord * 19.242f + vec2(float(j) * 33.732f + float(i) * 5.63f))).xyz * 2.0f - 1.0f) / (1.0f + bounceMaterialData.y));
-			//vec3 dir = normalize(reflected + normalize(rand3(192.315f * (gTexCoord * 19.242f + vec2(float(j) * 43.732f + float(i) * 195.63f))).xyz) / (bounceMaterialData.y));
-			
-			if (rayCast(hitPos + hitNormal * testOffset, dir, bounceHitPos, bounceHitNormal, bounceMaterialIndex)) {
-				vec3 lightColor = vec3(0.0f, 0.0f, 0.0f);
+        float bounceInfluence = bounceMaterialData.x;
+            
+        for (int j = 0; j < numAdditionalBounces; j++) {
+            vec3 dir = normalize(reflected + normalize(texture(pgeNoiseTex, (gTexCoord * 19.242f + vec2(float(j) * 33.732f + float(i) * 5.63f))).xyz * 2.0f - 1.0f) / (1.0f + bounceMaterialData.y));
+            //vec3 dir = normalize(reflected + normalize(rand3(192.315f * (gTexCoord * 19.242f + vec2(float(j) * 43.732f + float(i) * 195.63f))).xyz) / (bounceMaterialData.y));
+            
+            if (rayCast(hitPos + hitNormal * testOffset, dir, bounceHitPos, bounceHitNormal, bounceMaterialIndex)) {
+                vec3 lightColor = vec3(0.0f, 0.0f, 0.0f);
 
-				for (int l = 0; l < pgeNumLights && l < maxLights; l++) {
-					vec3 offsetLightPosition = lights[l]._position + lightJitterDist * normalize(texture(pgeNoiseTex, (gTexCoord * 14.01523f + vec2(i * 23.055f + j * 36.0123f + l * 5.624f))).xyz * 2.0f - 1.0f);
-					//vec3 offsetLightPosition = lights[l]._position + lightJitterDist * normalize(rand3(87.949f * (gTexCoord * 84.01523f + vec2(i * 23.055f + j * 76.0123f + l * 195.624f))).xyz);
-					
-					vec3 toLight = offsetLightPosition - bounceHitPos;
-					float dist = length(toLight);
-					toLight /= dist + 0.0001f;
-				
+                for (int l = 0; l < pgeNumLights && l < maxLights; l++) {
+                    vec3 offsetLightPosition = lights[l]._position + lightJitterDist * normalize(texture(pgeNoiseTex, (gTexCoord * 14.01523f + vec2(i * 23.055f + j * 36.0123f + l * 5.624f))).xyz * 2.0f - 1.0f);
+                    //vec3 offsetLightPosition = lights[l]._position + lightJitterDist * normalize(rand3(87.949f * (gTexCoord * 84.01523f + vec2(i * 23.055f + j * 76.0123f + l * 195.624f))).xyz);
+                    
+                    vec3 toLight = offsetLightPosition - bounceHitPos;
+                    float dist = length(toLight);
+                    toLight /= dist + 0.0001f;
+                
 #ifdef BOUNCE_SHADOW_TEST
-					if (!rayCastShadow(offsetLightPosition, -toLight, dist - testOffset))
+                    if (!rayCastShadow(offsetLightPosition, -toLight, dist - testOffset))
 #endif
-					{
-						float intensity = max(0.0f, dot(toLight, bounceHitNormal)) * (lights[l]._range - dist) * lights[l]._rangeInv * (1.0f / (attenuation.x + dist * attenuation.y + dist * dist * attenuation.z));
-						
-						lightColor += lights[l]._color * intensity; 
-					}
-				}
+                    {
+                        float intensity = max(0.0f, dot(toLight, bounceHitNormal)) * (lights[l]._range - dist) * lights[l]._rangeInv * (1.0f / (attenuation.x + dist * attenuation.y + dist * dist * attenuation.z));
+                        
+                        lightColor += lights[l]._color * intensity; 
+                    }
+                }
 
-				prevColor = bounceDiffuseColor;
+                prevColor = bounceDiffuseColor;
 
-				bounceDiffuseColor *= materials[bounceMaterialIndex]._diffuseColor;
-				bounceMaterialData = vec3(materials[bounceMaterialIndex]._specularColor, materials[bounceMaterialIndex]._shininess, 1.0f);
+                bounceDiffuseColor *= materials[bounceMaterialIndex]._diffuseColor;
+                bounceMaterialData = vec3(materials[bounceMaterialIndex]._specularColor, materials[bounceMaterialIndex]._shininess, 1.0f);
 
-				subColor += lightColor * bounceDiffuseColor * prevColor * bounceInfluence * max(0.0f, dot(bounceHitNormal, -dir));
+                subColor += lightColor * bounceDiffuseColor * prevColor * bounceInfluence * max(0.0f, dot(bounceHitNormal, -dir));
 
-				bounceInfluence *= bounceMaterialData.x;
+                bounceInfluence *= bounceMaterialData.x;
 
-				hitPos = bounceHitPos;
-				hitNormal = bounceHitNormal;
+                hitPos = bounceHitPos;
+                hitNormal = bounceHitNormal;
 
-				reflected = reflect(dir, bounceHitNormal);
-			}
-			else
-				break;
-		}
+                reflected = reflect(dir, bounceHitNormal);
+            }
+            else
+                break;
+        }
 
-		color += subColor;
-	}
+        color += subColor;
+    }
 
-	color /= float(numPathSamples);
-	
-	imageStore(pgeOutputTexture, ivec2(pixelPos), vec4(color.xyz, 1.0f));
+    color /= float(numPathSamples);
+    
+    imageStore(pgeOutputTexture, ivec2(pixelPos), vec4(color.xyz, 1.0f));
 }

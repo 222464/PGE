@@ -17,8 +17,8 @@
 #endif
 
 namespace pge {
-	extern GLuint vaoID;
-	bool checkForGLError();
+    extern GLuint vaoID;
+    bool checkForGLError();
 
-	void sfmloglSetup();
+    void sfmloglSetup();
 }

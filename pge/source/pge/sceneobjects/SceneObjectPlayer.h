@@ -7,47 +7,47 @@
 
 class SceneObjectPlayer : public pge::SceneObject {
 private:
-	pge::SceneObjectRef input;
+    pge::SceneObjectRef input;
 
-	std::shared_ptr<pge::DynamicCharacterController> characterController;
+    std::shared_ptr<pge::DynamicCharacterController> characterController;
 
-	float radius, height, mass, stepHeight;
+    float radius, height, mass, stepHeight;
 
-	sf::Vector2i lastMousePosition;
+    sf::Vector2i lastMousePosition;
 
 public:
-	float sensitivity;
+    float sensitivity;
 
-	float noClipAcceleration;
-	float noClipDeceleration;
+    float noClipAcceleration;
+    float noClipDeceleration;
 
-	float noClipRunMultiplier;
+    float noClipRunMultiplier;
 
-	float acceleration;
-	float deceleration;
+    float acceleration;
+    float deceleration;
 
-	float runMultiplier;
+    float runMultiplier;
 
-	float cameraHeightOffset;
+    float cameraHeightOffset;
 
-	float angleX, angleY;
+    float angleX, angleY;
 
-	pge::Vec3f noClipVelocity;
+    pge::Vec3f noClipVelocity;
 
-	bool allowNoclipChange;
+    bool allowNoclipChange;
 
-	bool acceptingInput;
+    bool acceptingInput;
 
-	SceneObjectPlayer();
+    SceneObjectPlayer();
 
-	void setNoClip(bool noClip);
+    void setNoClip(bool noClip);
 
-	// Inherited from SceneObject
-	void onAdd();
-	void update(float dt);
-	void synchronousUpdate(float dt);
+    // Inherited from SceneObject
+    void onAdd();
+    void update(float dt);
+    void synchronousUpdate(float dt);
 
-	SceneObjectPlayer* copyFactory() {
-		return new SceneObjectPlayer(*this);
-	}
+    SceneObjectPlayer* copyFactory() {
+        return new SceneObjectPlayer(*this);
+    }
 };

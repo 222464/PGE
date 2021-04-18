@@ -4,6 +4,6 @@
 #include "VoxelChunk.h"
 
 namespace pge {
-	void terrainGenerator0(pge::VoxelChunk &chunk, int seed);
-	void terrainGeneratorFlatlands(pge::VoxelChunk &chunk, int seed);
+    void terrainGenerator0(pge::VoxelChunk &chunk, int seed);
+    void terrainGeneratorFlatlands(pge::VoxelChunk &chunk, int seed);
 }

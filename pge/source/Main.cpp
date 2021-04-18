@@ -14,181 +14,183 @@
 #define PGE_FIXED_TIMESTEP 0.017f
 
 int main(int argc, char *argv[]) {
-	int width = 1200;
-	int height = 720;
-	bool show = true;
+    int width = 1600;
+    int height = 900;
+    bool show = true;
 
-	std::shared_ptr<pge::SceneObject> entryPoint(new SceneObjectEntryPoint());
+    std::shared_ptr<pge::SceneObject> entryPoint(new SceneObjectEntryPoint());
 
-	sf::Window window;
-	sf::ContextSettings settings;
+    sf::Window window;
+    sf::ContextSettings settings;
 
-	settings.majorVersion = 4; // was 4
-	settings.minorVersion = 4; // was 4
+    settings.majorVersion = 4; // was 4
+    settings.minorVersion = 4; // was 4
         settings.attributeFlags = sf::ContextSettings::Core;
 
-	window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
+    window.create(sf::VideoMode(width, height), "pge", sf::Style::Default, settings);
 
-	window.setVerticalSyncEnabled(false);
-	window.setFramerateLimit(0);
+    window.setVerticalSyncEnabled(false);
+    window.setFramerateLimit(0);
 
-	// -------------------------------- OpenGL Setup --------------------------------
+    // -------------------------------- OpenGL Setup --------------------------------
     
-	pge::sfmloglSetup();
+    pge::sfmloglSetup();
    
-	glViewport(0, 0, window.getSize().x, window.getSize().y);
+    glViewport(0, 0, window.getSize().x, window.getSize().y);
 
-	pge::checkForGLError();
+    pge::checkForGLError();
 
-	// -------------------------------- Scene Setup --------------------------------
+    // -------------------------------- Scene Setup --------------------------------
 
-	std::unique_ptr<pge::RenderScene> scene(new pge::RenderScene());
+    std::unique_ptr<pge::RenderScene> scene(new pge::RenderScene());
 
-	scene->renderingEnabled = show;
+    scene->renderingEnabled = show;
 
-	//scene->randomGenerator.seed(time(nullptr));
+    //scene->randomGenerator.seed(time(nullptr));
 
-	{
-		std::shared_ptr<pge::Shader> gBufferRender(new pge::Shader());
-		std::shared_ptr<pge::Shader> gBufferRenderNormal(new pge::Shader());
-		std::shared_ptr<pge::Shader> gBufferRenderHeightNormal(new pge::Shader());
-		std::shared_ptr<pge::Texture2D> whiteTexture(new pge::Texture2D());
+    {
+        std::shared_ptr<pge::Shader> gBufferRender(new pge::Shader());
+        std::shared_ptr<pge::Shader> gBufferRenderNormal(new pge::Shader());
+        std::shared_ptr<pge::Shader> gBufferRenderHeightNormal(new pge::Shader());
+        std::shared_ptr<pge::Texture2D> whiteTexture(new pge::Texture2D());
 
-		gBufferRender->createAsset("NONE resources/shaders/gbufferrender/gBufferRender.vert resources/shaders/gbufferrender/gBufferRender.frag");
-		gBufferRenderNormal->createAsset("NONE resources/shaders/gbufferrender/gBufferRenderBump.vert resources/shaders/gbufferrender/gBufferRenderBump.frag");
-		gBufferRenderHeightNormal->createAsset("NONE resources/shaders/gbufferrender/gBufferRenderParallax.vert resources/shaders/gbufferrender/gBufferRenderParallax.frag");
-		whiteTexture->createAsset("resources/shaders/white.png");
+        gBufferRender->createAsset("NONE resources/shaders/gbufferrender/gBufferRender.vert resources/shaders/gbufferrender/gBufferRender.frag");
+        gBufferRenderNormal->createAsset("NONE resources/shaders/gbufferrender/gBufferRenderBump.vert resources/shaders/gbufferrender/gBufferRenderBump.frag");
+        gBufferRenderHeightNormal->createAsset("NONE resources/shaders/gbufferrender/gBufferRenderParallax.vert resources/shaders/gbufferrender/gBufferRenderParallax.frag");
+        whiteTexture->createAsset("resources/shaders/white.png");
 
-		scene->createRenderScene(8, pge::AABB3D(pge::Vec3f(-1.0f, -1.0f, -1.0f), pge::Vec3f(1.0f, 1.0f, 1.0f)), &window,
-			gBufferRender, gBufferRenderNormal, gBufferRenderHeightNormal, whiteTexture);
+        scene->createRenderScene(8, pge::AABB3D(pge::Vec3f(-1.0f, -1.0f, -1.0f), pge::Vec3f(1.0f, 1.0f, 1.0f)), &window,
+            gBufferRender, gBufferRenderNormal, gBufferRenderHeightNormal, whiteTexture);
 
-		scene->logicCamera.projectionMatrix = pge::Matrix4x4f::perspectiveMatrix(pge::piOver4, static_cast<float>(window.getSize().x) / static_cast<float>(window.getSize().y), 0.1f, 10000.0f);
-		scene->logicCamera.position = pge::Vec3f(1.5f, 1.5f, 1.5f);
-		scene->logicCamera.rotation = pge::Quaternion::getFromMatrix(pge::Matrix4x4f::cameraDirectionMatrix(-scene->logicCamera.position.normalized(), pge::Vec3f(0.0f, 1.0f, 0.0f)));
-	}
+        scene->logicCamera.projectionMatrix = pge::Matrix4x4f::perspectiveMatrix(pge::piOver4, static_cast<float>(window.getSize().x) / static_cast<float>(window.getSize().y), 0.1f, 10000.0f);
+        scene->logicCamera.position = pge::Vec3f(1.5f, 1.5f, 1.5f);
+        scene->logicCamera.rotation = pge::Quaternion::getFromMatrix(pge::Matrix4x4f::cameraDirectionMatrix(-scene->logicCamera.position.normalized(), pge::Vec3f(0.0f, 1.0f, 0.0f)));
+    }
 
-	// -------------------------------- Lighting --------------------------------
+    // -------------------------------- Lighting --------------------------------
 
-	{
-		std::shared_ptr<pge::Shader> ambientLightShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> pointLightShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> pointLightShadowedShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> spotLightShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> directionalLightShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> directionalLightShadowedShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> emissiveRenderShader(new pge::Shader());
-		std::shared_ptr<pge::Shader> depthRenderShader(new pge::Shader());
+    {
+        std::shared_ptr<pge::Shader> ambientLightShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> pointLightShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> pointLightShadowedShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> spotLightShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> directionalLightShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> directionalLightShadowedShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> emissiveRenderShader(new pge::Shader());
+        std::shared_ptr<pge::Shader> depthRenderShader(new pge::Shader());
 
-		std::shared_ptr<pge::StaticPositionModel> sphereModel(new pge::StaticPositionModel());
-		std::shared_ptr<pge::StaticPositionModel> coneModel(new pge::StaticPositionModel());
+        std::shared_ptr<pge::StaticPositionModel> sphereModel(new pge::StaticPositionModel());
+        std::shared_ptr<pge::StaticPositionModel> coneModel(new pge::StaticPositionModel());
 
-		ambientLightShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/noTransformFragment.frag");
-		pointLightShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/unshadowed/point.frag");
-		pointLightShadowedShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/shadowed/point.frag");
-		spotLightShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/unshadowed/spot.frag");
-		directionalLightShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/unshadowed/directional.frag");
-		directionalLightShadowedShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/shadowed/directionalShadowed.frag");
-		emissiveRenderShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/emissiveRender.frag");
-		depthRenderShader->createAsset("NONE resources/shaders/defaultVertex.vert resources/shaders/depthRender.frag");
+        ambientLightShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/noTransformFragment.frag");
+        pointLightShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/unshadowed/point.frag");
+        pointLightShadowedShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/shadowed/point.frag");
+        spotLightShader->createAsset("NONE resources/shaders/positionOnlyVertex.vert resources/shaders/light/unshadowed/spot.frag");
+        directionalLightShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/unshadowed/directional.frag");
+        directionalLightShadowedShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/shadowed/directionalShadowed.frag");
+        emissiveRenderShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/light/emissiveRender.frag");
+        depthRenderShader->createAsset("NONE resources/shaders/defaultVertex.vert resources/shaders/depthRender.frag");
 
-		pge::AABB3D aabb;
+        pge::AABB3D aabb;
 
-		sphereModel->loadFromOBJ("resources/shaders/models/icosphere_lowRes.obj", aabb, true, true);
-		coneModel->loadFromOBJ("resources/shaders/models/cone.obj", aabb, true, true);
+        sphereModel->loadFromOBJ("resources/shaders/models/icosphere_lowRes.obj", aabb, true, true);
+        coneModel->loadFromOBJ("resources/shaders/models/cone.obj", aabb, true, true);
 
-		std::shared_ptr<pge::Asset> assetNoise;
+        std::shared_ptr<pge::Asset> assetNoise;
 
-		scene->getAssetManager("tex2D", pge::Texture2D::assetFactory)->getAsset("resources/textures/noise.bmp", assetNoise);
+        scene->getAssetManager("tex2D", pge::Texture2D::assetFactory)->getAsset("resources/textures/noise.bmp", assetNoise);
 
-		std::shared_ptr<pge::Texture2D> noiseMap = std::static_pointer_cast<pge::Texture2D>(assetNoise);
+        std::shared_ptr<pge::Texture2D> noiseMap = std::static_pointer_cast<pge::Texture2D>(assetNoise);
 
-		std::shared_ptr<pge::SceneObjectLighting> lighting(new pge::SceneObjectLighting());
+        std::shared_ptr<pge::SceneObjectLighting> lighting(new pge::SceneObjectLighting());
 
-		scene->addNamed(lighting, "lighting");
+        scene->addNamed(lighting, "lighting");
 
-		lighting->create(ambientLightShader,
-			pointLightShader, pointLightShadowedShader,
-			spotLightShader,
-			directionalLightShader, directionalLightShadowedShader,
-			emissiveRenderShader, depthRenderShader,
-			sphereModel, coneModel,
-			noiseMap);
-	}
+        lighting->create(ambientLightShader,
+            pointLightShader, pointLightShadowedShader,
+            spotLightShader,
+            directionalLightShader, directionalLightShadowedShader,
+            emissiveRenderShader, depthRenderShader,
+            sphereModel, coneModel,
+            noiseMap);
 
-	// --------------------------------- Input -----------------------------------
+                lighting->ambientLight = pge::Vec3f(0.1f, 0.1f, 0.1f);
+    }
 
-	pge::SceneObjectRef bufferedInputRef;
+    // --------------------------------- Input -----------------------------------
 
-	{
-		std::shared_ptr<pge::SceneObjectBufferedInput> bufferedInput(new pge::SceneObjectBufferedInput());
+    pge::SceneObjectRef bufferedInputRef;
 
-		scene->addNamed(bufferedInput, "buffIn");
+    {
+        std::shared_ptr<pge::SceneObjectBufferedInput> bufferedInput(new pge::SceneObjectBufferedInput());
 
-		bufferedInputRef = *bufferedInput;
-	}
+        scene->addNamed(bufferedInput, "buffIn");
 
-	// -------------------------------- Batching ---------------------------------
+        bufferedInputRef = *bufferedInput;
+    }
 
-	{
-		std::shared_ptr<pge::SceneObjectStaticModelBatcher> staticModelBatcher(new pge::SceneObjectStaticModelBatcher());
+    // -------------------------------- Batching ---------------------------------
 
-		scene->addNamed(staticModelBatcher, "smb", false);
-	}
+    {
+        std::shared_ptr<pge::SceneObjectStaticModelBatcher> staticModelBatcher(new pge::SceneObjectStaticModelBatcher());
 
-	// -------------------------------- Game Loop --------------------------------
+        scene->addNamed(staticModelBatcher, "smb", false);
+    }
 
-	// Add entry point
-	{
-		scene->add(entryPoint);
-	}
+    // -------------------------------- Game Loop --------------------------------
 
-	bool quit = false;
+    // Add entry point
+    {
+        scene->add(entryPoint);
+    }
 
-	sf::Clock clock;
+    bool quit = false;
 
-	float dt = 0.0f;
+    sf::Clock clock;
 
-	while (!quit) {
-		{
-			sf::Event windowEvent;
+    float dt = 0.0f;
 
-			pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(bufferedInputRef.get());
+    while (!quit) {
+        {
+            sf::Event windowEvent;
 
-			while (window.pollEvent(windowEvent)) {
-				pBufferedInput->events.push_back(windowEvent);
+            pge::SceneObjectBufferedInput* pBufferedInput = static_cast<pge::SceneObjectBufferedInput*>(bufferedInputRef.get());
 
-				switch (windowEvent.type) {
-				case sf::Event::Closed:
-					quit = true;
+            while (window.pollEvent(windowEvent)) {
+                pBufferedInput->events.push_back(windowEvent);
 
-					break;
-				}
-			}
+                switch (windowEvent.type) {
+                case sf::Event::Closed:
+                    quit = true;
 
-			//if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-			//	quit = true;
+                    break;
+                }
+            }
 
-			if (scene->close)
-				quit = true;
-		}
+            //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+            //	quit = true;
+
+            if (scene->close)
+                quit = true;
+        }
 
 #ifdef PGE_FIXED_TIMESTEP
-		scene->frame(PGE_FIXED_TIMESTEP);
+        scene->frame(PGE_FIXED_TIMESTEP);
 #else
-		scene->frame(dt);
+        scene->frame(dt);
 #endif
 
-		glFlush();
+        glFlush();
 
-		window.display();
+        window.display();
 
-		dt = clock.getElapsedTime().asSeconds();
-		clock.restart();
-	}
+        dt = clock.getElapsedTime().asSeconds();
+        clock.restart();
+    }
 
-	scene.reset();
+    scene.reset();
 
-	window.close();
+    window.close();
 
-	return 0;
+    return 0;
 }

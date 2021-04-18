@@ -14,79 +14,79 @@
 #include <thread>
 
 namespace pge {
-	class OctreeNode : public Uncopyable {
-	private:
-		OctreeNode* pParent;
-		class Octree* pOctree;
+    class OctreeNode : public Uncopyable {
+    private:
+        OctreeNode* pParent;
+        class Octree* pOctree;
 
-		bool hasChildren;
+        bool hasChildren;
 
-		std::array<std::unique_ptr<OctreeNode>, 8> children;
+        std::array<std::unique_ptr<OctreeNode>, 8> children;
 
-		std::unordered_set<SceneObjectRef, SceneObjectRef> occupants;
+        std::unordered_set<SceneObjectRef, SceneObjectRef> occupants;
 
-		AABB3D region;
+        AABB3D region;
 
-		int level;
+        int level;
 
-		int numOccupantsBelow;
+        int numOccupantsBelow;
 
-		void getPossibleOccupantPosition(const SceneObjectRef &oc, Point3i &point);
+        void getPossibleOccupantPosition(const SceneObjectRef &oc, Point3i &point);
 
-		void addToThisLevel(const SceneObjectRef &oc);
+        void addToThisLevel(const SceneObjectRef &oc);
 
-		// Returns true if occupant was added to children
-		bool addToChildren(const SceneObjectRef &oc);
+        // Returns true if occupant was added to children
+        bool addToChildren(const SceneObjectRef &oc);
 
-		void destroyChildren() {
-			for (int i = 0; i < 8; i++)
-				children[i].reset();
+        void destroyChildren() {
+            for (int i = 0; i < 8; i++)
+                children[i].reset();
 
-			hasChildren = false;
-		}
+            hasChildren = false;
+        }
 
-		void getOccupants(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
+        void getOccupants(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
 
-		void partition();
+        void partition();
 
-		void merge();
+        void merge();
 
-		void update(const SceneObjectRef &oc);
-		void remove(const SceneObjectRef &oc);
+        void update(const SceneObjectRef &oc);
+        void remove(const SceneObjectRef &oc);
 
-		void removeForDeletion(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
+        void removeForDeletion(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
 
-	public:
-		OctreeNode()
-			: hasChildren(false), numOccupantsBelow(0)
-		{}
+    public:
+        OctreeNode()
+            : hasChildren(false), numOccupantsBelow(0)
+        {}
 
-		OctreeNode(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
+        OctreeNode(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
 
-		// For use after using default constructor
-		void create(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
+        // For use after using default constructor
+        void create(const AABB3D &region, int level, OctreeNode* pParent, class Octree* pOctree);
 
-		class Octree* getTree() const {
-			return pOctree;
-		}
+        class Octree* getTree() const {
+            return pOctree;
+        }
 
-		void add(const SceneObjectRef &oc);
+        void add(const SceneObjectRef &oc);
 
-		const AABB3D &getRegion() const {
-			return region;
-		}
+        const AABB3D &getRegion() const {
+            return region;
+        }
 
-		void getAllOccupantsBelow(std::vector<SceneObjectRef> &occupants);
-		void getAllOccupantsBelow(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
+        void getAllOccupantsBelow(std::vector<SceneObjectRef> &occupants);
+        void getAllOccupantsBelow(std::unordered_set<SceneObjectRef, SceneObjectRef> &occupants);
 
-		int getNumOccupantsBelow() const {
-			return numOccupantsBelow;
-		}
+        int getNumOccupantsBelow() const {
+            return numOccupantsBelow;
+        }
 
-		void pruneDeadReferences();
+        void pruneDeadReferences();
 
-		friend class SceneObject;
-		friend class Octree;
-		friend class DynamicOctree;
-	};
+        friend class SceneObject;
+        friend class Octree;
+        friend class DynamicOctree;
+    };
 }

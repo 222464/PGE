@@ -12,102 +12,102 @@
 #include <memory>
 
 namespace pge {
-	class SceneObject {
-	private:
-		class Scene* pScene;
+    class SceneObject {
+    private:
+        class Scene* pScene;
 
-		size_t indexPlusOne;
+        size_t indexPlusOne;
 
-		std::unordered_set<SceneObjectRef*> pReferences;
+        std::unordered_set<SceneObjectRef*> pReferences;
 
-		SceneObjectRef thisRef;
+        SceneObjectRef thisRef;
 
-		class OctreeNode* pOctreeNode;
-		class Octree* pOctree;
+        class OctreeNode* pOctreeNode;
+        class Octree* pOctree;
 
-		bool needsTreeUpdate;
+        bool needsTreeUpdate;
 
-		std::shared_ptr<std::recursive_mutex> mutex;
+        std::shared_ptr<std::recursive_mutex> mutex;
 
-		void treeUpdate();
+        void treeUpdate();
 
-	protected:
-		AABB3D aabb;
+    protected:
+        AABB3D aabb;
 
-		bool syncable;
+        bool syncable;
 
-		bool shouldDestroyFlag;
+        bool shouldDestroyFlag;
 
-	public:
-		unsigned short logicMask;
-		unsigned short renderMask;
+    public:
+        unsigned short logicMask;
+        unsigned short renderMask;
 
-		float layer;
+        float layer;
 
-		std::string tag;
+        std::string tag;
 
-		SceneObject();
-		virtual ~SceneObject() {
-			removeReferences();
-		}
+        SceneObject();
+        virtual ~SceneObject() {
+            removeReferences();
+        }
 
-		virtual void onQueue() {}
-		virtual void onAdd() {}
-		virtual void preSynchronousUpdate(float dt) {}
-		virtual void update(float dt) {}
-		virtual void updateWithThreadData(float dt, size_t threadIndex) {}
-		virtual void synchronousUpdate(float dt) {}
-		virtual void onDestroy() {}
+        virtual void onQueue() {}
+        virtual void onAdd() {}
+        virtual void preSynchronousUpdate(float dt) {}
+        virtual void update(float dt) {}
+        virtual void updateWithThreadData(float dt, size_t threadIndex) {}
+        virtual void synchronousUpdate(float dt) {}
+        virtual void onDestroy() {}
 
-		// Render functions
-		virtual void preRender() {}
-		virtual void deferredRender() {}
-		virtual void batchRender() {}
-		virtual void postRender() {}
+        // Render functions
+        virtual void preRender() {}
+        virtual void deferredRender() {}
+        virtual void batchRender() {}
+        virtual void postRender() {}
 
-		class Scene* getScene() const {
-			return pScene;
-		}
+        class Scene* getScene() const {
+            return pScene;
+        }
 
-		class RenderScene* getRenderScene() const;
+        class RenderScene* getRenderScene() const;
 
-		size_t getIndexPlusOne() const {
-			return indexPlusOne;
-		}
+        size_t getIndexPlusOne() const {
+            return indexPlusOne;
+        }
 
-		void destroy() {
-			shouldDestroyFlag = true;
-		}
+        void destroy() {
+            shouldDestroyFlag = true;
+        }
 
-		bool shouldDestroy() const {
-			return shouldDestroyFlag;
-		}
+        bool shouldDestroy() const {
+            return shouldDestroyFlag;
+        }
 
-		const AABB3D &getAABB() const {
-			return aabb;
-		}
+        const AABB3D &getAABB() const {
+            return aabb;
+        }
 
-		Octree* getTree() const {
-			return pOctree;
-		}
+        Octree* getTree() const {
+            return pOctree;
+        }
 
-		const SceneObjectRef &getThis() const {
-			return thisRef;
-		}
+        const SceneObjectRef &getThis() const {
+            return thisRef;
+        }
 
-		virtual SceneObject* copyFactory() = 0;
+        virtual SceneObject* copyFactory() = 0;
 
-		void removeReferences();
+        void removeReferences();
 
-		void updateAABB() {
-			needsTreeUpdate = true;
-		}
+        void updateAABB() {
+            needsTreeUpdate = true;
+        }
 
-		friend class State;
-		friend class Scene;
-		friend class RenderScene;
-		friend SceneObjectRef;
-		friend class OctreeNode;
-		friend class Octree;
-	};
+        friend class State;
+        friend class Scene;
+        friend class RenderScene;
+        friend SceneObjectRef;
+        friend class OctreeNode;
+        friend class Octree;
+    };
 }

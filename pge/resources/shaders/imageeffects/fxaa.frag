@@ -1401,10 +1401,10 @@ uniform vec4 pgeRcpFrameOpt;
 out vec4 pgeOutputColor;
 
 void main() { 
-	vec2 coord = gl_FragCoord.xy * pgeRcpFrame;
+    vec2 coord = gl_FragCoord.xy * pgeRcpFrame;
 
-	vec2 pos = coord;
-	vec4 posPos = vec4(pos.xy + pgeRcpFrame * 0.5, pos.xy - pgeRcpFrame * 0.5);
+    vec2 pos = coord;
+    vec4 posPos = vec4(pos.xy + pgeRcpFrame * 0.5, pos.xy - pgeRcpFrame * 0.5);
 
-	pgeOutputColor = FxaaPixelShader(pos, posPos, pgeTex, pgeRcpFrame, pgeRcpFrameOpt);
+    pgeOutputColor = FxaaPixelShader(pos, posPos, pgeTex, pgeRcpFrame, pgeRcpFrameOpt);
 }

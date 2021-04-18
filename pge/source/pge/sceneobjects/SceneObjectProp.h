@@ -10,30 +10,30 @@
 
 class SceneObjectProp : public pge::SceneObject {
 private:
-	pge::StaticModelOBJ* pModelOBJ;
+    pge::StaticModelOBJ* pModelOBJ;
 
-	pge::SceneObjectRef batcherRef;
+    pge::SceneObjectRef batcherRef;
 
 public:
-	pge::Matrix4x4f transform;
+    pge::Matrix4x4f transform;
 
-	SceneObjectProp() {
-		renderMask = 0xffff;
-	}
+    SceneObjectProp() {
+        renderMask = 0xffff;
+    }
 
-	bool create(const std::string &fileName);
+    bool create(const std::string &fileName);
 
-	void calculateAABB();
+    void calculateAABB();
 
-	// Inherited from SceneObject
-	void onAdd();
-	void deferredRender();
+    // Inherited from SceneObject
+    void onAdd();
+    void deferredRender();
 
-	pge::StaticModelOBJ* getModel() {
-		return pModelOBJ;
-	}
+    pge::StaticModelOBJ* getModel() {
+        return pModelOBJ;
+    }
 
-	SceneObject* copyFactory() {
-		return new SceneObjectProp(*this);
-	}
+    SceneObject* copyFactory() {
+        return new SceneObjectProp(*this);
+    }
 };
