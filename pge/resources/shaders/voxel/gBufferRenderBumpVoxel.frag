@@ -10,7 +10,7 @@ smooth in vec3 worldNormal;
 
 uniform float pgeSpecular = 0.0;
 uniform float pgeShininess = 1.0;
-uniform float pgeTextureStretchScalar = 0.3;
+uniform float pgeTextureStretchScalar = 1.0;
 
 uniform float pgeSideSeparationExponent = 7.0;
 

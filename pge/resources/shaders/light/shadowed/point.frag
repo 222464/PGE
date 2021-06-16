@@ -8,7 +8,7 @@ uniform sampler2D pgeNoiseMap;
 
 uniform samplerCubeShadow pgeShadowMap;
 
-layout(std140) uniform pgePointLightShadowed {
+layout(shared) uniform pgePointLightShadowed {
     vec3 pgePointLightPosition;
     vec3 pgePointLightColor;
     float pgePointLightRange;

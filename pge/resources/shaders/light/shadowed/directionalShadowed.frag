@@ -10,7 +10,7 @@ uniform sampler2D pgeNoiseMap;
 
 uniform sampler2DShadow pgeCascadeShadowMaps[maxNumCascades];
 
-layout(std140) uniform pgeDirectionalLightShadowed {
+layout(shared) uniform pgeDirectionalLightShadowed {
     vec3 pgeDirectionalLightColor;
     vec3 pgeDirectionalLightDirection;
     int pgeNumCascades;

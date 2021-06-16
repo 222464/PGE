@@ -61,7 +61,7 @@ namespace pge {
         const Vec4f &operator/=(const Vec4f &other);
 
         float magnitude() const {
-            return sqrtf(x * x + y * y + z * z + w * w);
+            return std::sqrt(x * x + y * y + z * z + w * w);
         }
 
         float magnitudeSquared() const {

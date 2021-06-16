@@ -142,7 +142,7 @@ void RenderScene::renderToMainFramebuffer() {
     for (size_t i = 0; i < visible.size(); i++)
         visible[i]->preRender();
 
-    gBuffer.bindDraw();
+    gBuffer.bind();
     gBuffer.setViewport();
     gBuffer.setDrawGeom();
 
@@ -160,7 +160,7 @@ void RenderScene::renderToMainFramebuffer() {
 
     glFlush();
 
-    gBuffer.bindRead();
+    gBuffer.bind();
     gBuffer.setDrawEffect();
     gBuffer.setReadEffect();
 

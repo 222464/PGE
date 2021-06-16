@@ -34,7 +34,7 @@ void SceneObjectEntryPoint::onAdd() {
 
     pge::SceneObjectLighting* pLighting = static_cast<pge::SceneObjectLighting*>(lighting.get());
 
-    pLighting->ambientLight = pge::Vec3f(0.05f, 0.05f, 0.05f);
+    pLighting->ambientLight = pge::Vec3f(0.01f, 0.01f, 0.01f);
 
     /*std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> light(new pge::SceneObjectDirectionalLightShadowed());
 
@@ -60,46 +60,58 @@ void SceneObjectEntryPoint::onAdd() {
 
     getRenderScene()->addNamed(camera, "flycam", false);
 
-        // Terrain
-        //std::shared_ptr<pge::VoxelTerrain> terrain(new pge::VoxelTerrain());
+    // Terrain
+    std::shared_ptr<pge::VoxelTerrain> terrain(new pge::VoxelTerrain());
 
-        //getScene()->add(terrain, false);
+    getScene()->add(terrain, false);
 
-    //std::shared_ptr<pge::Asset> assetTerrainGBufferRenderShader;
+    std::shared_ptr<pge::Asset> assetTerrainGBufferRenderShader;
 
-    //getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderBumpVoxel.vert resources/shaders/voxel/gBufferRenderBumpVoxel.frag", assetTerrainGBufferRenderShader);
+    getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderBumpVoxel.vert resources/shaders/voxel/gBufferRenderBumpVoxel.frag", assetTerrainGBufferRenderShader);
 
-    //std::shared_ptr<pge::Shader> terrainGBufferRenderShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderShader);
+    std::shared_ptr<pge::Shader> terrainGBufferRenderShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderShader);
 
-    //std::shared_ptr<pge::Asset> assetTerrainGBufferRenderDepthShader;
+    std::shared_ptr<pge::Asset> assetTerrainGBufferRenderDepthShader;
 
-    //getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderVoxelDepth.vert resources/shaders/voxel/gBufferRenderVoxelDepth.frag", assetTerrainGBufferRenderDepthShader);
+    getScene()->getAssetManager("shader", pge::Shader::assetFactory)->getAsset("NONE resources/shaders/voxel/gBufferRenderVoxelDepth.vert resources/shaders/voxel/gBufferRenderVoxelDepth.frag", assetTerrainGBufferRenderDepthShader);
 
-    //std::shared_ptr<pge::Shader> terrainGBufferRenderDepthShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderDepthShader);
+    std::shared_ptr<pge::Shader> terrainGBufferRenderDepthShader = std::static_pointer_cast<pge::Shader>(assetTerrainGBufferRenderDepthShader);
 
-        //std::shared_ptr<pge::Texture2DArray> diffuseArray(new pge::Texture2DArray());
+    std::shared_ptr<pge::Texture2DArray> diffuseArray(new pge::Texture2DArray());
 
-        //diffuseArray->createAsset(
-        //    "resources/textures/dirt.png "
-        //    "resources/textures/dirt.png "
-        //    "resources/textures/dirt.png "
-        //);
+    diffuseArray->createAsset(
+        "resources/textures/sand.png "
+        "resources/textures/sand.png "
+        "resources/textures/sand.png "
+    );
 
-        //diffuseArray->genMipMaps();
+    diffuseArray->bind();
+    diffuseArray->genMipMaps();
 
-        //std::shared_ptr<pge::Texture2DArray> normalArray(new pge::Texture2DArray());
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        //normalArray->createAsset(
-        //    "resources/textures/dirt_normal.png "
-        //    "resources/textures/dirt_normal.png "
-        //    "resources/textures/dirt_normal.png "
-        //);
+    std::shared_ptr<pge::Texture2DArray> normalArray(new pge::Texture2DArray());
 
-        //normalArray->genMipMaps();
+    normalArray->createAsset(
+        "resources/textures/sand_normal.png "
+        "resources/textures/sand_normal.png "
+        "resources/textures/sand_normal.png "
+    );
 
-        //terrain->create(pge::Point3i(2, 1, 2), terrainGBufferRenderShader, terrainGBufferRenderDepthShader, diffuseArray, normalArray);
+    normalArray->bind();
+    normalArray->genMipMaps();
 
-        //terrain->generate(&pge::terrainGeneratorFlatlands, 1234);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    terrain->create(pge::Point3i(2, 2, 2), terrainGBufferRenderShader, terrainGBufferRenderDepthShader, diffuseArray, normalArray);
+
+    terrain->generate(&pge::terrainGenerator0, 1234);
 
     // Map
 
@@ -119,24 +131,24 @@ void SceneObjectEntryPoint::onAdd() {
 
     //prop->calculateAABB();
 
-    std::shared_ptr<SceneObjectProp> prop2(new SceneObjectProp());
+    //std::shared_ptr<SceneObjectProp> prop2(new SceneObjectProp());
 
-    getScene()->add(prop2, false);
+    //getScene()->add(prop2, false);
 
-    prop2->create("resources/models/vokselia_spawn.obj");
-    //prop2->create("resources/models/test.obj");
+    //prop2->create("resources/models/vokselia_spawn.obj");
+    ////prop2->create("resources/models/test.obj");
 
-    prop2->calculateAABB();
+    //prop2->calculateAABB();
 
-    std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
+    //std::shared_ptr<SceneObjectProp> sky(new SceneObjectProp());
 
-    getScene()->add(sky, true);
+    //getScene()->add(sky, true);
 
-    sky->create("resources/models/skybox1.obj");
+    //sky->create("resources/models/skybox1.obj");
 
-    sky->transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
+    //sky->transform = pge::Matrix4x4f::scaleMatrix(pge::Vec3f(100.0f, 100.0f, 100.0f));
 
-    sky->calculateAABB();
+    //sky->calculateAABB();
 
     std::shared_ptr<pge::SceneObjectDirectionalLightShadowed> directionalLight(new pge::SceneObjectDirectionalLightShadowed());
 
@@ -146,17 +158,7 @@ void SceneObjectEntryPoint::onAdd() {
 
     directionalLight->setDirection(pge::Vec3f(-0.4523f, -0.9423f, -0.424f).normalized());
 
-    directionalLight->setColor(pge::Vec3f(1.2f, 1.2f, 1.2f));
-
-    //std::shared_ptr<pge::SceneObjectPointLightShadowed> pointLight(new pge::SceneObjectPointLightShadowed());
-
-    //getScene()->add(pointLight);
-
-        //pointLight->setPosition(pge::Vec3f(0.0f, 10.0f, 0.0f));
-        //pointLight->create(pLighting, 512);
-
-    //pointLight->setRange(100.0f);
-
+    directionalLight->setColor(pge::Vec3f(0.05f, 0.05f, 0.05f));
 
     // ------------------------------------------- Image Effects -------------------------------------------
 
@@ -234,28 +236,28 @@ void SceneObjectEntryPoint::onAdd() {
 
     // SSR
 
-    std::shared_ptr<pge::TextureCube> cubeMap(new pge::TextureCube());
+    //std::shared_ptr<pge::TextureCube> cubeMap(new pge::TextureCube());
 
-    cubeMap->createAsset(
-        "resources/environmentmaps/skybox1/CloudyLightRaysLeft2048.png "
-        "resources/environmentmaps/skybox1/CloudyLightRaysRight2048.png "
-        "resources/environmentmaps/skybox1/CloudyLightRaysBack2048.png "
-        "resources/environmentmaps/skybox1/CloudyLightRaysFront2048.png "
-        "resources/environmentmaps/skybox1/CloudyLightRaysDown2048.png "
-        "resources/environmentmaps/skybox1/CloudyLightRaysUp2048.png "
-        );
+    //cubeMap->createAsset(
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysLeft2048.png "
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysRight2048.png "
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysBack2048.png "
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysFront2048.png "
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysDown2048.png "
+    //    "resources/environmentmaps/skybox1/CloudyLightRaysUp2048.png "
+    //    );
 
-    std::shared_ptr<pge::Shader> ssrShader(new pge::Shader());
+    //std::shared_ptr<pge::Shader> ssrShader(new pge::Shader());
 
-    ssrShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/imageeffects/ssr.frag");
+    //ssrShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/imageeffects/ssr.frag");
 
-    std::shared_ptr<pge::SceneObjectSSR> ssr(new pge::SceneObjectSSR());
+    //std::shared_ptr<pge::SceneObjectSSR> ssr(new pge::SceneObjectSSR());
 
-    getRenderScene()->add(ssr, false);
+    //getRenderScene()->add(ssr, false);
 
-    ssr->create(blurShaderHorizontalEdgeAware, blurShaderVerticalEdgeAware, ssrShader, renderImageShader, cubeMap, noiseMap);
+    //ssr->create(blurShaderHorizontalEdgeAware, blurShaderVerticalEdgeAware, ssrShader, renderImageShader, cubeMap, noiseMap);
 
-    ssr->layer = 1.0f;
+    //ssr->layer = 1.0f;
 
     // Light Scattering
 
@@ -276,7 +278,7 @@ void SceneObjectEntryPoint::onAdd() {
 
     // Depth of field
 
-    /*std::shared_ptr<pge::Shader> depthOfFieldBlurShaderHorizontal(new pge::Shader());
+    std::shared_ptr<pge::Shader> depthOfFieldBlurShaderHorizontal(new pge::Shader());
 
     depthOfFieldBlurShaderHorizontal->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/imageeffects/depthOfFieldBlurHorizontal.frag");
 
@@ -292,10 +294,22 @@ void SceneObjectEntryPoint::onAdd() {
 
     depthOfField->layer = 1.5f;
 
-    depthOfField->focalDistance = 9.0f;
-    depthOfField->focalRange = 0.4f;
-    depthOfField->blurRadius = 0.002f;
-    depthOfField->numBlurPasses = 1;*/
+    depthOfField->focalDistance = 1.0f;
+    depthOfField->focalRange = 4.0f;
+    depthOfField->blurRadius = 0.0025f;
+    depthOfField->numBlurPasses = 1;
+
+    std::shared_ptr<pge::Shader> fogShader(new pge::Shader());
+
+    fogShader->createAsset("NONE resources/shaders/noTransformVertex.vert resources/shaders/imageeffects/fog.frag");
+
+    std::shared_ptr<pge::SceneObjectFog> fog(new pge::SceneObjectFog());
+
+    getRenderScene()->add(fog, false);
+
+    fog->create(fogShader);
+
+    fog->fogColor = pge::Vec3f(0.02f, 0.0f, 0.0f);
 
     // FXAA
 

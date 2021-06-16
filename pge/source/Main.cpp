@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
             sphereModel, coneModel,
             noiseMap);
 
-                lighting->ambientLight = pge::Vec3f(0.1f, 0.1f, 0.1f);
+        lighting->ambientLight = pge::Vec3f(0.1f, 0.1f, 0.1f);
     }
 
     // --------------------------------- Input -----------------------------------

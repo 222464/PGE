@@ -13,5 +13,5 @@ void main() {
     vec2 coord = gl_FragCoord.xy * pgeSizeInv;
 
     // Get color
-    pgeOutputColor = vec4(pgeFogColor * max(0.0, -texture(pgeGBufferPosition, coord).z - pgeFogStartDistance), 1.0);
+    pgeOutputColor = vec4(vec3(1.0 - min(1.0, max(0.0, -pgeFogColor.r * texture(pgeGBufferPosition, coord).z - pgeFogStartDistance))), 1.0);
 }

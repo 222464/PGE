@@ -17,7 +17,7 @@ void SceneObjectFog::postRender() {
     glDisable(GL_DEPTH_TEST);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
+    glBlendFunc(GL_DST_COLOR, GL_ZERO);
 
     // Render luma to full ping
     fogShader->bind();
